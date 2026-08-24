@@ -87,13 +87,13 @@ const Navbar: React.FC = () => {
           scrolled ? "translate-y-0" : ""
         }`}
       >
-        <nav
-          className={`relative flex items-center justify-between border px-4 py-3.5 transition-all duration-500 sm:px-6 sm:py-4 lg:px-8 lg:py-5 ${
-            scrolled
-              ? "border-black/5 bg-white shadow-sm"
-              : "border-[#EDEAE6] bg-white shadow-sm"
-          }`}
-        >
+<nav
+  className={`relative flex h-[4.4rem] items-center justify-between border px-4 transition-all duration-500 sm:h-[4.7rem] sm:px-6 lg:h-[5rem] lg:px-8 ${
+    scrolled
+      ? "border-black/5 bg-white shadow-sm"
+      : "border-[#EDEAE6] bg-white shadow-sm"
+  }`}
+>
           {/* Logo */}
           <Link
             href="/"

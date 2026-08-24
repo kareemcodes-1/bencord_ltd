@@ -100,7 +100,7 @@ export default function Testimonials() {
               {/* Author */}
               <div className="flex items-center gap-4">
                 {/* Name initial avatar */}
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#ee0a0a]/10 text-lg font-semibold text-[#ee0a0a] ring-4 ring-white">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#ee0a0a]/10 text-lg font-medium text-[#ee0a0a] ring-4 ring-white">
                   {testimonial.name.charAt(0)}
                 </div>
 

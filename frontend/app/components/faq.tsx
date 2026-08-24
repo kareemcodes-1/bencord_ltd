@@ -111,7 +111,7 @@ export default function FAQSection() {
                   text-left
                   text-base
                   sm:text-lg
-                  font-semibold
+                  font-medium
                   gap-4
                   hover:no-underline
                 "

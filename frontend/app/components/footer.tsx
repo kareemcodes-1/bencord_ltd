@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-
 import {
   FaWhatsapp,
   FaFacebookF,
@@ -85,27 +84,21 @@ const Footer = () => {
   const pathname = usePathname();
 
   useEffect(() => {
+    // Skip animation on mobile/tablet to avoid layout issues
+    const isDesktop = window.matchMedia("(min-width: 1024px)").matches;
+    if (!isDesktop) return;
+
     const ctx = gsap.context(() => {
-      // Reset footer position first
-      gsap.set(".footer", {
-        yPercent: -50,
-        clearProps: "transform", // helps avoid leftover transforms
-      });
+      gsap.set(".footer", { yPercent: -50 });
 
-      gsap.set(".footer", {
-        yPercent: -50,
-      });
-
-      const uncover = gsap.timeline({
-        paused: true,
-      });
-
+      const uncover = gsap.timeline({ paused: true });
       uncover.to(".footer", {
         yPercent: 0,
         ease: "none",
       });
 
       ScrollTrigger.create({
+        id: "footer-uncover",
         trigger: ".scroll-trigger",
         start: "bottom bottom",
         end: "+=50%",
@@ -114,21 +107,21 @@ const Footer = () => {
         invalidateOnRefresh: true,
       });
 
-      // Important after client-side navigation
       ScrollTrigger.refresh();
     });
 
     return () => {
       ctx.revert();
+      ScrollTrigger.getById("footer-uncover")?.kill();
     };
   }, [pathname]);
 
   return (
     <>
-      <div className="section scroll-trigger" />
+      {/* Only needed for desktop reveal */}
+      <div className="section scroll-trigger hidden lg:block" />
 
       <div className="relative overflow-hidden bg-black">
-
         <footer
           className="
             footer
@@ -143,7 +136,6 @@ const Footer = () => {
           "
         >
           {/* Grid */}
-
           <div
             className="
               grid
@@ -161,15 +153,14 @@ const Footer = () => {
             {footerSections.map((section: any) => (
               <div
                 key={section.title}
-                className="flex flex-col gap-4 sm:gap-5 min-w-0"
+                className="flex min-w-0 flex-col gap-4 sm:gap-5"
               >
-                <h4 className="text-[1.1rem] sm:text-[1.2rem] font-semibold text-[#e10707f0]">
+                <h4 className="text-[1.1rem] font-medium text-[#e10707f0] sm:text-[1.2rem]">
                   {section.title}
                 </h4>
 
-                {/* Normal Links / Info */}
                 {section.items && (
-                  <div className="flex flex-col gap-4 sm:gap-5 text-white/60 min-w-0">
+                  <div className="flex min-w-0 flex-col gap-4 text-white/60 sm:gap-5">
                     {section.items.map((item: any) => (
                       <div key={item.label} className="min-w-0 break-words">
                         {item.value ? (
@@ -177,16 +168,15 @@ const Footer = () => {
                             <p className="text-sm font-medium text-white">
                               {item.label}
                             </p>
-
                             {item.href ? (
                               <Link
                                 href={item.href}
-                                className="transition hover:text-red-500 whitespace-pre-line break-words"
+                                className="break-words whitespace-pre-line transition hover:text-red-500"
                               >
                                 {item.value}
                               </Link>
                             ) : (
-                              <p className="whitespace-pre-line break-words">
+                              <p className="break-words whitespace-pre-line">
                                 {item.value}
                               </p>
                             )}
@@ -204,30 +194,19 @@ const Footer = () => {
                   </div>
                 )}
 
-                {/* Social Icons */}
                 {section.socials && (
                   <div className="flex flex-wrap items-center gap-3">
                     {section.socials.map((social: any) => {
                       const Icon = social.icon;
-
                       return (
                         <Link
                           key={social.href}
                           href={social.href}
                           target="_blank"
                           className="
-                            flex
-                            h-10
-                            w-10
-                            shrink-0
-                            items-center
-                            justify-center
-                            rounded-full
-                            bg-white/10
-                            transition-all
-                            duration-300
-                            hover:bg-red-600
-                            hover:text-white
+                            flex h-10 w-10 shrink-0 items-center justify-center
+                            rounded-full bg-white/10 transition-all duration-300
+                            hover:bg-red-600 hover:text-white
                           "
                         >
                           <Icon size={17} />
@@ -240,56 +219,28 @@ const Footer = () => {
             ))}
           </div>
 
-          {/* Huge Text */}
-
+          {/* Huge text - desktop only */}
           <h2
             className="
-    hidden
-    lg:block
-    pointer-events-none
-    select-none
-    whitespace-nowrap
-    overflow-hidden
-    font-black
-    uppercase
-    !tracking-[-0.11em]
-    text-[#1d1d1d]
-    opacity-80
-    text-[17rem]
-    px-[2rem]
-    mt-0
-  "
+              pointer-events-none mt-0 hidden select-none overflow-hidden
+              px-[2rem] text-[17rem] font-black uppercase !tracking-[-0.11em]
+              text-[#1d1d1d] opacity-80 lg:block
+            "
           >
             BENCORD
           </h2>
 
           {/* Bottom */}
-
           <div
             className="
-              px-6
-              sm:px-8
-              lg:px-12
-              flex
-              flex-col
-              items-center
-              justify-between
-              gap-5
-              sm:gap-6
-              pt-8
-              text-center
-              text-sm
-              text-white/50
-              lg:flex-row
-              min-w-0
+              flex min-w-0 flex-col items-center justify-between gap-5
+              px-6 pt-8 text-center text-sm text-white/50
+              sm:gap-6 sm:px-8 lg:flex-row lg:px-12
             "
           >
-            <p>
-              © {new Date().getFullYear()} Bencord Ltd. All rights reserved.
-            </p>
+            <p>© {new Date().getFullYear()} Bencord Ltd. All rights reserved.</p>
 
             <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
-
               <Link
                 href="/shipping-policy"
                 className="transition hover:text-red-500"
@@ -305,3 +256,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

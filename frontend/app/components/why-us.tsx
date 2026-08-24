@@ -133,7 +133,7 @@ const WhyChooseUs = () => {
                   />
                 </div>
 
-                <h3 className="mb-3 text-[1.2rem] sm:text-[1.35rem] font-semibold">
+                <h3 className="mb-3 text-[1.2rem] sm:text-[1.35rem] font-medium">
                   {reason.title}
                 </h3>
 
