@@ -48,13 +48,13 @@ export const metadata: Metadata = {
     description:
       "Shop genuine printers, toner cartridges, ink cartridges, laptops, accessories, and office supplies with fast nationwide delivery across Ghana.",
 
-    url: "https://yourdomain.com",
+    url: "https://bencordltd.com",
 
     siteName: "Bencord Ltd",
 
     images: [
       {
-        url: "/og-image.jpg",
+        url: "https://ik.imagekit.io/jl7pziosr/logo.jpeg?updatedAt=1787569894340",
         width: 1200,
         height: 630,
         alt: "Bencord Ltd Office Supplies",
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
     description:
       "Shop genuine office supplies with fast delivery across Ghana.",
 
-    images: ["/og-image.jpg"],
+    images: ["https://ik.imagekit.io/jl7pziosr/logo.jpeg?updatedAt=1787569894340"],
   },
 
   robots: {

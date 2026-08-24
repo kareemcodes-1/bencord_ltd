@@ -42,7 +42,6 @@ export async function GET(
             discountType: discount.discountType,
             discountValue: discount.discountValue,
             title: discount.title,
-            maxDiscount: discount.maxDiscount,
           }
         : null,
     };
