@@ -27,7 +27,7 @@ export default function WelcomeEmail({ name }: Props) {
       <Section className="mt-8">
         <Button
           href={`${APP_URL}/shop`}
-          className="rounded-xl bg-[#FD3F92] px-6 py-3 text-sm font-medium text-white no-underline"
+          className="rounded-xl bg-[#ee0a0a] px-6 py-3 text-sm font-medium text-white no-underline"
         >
           Start Shopping
         </Button>

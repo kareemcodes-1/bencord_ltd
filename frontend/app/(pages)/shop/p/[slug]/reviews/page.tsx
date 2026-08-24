@@ -149,7 +149,7 @@ export default async function ProductReviewsPage({
               >
                 <div className="flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#FD3F92]/10 text-[0.75rem] font-medium text-[#FD3F92]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#ee0a0a]/10 text-[0.75rem] font-medium text-[#ee0a0a]">
                       {review.name.charAt(0).toUpperCase()}
                     </div>
                     <div>

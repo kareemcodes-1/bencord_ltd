@@ -21,13 +21,10 @@ import {
   LayoutDashboardIcon,
   PackageIcon,
   LayersIcon,
-  ImageIcon,
   ShoppingCartIcon,
   UsersIcon,
   StarIcon,
   Percent,
-  MailIcon,
-  BookOpenIcon,
 } from "lucide-react";
 
 const navMain = [
@@ -42,14 +39,9 @@ const navMain = [
     icon: <PackageIcon />,
   },
   {
-    title: "Collections",
-    url: "/admin/collections",
+    title: "Categories",
+    url: "/admin/categories",
     icon: <LayersIcon />,
-  },
-  {
-    title: "Hero Banner",
-    url: "/admin/hero-banner",
-    icon: <ImageIcon />,
   },
   {
     title: "Orders",
@@ -72,12 +64,6 @@ const navMain = [
     icon: <StarIcon />,
   },
 
-  {
-  title: "Subscribers",
-  url: "/admin/subscribers",
-  icon: <MailIcon />,
-},
-
 ];
 
 export function AppSidebar({
@@ -87,8 +73,8 @@ export function AppSidebar({
 
   const user = {
     name: session?.user?.name || "Admin",
-    email: session?.user?.email || "admin@loisbanksbeauty.com",
-    avatar: "/favicon.jpeg", // or session?.user?.image if you store one later
+    email: session?.user?.email || "admin@gmail.com",
+    avatar: "https://ik.imagekit.io/jl7pziosr/logo.jpeg",
   };
 
   return (
@@ -103,12 +89,12 @@ export function AppSidebar({
             >
               <Link href="/admin/dashboard">
                 <img
-                  src="/favicon.jpeg"
-                  alt="LoisBanks Beauty"
+                  src="https://ik.imagekit.io/jl7pziosr/logo.jpeg"
+                  alt="Bencord Ltd"
                   className="size-6 rounded-full object-cover"
                 />
                 <span className="text-base font-semibold">
-                  LoisBanks Beauty
+                  Bencord Ltd
                 </span>
               </Link>
             </SidebarMenuButton>

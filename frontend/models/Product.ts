@@ -7,7 +7,6 @@ const productMediaSchema = new Schema(
       required: true,
       trim: true,
     },
-
     type: {
       type: String,
       enum: ["image", "video"],
@@ -19,11 +18,10 @@ const productMediaSchema = new Schema(
   }
 );
 
-
 export interface IProductDocument extends Document {
   name: string;
   slug: string;
-  collectionId: mongoose.Types.ObjectId;
+  categoryId: mongoose.Types.ObjectId;
   description: string;
   price: number;
 
@@ -40,7 +38,6 @@ export interface IProductDocument extends Document {
   lowStockThreshold: number;
   isActive: boolean;
 
-  sizes: string[];
   averageRating: number;
   reviewCount: number;
 
@@ -64,9 +61,9 @@ const productSchema = new Schema<IProductDocument>(
       trim: true,
     },
 
-    collectionId: {
+    categoryId: {
       type: Schema.Types.ObjectId,
-      ref: "Collection",
+      ref: "Category",
       required: true,
     },
 
@@ -114,12 +111,6 @@ const productSchema = new Schema<IProductDocument>(
       default: true,
     },
 
-    sizes: {
-      type: [String],
-      default: [],
-    },
-
-
     averageRating: {
       type: Number,
       default: 0,
@@ -140,22 +131,18 @@ const productSchema = new Schema<IProductDocument>(
 
 productSchema.virtual("inStock").get(function () {
   if (!this.trackInventory) return this.isActive;
-
   return this.isActive && this.stock > 0;
 });
 
 productSchema.virtual("isLowStock").get(function () {
   if (!this.trackInventory) return false;
-
   return this.stock > 0 && this.stock <= this.lowStockThreshold;
 });
 
 productSchema.virtual("isOutOfStock").get(function () {
   if (!this.trackInventory) return false;
-
   return this.stock <= 0;
 });
-
 
 const Product: Model<IProductDocument> =
   mongoose.models.Product ||

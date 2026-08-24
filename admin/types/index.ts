@@ -1,25 +1,10 @@
-export type HeroBannerMediaType = "image" | "video";
 
-export interface HeroBanner {
-  _id: string;
-  title: string;
-  description: string;
-  media: string;
-  mediaType: HeroBannerMediaType;
-  buttonText: string;
-  buttonLink: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface Collection {
+export interface Category {
   _id: string;
   name: string;
   slug: string;
-  description: string;
   image: string;
   featured: boolean;
-  order: number;
   createdAt: string;
   updatedAt: string;
 }
@@ -70,7 +55,7 @@ export interface Product {
   _id: string;
   name: string;
   slug: string;
-  collectionId: Collection;
+  categoryId: Category;
   description: string;
   price: number;
 
@@ -82,8 +67,6 @@ export interface Product {
   stock: number;
   lowStockThreshold: number;
   isActive: boolean;
-
-  sizes: string[];
 
   averageRating: number;
   reviewCount: number;
@@ -142,7 +125,7 @@ export interface ShippingAddress {
   phone?: string;
 }
 
-export type PaymentGateway = "paystack";
+export type PaymentGateway = "flutterwave";
 
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 
@@ -206,12 +189,4 @@ export interface Review {
   updatedAt: string | Date;
 }
 
-export interface Subscriber {
-  _id: string;
-  email: string;
-  isActive: boolean;
-  source?: string;
-  createdAt: string | Date;
-  updatedAt: string | Date;
-}
 

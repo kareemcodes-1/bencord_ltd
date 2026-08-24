@@ -61,17 +61,15 @@ export function DiscountDialog({
     React.useState<"percentage" | "fixed">("percentage");
   const [discountValue, setDiscountValue] = React.useState("");
   const [productIds, setProductIds] = React.useState<string[]>([]);
-  const [minimumAmount, setMinimumAmount] = React.useState("0");
-  const [maxDiscount, setMaxDiscount] = React.useState("0");
   const [startsAt, setStartsAt] = React.useState("");
   const [expiresAt, setExpiresAt] = React.useState("");
   const [isActive, setIsActive] = React.useState(true);
   const [formError, setFormError] = React.useState<string | null>(null);
 
-  // Load products for the multi-select
   const { data: productsData, isLoading: isLoadingProducts } = useQuery({
     queryKey: ["products-for-discount"],
-    queryFn: () => getProducts({ limit: 100, sortBy: "name", sortOrder: "asc" }),
+    queryFn: () =>
+      getProducts({ limit: 100, sortBy: "name", sortOrder: "asc" }),
   });
 
   const products = productsData?.products ?? [];
@@ -111,14 +109,11 @@ export function DiscountDialog({
 
     if (discount) {
       setTitle(discount.title);
-      setDescription(discount.description);
+      setDescription(discount.description ?? "");
       setDiscountType(discount.discountType);
       setDiscountValue(String(discount.discountValue));
-      setMinimumAmount(String(discount.minimumAmount ?? 0));
-      setMaxDiscount(String(discount.maxDiscount ?? 0));
       setIsActive(discount.isActive);
 
-      // handle both populated and plain string ids
       const ids = (discount.productIds ?? []).map((p) =>
         typeof p === "string" ? p : p._id
       );
@@ -139,8 +134,6 @@ export function DiscountDialog({
       setDiscountType("percentage");
       setDiscountValue("");
       setProductIds([]);
-      setMinimumAmount("0");
-      setMaxDiscount("0");
       setStartsAt("");
       setExpiresAt("");
       setIsActive(true);
@@ -160,8 +153,6 @@ export function DiscountDialog({
         discountType,
         discountValue: Number(discountValue),
         productIds,
-        minimumAmount: Number(minimumAmount) || 0,
-        maxDiscount: Number(maxDiscount) || 0,
         startsAt: new Date(startsAt).toISOString(),
         expiresAt: new Date(expiresAt).toISOString(),
         isActive,
@@ -215,20 +206,24 @@ export function DiscountDialog({
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Summer Sale"
+              placeholder="e.g. Back to School Sale"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">
+              Description{" "}
+              <span className="font-normal text-muted-foreground">
+                (optional)
+              </span>
+            </Label>
             <Textarea
               id="description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe this discount..."
               className="min-h-24 resize-none"
-              required
             />
           </div>
 
@@ -253,7 +248,7 @@ export function DiscountDialog({
 
             <div className="space-y-2">
               <Label htmlFor="discountValue">
-                {discountType === "percentage" ? "Percentage" : "Amount"}
+                {discountType === "percentage" ? "Percentage" : "Amount (GHS)"}
               </Label>
               <Input
                 id="discountValue"
@@ -262,34 +257,8 @@ export function DiscountDialog({
                 step={discountType === "percentage" ? "1" : "0.01"}
                 value={discountValue}
                 onChange={(e) => setDiscountValue(e.target.value)}
-                placeholder={discountType === "percentage" ? "20" : "10.00"}
+                placeholder={discountType === "percentage" ? "20" : "50.00"}
                 required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="minimumAmount">Minimum Amount</Label>
-              <Input
-                id="minimumAmount"
-                type="number"
-                min="0"
-                step="0.01"
-                value={minimumAmount}
-                onChange={(e) => setMinimumAmount(e.target.value)}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="maxDiscount">Max Discount</Label>
-              <Input
-                id="maxDiscount"
-                type="number"
-                min="0"
-                step="0.01"
-                value={maxDiscount}
-                onChange={(e) => setMaxDiscount(e.target.value)}
               />
             </div>
           </div>
@@ -299,9 +268,13 @@ export function DiscountDialog({
             <Label>Products</Label>
             <div className="max-h-40 space-y-1 overflow-y-auto rounded-md border p-3">
               {isLoadingProducts ? (
-                <p className="text-sm text-muted-foreground">Loading products...</p>
+                <p className="text-sm text-muted-foreground">
+                  Loading products...
+                </p>
               ) : products.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No products found</p>
+                <p className="text-sm text-muted-foreground">
+                  No products found
+                </p>
               ) : (
                 products.map((product) => (
                   <label
@@ -365,7 +338,7 @@ export function DiscountDialog({
             type="button"
             variant="outline"
             size="lg"
-               className="w-full sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isSaving}
             onClick={() => onOpenChange(false)}
           >
@@ -376,7 +349,7 @@ export function DiscountDialog({
             type="submit"
             form="discount-form"
             size="lg"
-               className="w-full sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isSaving}
           >
             {isSaving && <Loader2Icon className="size-4 animate-spin" />}

@@ -1,6 +1,5 @@
 "use client";
 
-import FadeContent from "@/components/animations/fade-content";
 import { SplitLines } from "@/components/animations/SplitLines";
 import {
   Accordion,
@@ -11,80 +10,132 @@ import {
 
 const faqs = [
   {
-    question: "Are your wigs made from 100% human hair?",
+    question: "How do I know which toner or ink cartridge fits my printer?",
     answer:
-      "Yes. All of our wigs are made from 100% premium human hair for a natural appearance and long-lasting quality.",
+      "Every product page lists the compatible printer models. If you’re still unsure, just message us with your printer model and we’ll recommend the correct cartridge before you order.",
   },
   {
-    question: "Do you ship nationwide and internationally?",
-    answer:
-      "Yes, we ship across Nigeria and internationally. Please check our list of supported countries or contact us to confirm if we currently deliver to your location.",
-  },
+  question: "How long does it take for my order to be confirmed?",
+  answer:
+    "Orders are usually confirmed within 24 to 48 hours. Once confirmed, we’ll notify you and begin preparing your items for delivery or pickup.",
+},
   {
     question: "What payment methods do you accept?",
     answer:
-      "We accept all major payment methods supported by Paystack, including debit and credit cards, bank transfers, USSD, bank payments, mobile money, and more.",
+      "We accept secure online payments including mobile money and card payments. All orders are paid for before processing to ensure fast and reliable dispatch.",
   },
   {
-    question: "How long will my order take to arrive?",
+    question: "Do you deliver across Ghana?",
     answer:
-      "Orders are processed within 24–48 hours after payment is confirmed. Once your order has been shipped, you'll receive a tracking number, and delivery time will depend on your location.",
+      "Yes, we deliver nationwide. Delivery timelines vary depending on your location, and we’ll keep you updated once your order is on the way.",
   },
   {
-    question: "Can I return or exchange an item?",
+    question: "Can I return a product?",
     answer:
-      "We do not offer refunds or returns. However, eligible items may be exchanged if they are unused and in their original condition. Refunds are only considered in rare cases where the issue is due to an error on our part. Please read our Return & Exchange Policy for full details.",
+      "We do not accept returns. Please double-check your order details and product compatibility before completing your purchase. If you receive a wrong or damaged item, contact us immediately and we’ll assist you.",
   },
   {
-    question: "How can I track my order?",
+    question: "Can I place bulk orders for my office or school?",
     answer:
-      "After your payment has been confirmed and your order has been shipped, we'll send you a tracking number so you can monitor your delivery every step of the way.",
+      "Absolutely. We regularly supply businesses, schools, and organizations. Contact us with your requirements and we’ll provide pricing and support for bulk orders.",
   },
 ];
 
-const FAQ = () => {
+export default function FAQSection() {
   return (
-    <section className="section-spacing w-full">
-      <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-8 sm:gap-10 lg:gap-14">
-        <div className="flex w-full flex-col items-center gap-3 text-center sm:gap-4">
-           <FadeContent blur={true} duration={0.5} initialOpacity={0}>
-              <span className="subtitle">Questions?</span>
-          </FadeContent>
+    <section className="section-spacing bg-white">
+      <div className="mx-auto max-w-4xl ">
+        {/* Heading */}
 
-           <SplitLines
-                                        tag="h2"
-                                        text="We&apos;ve Got Answers For You"
-                                        className="heading-1 max-w-[min(50rem,100%)] text-balance overflow-hidden"
-                                        duration={1}
-                                        stagger={0.025}
-                                        yPercent={100}
-                                        rootMargin="-100px"
-                                        ease="power4.out"
-                                      />
+        <div className="mb-10 sm:mb-12 lg:mb-14 flex flex-col items-center gap-4 text-center">
+
+          <SplitLines
+            text="FAQs"
+            tag="span"
+            className="subtitle"
+            duration={0.8}
+            stagger={0.02}
+            ease="power3.out"
+            yPercent={120}
+            threshold={0.1}
+            rootMargin="-80px"
+          />
+
+          <SplitLines
+            text="Answers to Common Questions"
+            tag="h2"
+            className="heading-1"
+            duration={1}
+            stagger={0.025}
+            ease="power3.out"
+            yPercent={150}
+            threshold={0.1}
+            rootMargin="-100px"
+            delay={0.05}
+          />
+
+          <div className="line-border" />
         </div>
 
-        <div className="w-full max-w-4xl">
-          <Accordion type="single" collapsible className="space-y-2.5 sm:space-y-3">
-            {faqs.map((faq, index) => (
-              <AccordionItem
-                key={index}
-                value={`item-${index}`}
-                className="rounded-xl border border-black/10 bg-white px-3.5 py-1.5 shadow-sm sm:rounded-2xl sm:px-5 sm:py-2 md:px-6"
+        {/* FAQ */}
+
+        <Accordion
+          type="single"
+          collapsible
+          className="w-full space-y-3 sm:space-y-4 max-w-3xl mx-auto min-w-0"
+        >
+          {faqs.map((faq, index) => (
+            <AccordionItem
+              key={index}
+              value={`item-${index}`}
+              className="
+                min-w-0
+                rounded-xl
+                sm:rounded-2xl
+                border
+                border-black/10
+                bg-white
+                px-4
+                sm:px-6
+                transition-all
+                duration-300
+                hover:border-red-600/30
+                 hover:bg-red-50
+                 hover:shadow-sm
+              "
+            >
+              <AccordionTrigger
+                className="
+                  py-5
+                  sm:py-6
+                  text-left
+                  text-base
+                  sm:text-lg
+                  font-semibold
+                  gap-4
+                  hover:no-underline
+                "
               >
-                <AccordionTrigger className="py-3 text-left font-geist text-[0.8rem] font-medium uppercase leading-snug transition-colors hover:text-[#FD3F92] sm:py-4 sm:text-[0.9rem] md:text-[1rem]">
-                  {faq.question}
-                </AccordionTrigger>
+                {faq.question}
+              </AccordionTrigger>
 
-                <AccordionContent className="pr-2 pb-3 font-geist text-[0.875rem] leading-6 text-black/70 sm:pr-6 sm:pb-4 sm:text-[0.925rem] sm:leading-7">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
+              <AccordionContent
+                className="
+                  pb-5
+                  sm:pb-6
+                  text-[0.95rem]
+                  sm:text-[1rem]
+                  font-medium
+                  font-inter
+                  text-black/70
+                "
+              >
+                {faq.answer}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
       </div>
     </section>
   );
-};
-
-export default FAQ;
+}

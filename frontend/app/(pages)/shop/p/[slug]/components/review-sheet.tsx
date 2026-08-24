@@ -100,13 +100,13 @@ const ReviewSheet = ({
         side="right"
         className="z-[350] flex h-full w-full max-w-full flex-col gap-0 border-none bg-white p-0 sm:max-w-[28rem] lg:max-w-[32rem] [&>button]:hidden"
       >
-        <SheetHeader className="flex shrink-0 flex-row items-center justify-between space-y-0 border-b border-dashed border-[#FD3F92]/40 px-5 py-4 sm:px-6 sm:py-5 lg:px-8">
+        <SheetHeader className="flex shrink-0 flex-row items-center justify-between space-y-0 border-b px-5 py-4 sm:px-6 sm:py-5 lg:px-8">
           <SheetTitle className="heading-3 text-left">Write a review</SheetTitle>
           <button
             type="button"
             onClick={() => onOpenChange(false)}
             aria-label="Close"
-            className="flex h-9 w-9 items-center justify-center rounded-full border border-dashed border-[#FD3F92]/40 transition-colors hover:bg-[#FD3F92] hover:text-white sm:h-10 sm:w-10"
+            className="flex h-9 w-9 items-center justify-center rounded-full border transition-colors hover:bg-[#ee0a0a] hover:text-white sm:h-10 sm:w-10"
           >
             <X size={18} strokeWidth={1.5} className="sm:size-5" />
           </button>
@@ -171,7 +171,7 @@ const ReviewSheet = ({
                 onChange={(e) => setTitle(e.target.value)}
                 maxLength={150}
                 placeholder="Sum up your experience"
-                className="h-11 rounded-xl border-black/10 focus-visible:ring-[#FD3F92]/30"
+                className="h-11 rounded-xl border-black/10 focus-visible:ring-[#ee0a0a]/30"
               />
             </div>
 
@@ -189,7 +189,7 @@ const ReviewSheet = ({
                 maxLength={2000}
                 rows={5}
                 placeholder="What did you like or dislike? How was the quality?"
-                className="min-h-[8rem] resize-none rounded-xl border-black/10 focus-visible:ring-[#FD3F92]/30 sm:min-h-[9rem]"
+                className="min-h-[8rem] resize-none rounded-xl border-black/10 focus-visible:ring-[##ee0a0a]/30 sm:min-h-[9rem]"
               />
               <p className="text-right text-[0.7rem] text-black/30">
                 {comment.length}/2000

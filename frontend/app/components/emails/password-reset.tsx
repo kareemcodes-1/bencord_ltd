@@ -9,7 +9,7 @@ type Props = {
 export default function PasswordResetEmail({ name, resetUrl }: Props) {
   return (
     <EmailLayout preview="Reset your LoisBanks Beauty password">
-      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#FD3F92]">
+      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#ee0a0a]">
         Password reset
       </Text>
 
@@ -29,7 +29,7 @@ export default function PasswordResetEmail({ name, resetUrl }: Props) {
       <Section className="mt-8 text-center">
         <Button
           href={resetUrl}
-          className="rounded-full bg-[#FD3F92] px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.08em] text-white no-underline"
+          className="rounded-full bg-[#ee0a0a] px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.08em] text-white no-underline"
         >
           Reset password
         </Button>

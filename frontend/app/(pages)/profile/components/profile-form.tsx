@@ -5,12 +5,15 @@ import toast from "react-hot-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { ProfileUser } from "@/actions/profile.actions";
+import { useSession } from "next-auth/react";
 
 type Props = {
   user: ProfileUser;
 };
 
 export default function ProfileForm({ user }: Props) {
+  const { update } = useSession();
+
   const [name, setName] = useState(user.name);
   const [email, setEmail] = useState(user.email);
   const [phone, setPhone] = useState(user.phone);
@@ -51,12 +54,19 @@ export default function ProfileForm({ user }: Props) {
           newPassword: newPassword || undefined,
         }),
       });
+
       const data = await res.json();
 
       if (!res.ok) {
         toast.error(data.message || "Failed to update profile.");
         return;
       }
+
+      // Update the session so UI reflects new name/email immediately
+      await update({
+        name: data.user?.name ?? name,
+        email: data.user?.email ?? email,
+      });
 
       toast.success(data.message || "Profile updated.");
       setCurrentPassword("");

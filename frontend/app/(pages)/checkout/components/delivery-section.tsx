@@ -1,8 +1,7 @@
-// components/checkout/delivery-section.tsx
 "use client";
 
 import { useMemo } from "react";
-import { Country, State } from "country-state-city";
+import { State } from "country-state-city";
 import Image from "next/image";
 
 import { Input } from "@/components/ui/input";
@@ -55,25 +54,16 @@ export default function DeliverySection({
   selectedAddressId,
   onSelectAddress,
 }: Props) {
-  const countries = useMemo(() => Country.getAllCountries(), []);
-
-  const states = useMemo(() => {
-    if (!data.country) return [];
-    return State.getStatesOfCountry(data.country);
-  }, [data.country]);
-
-  const regionLabel =
-    data.country === "AE"
-      ? "Emirate"
-      : data.country === "GB"
-        ? "Country / Region"
-        : "State / Province";
+  // Only Ghana states/regions
+  const states = useMemo(() => State.getStatesOfCountry("GH"), []);
 
   const showForm = selectedAddressId === "new" || savedAddresses.length === 0;
 
   return (
     <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
-      <h2 className="mb-5 text-[1.1rem] font-medium sm:mb-6 sm:text-[1.2rem]">Delivery address</h2>
+      <h2 className="mb-5 text-[1.1rem] font-medium sm:mb-6 sm:text-[1.2rem]">
+        Delivery address
+      </h2>
 
       {/* ===== Saved Addresses ===== */}
       {savedAddresses.length > 0 && (
@@ -82,65 +72,59 @@ export default function DeliverySection({
           onValueChange={(value) => onSelectAddress(value as string | "new")}
           className="mb-5 space-y-3 sm:mb-6"
         >
-          {savedAddresses.map((addr) => {
-            const countryName =
-              countries.find((c) => c.isoCode === addr.country)?.name ||
-              addr.country;
-
-            return (
-              <label
-                key={addr._id}
-                htmlFor={addr._id}
-                className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-colors sm:p-4 ${
-                  selectedAddressId === addr._id
-                    ? "border-[#FD3F92] bg-[#FD3F92]/5"
-                    : "border-black/10 hover:border-black/20"
-                }`}
-              >
-                <RadioGroupItem
-                  value={addr._id}
-                  id={addr._id}
-                  className="mt-1"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-sm font-medium">
-                      {addr.firstName} {addr.lastName}
-                    </p>
-                    {addr.isDefault && (
-                      <span className="rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-black/60">
-                        Default
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-1 text-sm text-black/60">
-                    {addr.address}
-                    {addr.apartment ? `, ${addr.apartment}` : ""}
+          {savedAddresses.map((addr) => (
+            <label
+              key={addr._id}
+              htmlFor={addr._id}
+              className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-colors sm:p-4 ${
+                selectedAddressId === addr._id
+                  ? "border-[#ee0a0a] bg-[#ee0a0a]/5"
+                  : "border-black/10 hover:border-black/20"
+              }`}
+            >
+              <RadioGroupItem
+                value={addr._id}
+                id={addr._id}
+                className="mt-1"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <p className="text-sm font-medium">
+                    {addr.firstName} {addr.lastName}
                   </p>
-                  <p className="text-sm text-black/60">
-                    {addr.city}, {addr.state} {addr.postalCode}
-                  </p>
-                  <p className="mt-1.5 flex items-center gap-1.5 text-sm text-black/60">
-                    <Image
-                      src={`https://flagcdn.com/w20/${addr.country.toLowerCase()}.png`}
-                      alt=""
-                      width={18}
-                      height={13}
-                      className="rounded-[2px]"
-                    />
-                    {countryName}
-                  </p>
+                  {addr.isDefault && (
+                    <span className="rounded-full bg-black/5 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-black/60">
+                      Default
+                    </span>
+                  )}
                 </div>
-              </label>
-            );
-          })}
+                <p className="mt-1 text-sm text-black/60">
+                  {addr.address}
+                  {addr.apartment ? `, ${addr.apartment}` : ""}
+                </p>
+                <p className="text-sm text-black/60">
+                  {addr.city}, {addr.state} {addr.postalCode}
+                </p>
+                <p className="mt-1.5 flex items-center gap-1.5 text-sm text-black/60">
+                  <Image
+                    src="https://flagcdn.com/w20/gh.png"
+                    alt="Ghana"
+                    width={18}
+                    height={13}
+                    className="rounded-[2px]"
+                  />
+                  Ghana
+                </p>
+              </div>
+            </label>
+          ))}
 
           {/* Use a new address */}
           <label
             htmlFor="new-address"
             className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 transition-colors sm:p-4 ${
               selectedAddressId === "new"
-                ? "border-[#FD3F92] bg-[#FD3F92]/5"
+                ? "border-[#ee0a0a] bg-[#ee0a0a]/5"
                 : "border-black/10 hover:border-black/20"
             }`}
           >
@@ -153,54 +137,21 @@ export default function DeliverySection({
       {/* ===== New Address Form ===== */}
       {showForm && (
         <div className="space-y-4 sm:space-y-5">
-          {/* Country */}
+          {/* Country - Fixed to Ghana */}
           <div className="space-y-2">
             <Label className="text-[0.7rem] uppercase tracking-[0.05em] font-medium text-black/80">
-              Country / Region
+              Country
             </Label>
-            <Select
-              value={data.country || undefined}
-              onValueChange={(value) => {
-                onChange("country", value);
-                onChange("state", "");
-              }}
-            >
-              <SelectTrigger className="!h-11 w-full !rounded-xl border-black/10">
-                <SelectValue placeholder="Select country">
-                  {data.country && (
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src={`https://flagcdn.com/w20/${data.country.toLowerCase()}.png`}
-                        alt=""
-                        width={18}
-                        height={13}
-                        className="rounded-[2px]"
-                      />
-                      {
-                        countries.find((c) => c.isoCode === data.country)
-                          ?.name
-                      }
-                    </div>
-                  )}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent className="max-h-72 z-[350]">
-                {countries.map((c) => (
-                  <SelectItem key={c.isoCode} value={c.isoCode}>
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src={`https://flagcdn.com/w20/${c.isoCode.toLowerCase()}.png`}
-                        alt=""
-                        width={18}
-                        height={13}
-                        className="rounded-[2px]"
-                      />
-                      {c.name}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex h-11 items-center gap-2 rounded-xl border border-black/10 bg-neutral-50 px-3 text-sm text-black/70">
+              <Image
+                src="https://flagcdn.com/w20/gh.png"
+                alt="Ghana"
+                width={18}
+                height={13}
+                className="rounded-[2px]"
+              />
+              Ghana
+            </div>
           </div>
 
           {/* Name */}
@@ -271,7 +222,7 @@ export default function DeliverySection({
             />
           </div>
 
-          {/* City + State + Postal */}
+          {/* City + Region + Postal */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
             <div className="space-y-2">
               <Label
@@ -291,34 +242,23 @@ export default function DeliverySection({
 
             <div className="space-y-2">
               <Label className="text-[0.7rem] uppercase tracking-[0.05em] font-medium text-black/80">
-                {regionLabel}
+                Region
               </Label>
-              {states.length > 0 ? (
-                <Select
-                  value={data.state || undefined}
-                  onValueChange={(value) => onChange("state", value)}
-                >
-                  <SelectTrigger className="!h-11 !rounded-xl border-black/10">
-                    <SelectValue
-                      placeholder={`Select ${regionLabel.toLowerCase()}`}
-                    />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60 z-[350]">
-                    {states.map((s) => (
-                      <SelectItem key={s.isoCode} value={s.isoCode}>
-                        {s.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input
-                  value={data.state}
-                  onChange={(e) => onChange("state", e.target.value)}
-                  className="h-11 rounded-xl border-black/10"
-                  placeholder="State / Province"
-                />
-              )}
+              <Select
+                value={data.state || undefined}
+                onValueChange={(value) => onChange("state", value)}
+              >
+                <SelectTrigger className="!h-11 !rounded-xl border-black/10">
+                  <SelectValue placeholder="Select region" />
+                </SelectTrigger>
+                <SelectContent className="max-h-60 z-[350]">
+                  {states.map((s) => (
+                    <SelectItem key={s.isoCode} value={s.isoCode}>
+                      {s.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

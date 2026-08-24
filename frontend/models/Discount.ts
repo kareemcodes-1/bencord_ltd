@@ -8,8 +8,6 @@ export interface IDiscountDocument extends Document {
   discountType: DiscountType;
   discountValue: number;
   productIds: mongoose.Types.ObjectId[];
-  minimumAmount: number;
-  maxDiscount: number;
   startsAt: Date;
   expiresAt: Date;
   isActive: boolean;
@@ -45,16 +43,6 @@ const discountSchema = new Schema<IDiscountDocument>(
         ref: "Product",
       },
     ],
-    minimumAmount: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    maxDiscount: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
     startsAt: {
       type: Date,
       default: Date.now,

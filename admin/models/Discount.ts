@@ -4,12 +4,10 @@ export type DiscountType = "percentage" | "fixed";
 
 export interface IDiscountDocument extends Document {
   title: string;
-  description: string;
+  description?: string;
   discountType: DiscountType;
   discountValue: number;
   productIds: mongoose.Types.ObjectId[];
-  minimumAmount: number;
-  maxDiscount: number;
   startsAt: Date;
   expiresAt: Date;
   isActive: boolean;
@@ -25,10 +23,11 @@ const discountSchema = new Schema<IDiscountDocument>(
       trim: true,
     },
     description: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+  type: String,
+  required: false,
+  trim: true,
+  default: "",
+},
     discountType: {
       type: String,
       enum: ["percentage", "fixed"],
@@ -45,16 +44,6 @@ const discountSchema = new Schema<IDiscountDocument>(
         ref: "Product",
       },
     ],
-    minimumAmount: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-    maxDiscount: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
     startsAt: {
       type: Date,
       default: Date.now,

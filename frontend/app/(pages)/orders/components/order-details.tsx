@@ -69,7 +69,7 @@ export default function OrderDetails({ order }: Props) {
 
         <div className="flex flex-wrap items-center gap-2">
           <span
-            className={`inline-flex w-fit items-center rounded-full border px-4 py-1.5 text-[.7rem] lg:text-[.8rem] font-medium uppercase ${
+            className={`inline-flex w-fit items-center rounded-full border px-4 py-1.5 text-[.6rem] lg:text-[.7rem] font-medium uppercase ${
               statusStyles[order.orderStatus] ||
               "border-gray-200 bg-gray-50 text-gray-700"
             }`}
@@ -78,7 +78,7 @@ export default function OrderDetails({ order }: Props) {
           </span>
 
           {order.shippingMethod && (
-            <span className="inline-flex w-fit items-center rounded-full border border-black/10 bg-black/5 px-4 py-1.5 text-[.7rem] lg:text-[.8rem] font-medium uppercase text-black/70">
+            <span className="inline-flex w-fit items-center rounded-full border border-black/10 bg-black/5 px-4 py-1.5 text-[.6rem] lg:text-[.7rem] font-medium uppercase text-black/70">
               {order.shippingMethod === "pickup"
                 ? "Store pickup"
                 : "Door delivery"}
@@ -103,14 +103,14 @@ export default function OrderDetails({ order }: Props) {
                     key={item._id || item.productId}
                     className="flex gap-3 sm:gap-4"
                   >
-                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-neutral-100 sm:h-20 sm:w-20">
+                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl border sm:h-20 sm:w-20">
                       {image && (
                         <Image
                           src={image}
                           alt={item.name}
                           fill
                           sizes="80px"
-                          className="object-cover"
+                          className="object-contain"
                         />
                       )}
                     </div>
@@ -119,14 +119,10 @@ export default function OrderDetails({ order }: Props) {
                       <p className="truncate text-sm font-medium">
                         {item.name}
                       </p>
-                      <p className="mt-1 text-xs text-black/50">
-                        Qty: {item.quantity}
-                        {item.size ? ` · Size: ${item.size}` : ""}
-                      </p>
                     </div>
 
                     <p className="shrink-0 text-sm font-medium">
-                      {priceFormatter(item.price * item.quantity, currency)}
+                      {priceFormatter(item.price * item.quantity)}
                     </p>
                   </div>
                 );
@@ -177,7 +173,7 @@ export default function OrderDetails({ order }: Props) {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-black/60">Subtotal</span>
-                <span>{priceFormatter(order.subtotal, currency)}</span>
+                <span>{priceFormatter(order.subtotal)}</span>
               </div>
 
               <div className="flex justify-between">
@@ -187,20 +183,20 @@ export default function OrderDetails({ order }: Props) {
                 <span>
                   {order.shippingFee === 0
                     ? "Free"
-                    : priceFormatter(order.shippingFee, currency)}
+                    : priceFormatter(order.shippingFee)}
                 </span>
               </div>
 
               {order.tax > 0 && (
                 <div className="flex justify-between">
                   <span className="text-black/60">Tax</span>
-                  <span>{priceFormatter(order.tax, currency)}</span>
+                  <span>{priceFormatter(order.tax)}</span>
                 </div>
               )}
 
               <div className="flex justify-between border-t border-black/10 pt-3 text-base font-medium">
                 <span>Total</span>
-                <span>{priceFormatter(order.totalAmount, currency)}</span>
+                <span>{priceFormatter(order.totalAmount)}</span>
               </div>
             </div>
           </section>

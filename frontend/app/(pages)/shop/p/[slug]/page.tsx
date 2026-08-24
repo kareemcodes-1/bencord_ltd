@@ -34,7 +34,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     .filter(
       (item) =>
         item._id !== product._id &&
-        item.collectionId?._id === product.collectionId?._id,
+        item.categoryId?._id === product.categoryId?._id,
     )
     .slice(0, 4);
 
@@ -57,3 +57,5 @@ export default async function ProductPage({ params }: ProductPageProps) {
     </>
   );
 }
+
+export const dynamic = "force-dynamic";

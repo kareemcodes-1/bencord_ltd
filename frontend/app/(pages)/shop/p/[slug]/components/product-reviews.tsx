@@ -212,7 +212,7 @@ const ProductReviews = ({
                       onClick={() => setSort(option.value)}
                       className={`cursor-pointer gap-2 rounded-lg px-3 py-2 text-[0.8rem] font-medium ${
                         sort === option.value
-                          ? "bg-[#FD3F92]/10 text-[#FD3F92]"
+                          ? "bg-[#ee0a0a]/10 text-[#ee0a0a]"
                           : ""
                       }`}
                     >
@@ -229,7 +229,7 @@ const ProductReviews = ({
             <div className="flex min-h-[14rem] items-center justify-center sm:min-h-[16rem]">
               <EmptyState
                 icon={MessageSquare}
-                message="No reviews yet."
+                message="No reviews yet"
                 buttonText={canReview ? "Write a review" : undefined}
                 onButtonClick={
                   canReview ? () => setWriteOpen(true) : undefined
@@ -241,11 +241,11 @@ const ProductReviews = ({
               {previewReviews.map((review) => (
                 <div
                   key={review._id}
-                  className="flex flex-col gap-2 border-b border-dashed border-[#FD3F92]/40 py-5 first:pt-0 last:border-none sm:py-6"
+                  className="flex flex-col gap-2 border-b border-dashed border-[#ee0a0a]/40 py-5 first:pt-0 last:border-none sm:py-6"
                 >
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#FD3F92]/10 text-[0.75rem] font-medium text-[#FD3F92]">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#ee0a0a]/10 text-[0.75rem] font-medium text-[#ee0a0a]">
                         {review.name.charAt(0).toUpperCase()}
                       </div>
                       <div>

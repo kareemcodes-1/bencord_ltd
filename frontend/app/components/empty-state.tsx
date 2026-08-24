@@ -24,11 +24,11 @@ const EmptyState = ({
         <Icon
           size={24}
           strokeWidth={1.5}
-          className="text-[#FD3F92] sm:size-7"
+          className="text-[#ee0a0a] sm:size-7"
         />
       </div>
 
-      <p className="max-w-[min(22rem,100%)] text-[1.15rem] leading-snug text-black/80 sm:text-[1.5rem] lg:text-[1.7rem]">
+      <p className="tracking-[-0.03em] max-w-[min(22rem,100%)] text-[1.15rem] leading-snug text-black/80 lg:text-[1.5rem]">
         {message}
       </p>
 

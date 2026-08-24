@@ -1,23 +1,22 @@
 import Hero from "../components/hero";
 import Testimonials from "../components/testimonials";
 import FAQ from "../components/faq";
-import Footer from "../components/footer";
-import Collections from "../components/collections";
 import Products from "../components/products/products";
 import About from "../components/about";
-import CTA from "../components/cta";
+import Categories from "../components/categories";
+import Brands from "../components/brands";
+import WhyChooseUs from "../components/why-us";
 
-import { getHeroBanner } from "@/actions/hero-banner.actions";
 
-const HomePage = async () => {
-  const heroBanner = await getHeroBanner();
+const HomePage = () => {
 
   return (
       <main>
-        <Hero heroBanner={heroBanner} />
-        <Collections />
+        <Hero />
+        <Brands />
+        <Categories />
         <Products />
-        <About />
+        <WhyChooseUs />
         <Testimonials />
         <FAQ />
       </main>

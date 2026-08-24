@@ -44,11 +44,6 @@ const orderItemSchema = new Schema(
       required: true,
       min: 1,
     },
-    size: {
-      type: String,
-      default: null,
-      trim: true,
-    },
   },
   {
     _id: true,
@@ -113,7 +108,7 @@ const paymentInfoSchema = new Schema(
     },
     gateway: {
       type: String,
-      enum: ["paystack"],
+      enum: ["flutterwave"],
       required: true,
     },
     paymentStatus: {
@@ -160,7 +155,6 @@ export interface IOrderDocument extends Document {
     }[];
     price: number;
     quantity: number;
-    size?: string | null;
   }[];
 
   shippingAddress: {
@@ -176,7 +170,7 @@ export interface IOrderDocument extends Document {
 
   paymentInfo: {
     transactionId: string;
-    gateway: "paystack";
+    gateway: "flutterwave";
     paymentStatus: "pending" | "paid" | "failed" | "refunded";
     channel: string | null;
     paidAt: Date | null;

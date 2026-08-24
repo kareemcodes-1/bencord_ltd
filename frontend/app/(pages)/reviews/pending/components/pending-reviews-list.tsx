@@ -49,7 +49,7 @@ export default function PendingReviewsList({ initialItems }: Props) {
     return (
       <EmptyState
         icon={Star}
-        message="No pending reviews."
+        message="No pending reviews"
         buttonText="Continue Shopping"
         buttonHref="/shop"
       />

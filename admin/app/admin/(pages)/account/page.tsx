@@ -3,7 +3,7 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import toast from "react-hot-toast";
 
 import { PageHeader } from "@/app/components/page-header";
@@ -40,6 +40,7 @@ import {
 export default function AccountPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { update } = useSession();
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["admin-profile"],
@@ -60,8 +61,16 @@ export default function AccountPage() {
 
   const updateMutation = useMutation({
     mutationFn: (data: UpdateProfilePayload) => updateAdminProfile(data),
-    onSuccess: () => {
+    onSuccess: async (updatedProfile) => {
+      // Refresh React Query cache
       queryClient.invalidateQueries({ queryKey: ["admin-profile"] });
+
+      // Update NextAuth session so sidebar/header update immediately
+      await update({
+        name: updatedProfile.name,
+        email: updatedProfile.email,
+      });
+
       toast.success("Profile updated successfully");
     },
     onError: (error) => {
@@ -151,7 +160,7 @@ export default function AccountPage() {
                     type="tel"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    placeholder="+234 800 000 0000"
+                    placeholder="+233 55 000 0000"
                     disabled={isSaving}
                   />
                 </div>

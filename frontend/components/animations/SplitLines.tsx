@@ -17,6 +17,7 @@ export interface SplitLinesProps {
   yPercent?: number;
   threshold?: number;
   rootMargin?: string;
+  delay?: number;
 }
 
 export const SplitLines: React.FC<SplitLinesProps> = ({
@@ -29,6 +30,7 @@ export const SplitLines: React.FC<SplitLinesProps> = ({
   yPercent = 100,
   threshold = 0.1,
   rootMargin = "0px 0px -100px 0px",
+  delay = 0,
 }) => {
   const containerRef = useRef<HTMLElement>(null);
 
@@ -66,6 +68,7 @@ export const SplitLines: React.FC<SplitLinesProps> = ({
           duration,
           stagger,
           ease,
+          delay,
           overwrite: true,
         });
       };
@@ -105,6 +108,7 @@ export const SplitLines: React.FC<SplitLinesProps> = ({
         yPercent,
         threshold,
         rootMargin,
+        delay,
       ],
     }
   );
@@ -112,10 +116,7 @@ export const SplitLines: React.FC<SplitLinesProps> = ({
   const Component = Tag as React.ElementType;
 
   return (
-    <Component
-      ref={containerRef}
-      className={className}
-    >
+    <Component ref={containerRef} className={className}>
       {text}
     </Component>
   );

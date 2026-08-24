@@ -12,7 +12,7 @@ const RelatedProducts = ({ products }: RelatedProductsProps) => {
   return (
     <div className="border-t border-black/10 px-5 py-12 sm:px-6 sm:py-16 lg:px-[4rem] lg:py-24">
       <div className="mx-auto mb-8 flex max-w-[min(50rem,100%)] flex-col items-center gap-2.5 text-center sm:mb-10 sm:gap-3 lg:mb-16">
-        <span className="subtitle">Complete The Look</span>
+        <span className="subtitle">Related Products</span>
 
         <SplitLines
           text="You May Also Like"
@@ -27,7 +27,7 @@ const RelatedProducts = ({ products }: RelatedProductsProps) => {
         />
       </div>
 
-      <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-5 sm:gap-y-10 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-5 sm:gap-y-10 lg:grid-cols-3">
         {products.map((product) => (
           <ProductCard key={product._id} item={product} />
         ))}

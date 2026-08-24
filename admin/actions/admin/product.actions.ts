@@ -14,7 +14,7 @@ export interface ProductPayload {
     slug: string;
     description: string;
     price: number;
-    collectionId: string;
+    categoryId: string;
  
     trackInventory: boolean;
     stock: number;
@@ -22,7 +22,6 @@ export interface ProductPayload {
  
     featured: boolean;
     isActive: boolean;
-    sizes?: string[];
  
     media: { url: string; type: "image" | "video" }[];
 }

@@ -113,7 +113,7 @@ const paymentInfoSchema = new Schema(
     },
     gateway: {
       type: String,
-      enum: ["paystack"],
+      enum: ["flutterwave"],
       required: true,
     },
     paymentStatus: {
@@ -176,7 +176,7 @@ export interface IOrderDocument extends Document {
 
   paymentInfo: {
     transactionId: string;
-    gateway: "paystack";
+    gateway: "flutterwave";
     paymentStatus: "pending" | "paid" | "failed" | "refunded";
     channel: string | null;
     paidAt: Date | null;

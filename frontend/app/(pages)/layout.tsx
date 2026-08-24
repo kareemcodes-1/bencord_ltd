@@ -1,12 +1,11 @@
 import Navbar from "../components/navbar";
-import CTA from "../components/cta";
 import Footer from "../components/footer";
-import ChatWidget from "../components/chat/chat-widget";
-import Curve from "../components/curve-transition";
 import ScrollToTop from "../components/scroll-to-top";
 import AuthProvider from "@/providers/session-provider";
 import ToastProvider from "@/providers/toast-provider";
 import NextTopLoader from "nextjs-toploader";
+import PageTransition from "../components/page-transition";
+import WhatsAppBubble from "../components/whatsapp-bubble";
 
 export default function PageLayout({
   children,
@@ -14,31 +13,31 @@ export default function PageLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <AuthProvider>
+    <>
+
       <ToastProvider />
 
       <ScrollToTop />
 
-      <Curve />
-
       <NextTopLoader
-        color="#FD3F92"
+        color="#ee0a0a"
         height={2}
         showSpinner={false}
         crawlSpeed={200}
         speed={400}
-        shadow="0 0 10px #FD3F92, 0 0 5px #FD3F92"
+        shadow="0 0 10px #ee0a0a, 0 0 5px #ee0a0a"
       />
 
       <Navbar />
 
-      <main>{children}</main>
+      <main>
+         <PageTransition>
+          {children}
+          </PageTransition>
+          </main>
 
-      <CTA />
-
+        <WhatsAppBubble />
       <Footer />
-
-      <ChatWidget />
-    </AuthProvider>
+    </>
   );
 }

@@ -54,7 +54,14 @@ const Pagination = ({
 
   const goTo = (page: number) => {
     if (page < 1 || page > totalPages || page === currentPage) return;
+
     onPageChange(page);
+
+    // Scroll to top after page change
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   return (
@@ -67,7 +74,7 @@ const Pagination = ({
         onClick={() => goTo(currentPage - 1)}
         disabled={currentPage === 1}
         aria-label="Previous page"
-        className="flex h-12 w-12 items-center justify-center rounded-full border border-black/10 bg-white text-black shadow-sm transition-all duration-300 hover:border-[#FD3F92] hover:bg-[#FD3F92]/10 hover:text-[#FD3F92] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-black/10 disabled:hover:bg-white disabled:hover:text-black"
+        className="flex h-12 w-12 items-center justify-center rounded-full border border-black/10 bg-white text-black shadow-sm transition-all duration-300 hover:border-[#ee0a0a] hover:bg-[#ee0a0a]/10 hover:text-[#ee0a0a] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-black/10 disabled:hover:bg-white disabled:hover:text-black"
       >
         <ChevronLeft size={20} strokeWidth={1.5} />
       </button>
@@ -89,8 +96,8 @@ const Pagination = ({
             aria-current={page === currentPage ? "page" : undefined}
             className={`flex h-12 w-12 items-center justify-center rounded-full text-sm font-medium transition-all duration-300 ${
               page === currentPage
-                ? "bg-[#FD3F92] text-white shadow-sm"
-                : "border border-black/10 bg-white text-black shadow-sm hover:border-[#FD3F92] hover:bg-[#FD3F92]/10 hover:text-[#FD3F92]"
+                ? "bg-[#ee0a0a] text-white shadow-sm"
+                : "border border-black/10 bg-white text-black shadow-sm hover:border-[#ee0a0a] hover:bg-[#ee0a0a]/10 hover:text-[#ee0a0a]"
             }`}
           >
             {page}
@@ -103,7 +110,7 @@ const Pagination = ({
         onClick={() => goTo(currentPage + 1)}
         disabled={currentPage === totalPages}
         aria-label="Next page"
-        className="flex h-12 w-12 items-center justify-center rounded-full border border-black/10 bg-white text-black shadow-sm transition-all duration-300 hover:border-[#FD3F92] hover:bg-[#FD3F92]/10 hover:text-[#FD3F92] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-black/10 disabled:hover:bg-white disabled:hover:text-black"
+        className="flex h-12 w-12 items-center justify-center rounded-full border border-black/10 bg-white text-black shadow-sm transition-all duration-300 hover:border-[#ee0a0a] hover:bg-[#ee0a0a]/10 hover:text-[#ee0a0a] disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:border-black/10 disabled:hover:bg-white disabled:hover:text-black"
       >
         <ChevronRight size={20} strokeWidth={1.5} />
       </button>

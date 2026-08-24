@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Documentation",
-  description: "Simple guide to using the LoisBanks Beauty admin panel.",
+  description: "Simple guide to using the admin panel.",
 };
 
 export default function DocumentationLayout({

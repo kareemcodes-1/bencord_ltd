@@ -80,8 +80,8 @@ export async function getReviewEligibility(
   }
 
   const hasPurchased = await Order.exists({
-    userId,
-    status: { $in: ["delivered", "completed"] },
+    userId: new Types.ObjectId(userId),
+    orderStatus: "delivered",
     "items.productId": product._id,
   });
 
@@ -100,7 +100,7 @@ export async function getProductReviews(
   const res = await fetch(
     `${baseUrl}/api/products/${slugOrId}/reviews`,
     {
-      next: { revalidate: 60 },
+      cache: "no-store",
     },
   );
 

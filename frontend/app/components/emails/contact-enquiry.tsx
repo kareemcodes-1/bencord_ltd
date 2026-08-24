@@ -16,7 +16,7 @@ export default function ContactEnquiryEmail({
 }: Props) {
   return (
     <EmailLayout preview={`New enquiry from ${name}: ${subject}`}>
-      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#FD3F92]">
+      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#ee0a0a]">
         Contact form
       </Text>
 

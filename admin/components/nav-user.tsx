@@ -120,13 +120,6 @@ export function NavUser({
               </DropdownMenuItem>
 
               <DropdownMenuItem asChild>
-                <Link href="/admin/ai-assistant"  onClick={() => setOpenMobile(false)}>
-                  <BotIcon />
-                  AI Assistant
-                </Link>
-              </DropdownMenuItem>
-
-              <DropdownMenuItem asChild>
                 <Link href="/admin/preferences"  onClick={() => setOpenMobile(false)}>
                   <Settings2Icon />
                   Preferences

@@ -57,14 +57,14 @@ const CartModal = ({ openCartModal, setOpenCartModal }: CartModalProps) => {
         className="z-[350] flex h-full w-full max-w-full flex-col gap-0 border-l border-black/10 bg-white p-0 sm:max-w-[28rem] lg:max-w-[32rem] [&>button]:hidden"
       >
         {/* Header */}
-        <SheetHeader className="flex shrink-0 flex-row items-center justify-between space-y-0 border-b border-dashed border-[#FD3F92]/40 px-5 py-4 sm:px-6 sm:py-5 lg:px-8">
+        <SheetHeader className="flex shrink-0 flex-row items-center justify-between space-y-0 border-b px-5 py-4 sm:px-6 sm:py-5 lg:px-8">
           <SheetTitle className="heading-3 text-left">Cart</SheetTitle>
 
           <SheetClose asChild>
             <button
               type="button"
               aria-label="Close cart"
-              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-dashed border-[#FD3F92]/40 transition-colors duration-300 hover:bg-[#FD3F92] hover:text-white sm:h-10 sm:w-10"
+              className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border transition-colors duration-300 hover:bg-[#ee0a0a] hover:text-white sm:h-10 sm:w-10"
             >
               <X size={18} strokeWidth={1.5} className="sm:size-5" />
             </button>
@@ -88,14 +88,14 @@ const CartModal = ({ openCartModal, setOpenCartModal }: CartModalProps) => {
                     key={`${item.productId}-${item.size ?? "default"}`}
                     className="flex w-full items-start gap-3 border-b border-black/10 py-4 sm:gap-4 sm:py-5"
                   >
-                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-neutral-100 sm:h-20 sm:w-20">
+                    <div className="relative w-16 shrink-0 overflow-hidden rounded-lg border border-black/5  sm:h-20 sm:w-20">
                       {image && (
                         <Image
                           src={image}
                           alt={item.name}
                           fill
                           sizes="80px"
-                          className="object-cover"
+                          className="object-contain"
                         />
                       )}
                     </div>
@@ -115,18 +115,18 @@ const CartModal = ({ openCartModal, setOpenCartModal }: CartModalProps) => {
 
                         <div className="flex shrink-0 flex-col items-end">
                           <span className="text-sm font-medium text-black/70">
-                            {priceFormatter(item.price, currency)}
+                            {priceFormatter(item.price)}
                           </span>
                           {hasDiscount && (
                             <span className="text-xs text-black/40 line-through">
-                              {priceFormatter(item.originalPrice, currency)}
+                              {priceFormatter(item.originalPrice)}
                             </span>
                           )}
                         </div>
                       </div>
 
                       <div className="mt-3 flex items-center justify-between sm:mt-4">
-                        <div className="flex items-center gap-3 rounded-full border border-black/15 px-2.5 py-1.5 sm:gap-4 sm:px-3">
+                        <div className="flex items-center gap-3 rounded-[.75rem] border border-black/15 px-2.5 py-1.5 sm:gap-4 sm:px-3">
                           <button
                             type="button"
                             aria-label="Decrease quantity"
@@ -177,7 +177,7 @@ const CartModal = ({ openCartModal, setOpenCartModal }: CartModalProps) => {
           ) : (
             <EmptyState
               icon={ShoppingBag}
-              message="Your cart is empty."
+              message="Your cart is empty"
               buttonText="Continue Shopping"
               buttonHref="/shop"
             />
@@ -198,7 +198,7 @@ const CartModal = ({ openCartModal, setOpenCartModal }: CartModalProps) => {
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">Subtotal</span>
                 <span className="text-sm font-medium">
-                  {priceFormatter(subtotal, currency)}
+                  {priceFormatter(subtotal)}
                 </span>
               </div>
             </div>

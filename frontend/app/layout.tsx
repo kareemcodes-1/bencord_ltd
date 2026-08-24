@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import { Geist } from "next/font/google";
+import ToastProvider from "@/providers/toast-provider";
+import AuthProvider from "@/providers/session-provider";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -9,98 +11,91 @@ const geist = Geist({
   display: "swap",
 });
 
-const siteName = "LoisBanks Beauty";
-const siteUrl =
-  process.env.NEXT_PUBLIC_BASE_URL || "https://loisbanksbeauty.com";
-
-const title = `${siteName} — Premium Hair & Beauty`;
-const description =
-  "Shop premium human hair wigs and beauty products at LoisBanks Beauty. Quality pieces, fast delivery across Nigeria and beyond, and verified customer reviews.";
-
-// Put og.jpg in /public, OR use a full CDN URL
-const ogImage = "https://res.cloudinary.com/datpkisht/image/upload/v1787147828/i1avstooywwwrsd0l99t.jpg";
-// Example CDN:
-// const ogImage = "https://res.cloudinary.com/your-cloud/image/upload/v123/loisbanks-og.jpg";
-
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-
   title: {
-    default: title,
-    template: `%s | ${siteName}`,
+    default: "Bencord Ltd | Printers, Toners, Ink Cartridges & Office Supplies",
+    template: "%s | Bencord Ltd",
   },
 
-  description,
-
-  applicationName: siteName,
+  description:
+    "Bencord Ltd supplies genuine printers, toner cartridges, ink cartridges, laptops, accessories, and office supplies with fast nationwide delivery across Ghana.",
 
   keywords: [
-    "LoisBanks Beauty",
-    "human hair wigs",
-    "luxury wigs Nigeria",
-    "hair bundles",
-    "premium wigs Lagos",
-    "beauty products",
+    "HP toner cartridges",
+    "HP ink cartridges",
+    "Canon toner cartridges",
+    "Canon ink cartridges",
+    "printers Ghana",
+    "office supplies Ghana",
+    "laptops Ghana",
+    "printer accessories",
+    "office equipment",
+    "Bencord Ltd",
   ],
 
-  authors: [{ name: siteName }],
-  creator: siteName,
-  publisher: siteName,
+  authors: [
+    {
+      name: "Bencord Ltd",
+    },
+  ],
 
-  alternates: {
-    canonical: "/",
-  },
+  creator: "Bencord Ltd",
 
   openGraph: {
-    type: "website",
-    locale: "en_NG",
-    url: siteUrl,
-    siteName,
-    title,
-    description,
+    title:
+      "Bencord Ltd | Printers, Toners, Ink Cartridges & Office Supplies",
+
+    description:
+      "Shop genuine printers, toner cartridges, ink cartridges, laptops, accessories, and office supplies with fast nationwide delivery across Ghana.",
+
+    url: "https://yourdomain.com",
+
+    siteName: "Bencord Ltd",
+
     images: [
       {
-        url: ogImage,
+        url: "/og-image.jpg",
         width: 1200,
         height: 630,
-        alt: `${siteName} — Premium Hair & Beauty`,
+        alt: "Bencord Ltd Office Supplies",
       },
     ],
+
+    locale: "en_GH",
+
+    type: "website",
   },
 
   twitter: {
     card: "summary_large_image",
-    title,
-    description,
-    images: [ogImage],
+
+    title:
+      "Bencord Ltd | Printers, Toners, Ink Cartridges & Office Supplies",
+
+    description:
+      "Shop genuine office supplies with fast delivery across Ghana.",
+
+    images: ["/og-image.jpg"],
   },
 
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      "max-image-preview": "large",
-      "max-snippet": -1,
-      "max-video-preview": -1,
-    },
-  },
-
-  icons: {
-    icon: "/favicon.jpeg",
-    apple: "/favicon.jpeg",
   },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" className={geist.variable}>
-      <body className="bg-white text-black antialiased">{children}</body>
+      <body className="bg-white text-black antialiased">
+        <ToastProvider />
+
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }

@@ -1,110 +1,110 @@
-"use client";
-
-import FadeContent from "@/components/animations/fade-content";
-import { SplitLines } from "@/components/animations/SplitLines";
-import CountUp from "@/components/animations/count-up";
 import Image from "next/image";
+import { SplitLines } from "@/components/animations/SplitLines";
 
 export default function FounderStory() {
   return (
-    <section className="w-full bg-black/90 section-spacing">
-      <div className="mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
+    <section className="w-full pt-[6rem] pb-[3rem] px-4 sm:px-6 sm:pt-[8rem] sm:pb-[3.5rem] lg:pt-[10rem] lg:pb-[4rem] lg:px-[3rem] bg-white">
+      <div className="mx-auto max-w-7xl min-w-0">
+        <div className="grid grid-cols-1 items-center gap-8 sm:gap-10 lg:grid-cols-2 lg:gap-16">
           {/* Left Image */}
           <div
             className="
               relative
+              h-[20rem]
               w-full
               overflow-hidden
-              rounded-[1.5rem]
-              h-[24rem]
-              sm:h-[25rem]
+              rounded-2xl
+              sm:h-[26rem]
               md:h-[30rem]
-              lg:h-[35rem]
             "
           >
             <Image
-              src="/about.jpg"
-              alt="Founder of LoisBanks Beauty"
+              src="https://ik.imagekit.io/jl7pziosr/WhatsApp%20Image%202026-06-23%20at%2013.08.06.jpeg"
+              alt="Clayton Prints Founder"
               fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
             />
           </div>
 
           {/* Right Content */}
-          <div className="flex flex-col gap-6">
-            <FadeContent blur={true} duration={0.5} initialOpacity={0}>
-              <span className="subtitle">Our Story</span>
-            </FadeContent>
-
+          <div className="flex flex-col gap-4 sm:gap-5 min-w-0">
             <SplitLines
-              tag="h2"
-              text="Empowering Beauty Through Quality"
-              className="heading-1 max-w-[38rem] text-white"
-              duration={1}
-              stagger={0.025}
-              yPercent={100}
-              rootMargin="-100px"
-              ease="power4.out"
+              text="Our Story"
+              tag="span"
+              className="subtitle"
+              duration={0.8}
+              stagger={0.02}
+              ease="power3.out"
+              yPercent={120}
+              threshold={0.1}
+              rootMargin="-80px"
             />
 
             <SplitLines
-              tag="p"
-              text="LoisBanks Beauty is a luxury destination for premium hair and beauty, created with a passion for helping women feel confident, elegant, and effortlessly beautiful. Built on quality, style, and trust, the brand offers timeless hair collections designed to elevate everyday beauty."
-              className="paragraph max-w-[36rem] text-white/75"
+              text="Powering Offices Across Ghana"
+              tag="h2"
+              className="heading-2 max-w-full lg:max-w-[32rem] text-black"
               duration={1}
               stagger={0.025}
-              yPercent={100}
+              ease="power3.out"
+              yPercent={150}
+              threshold={0.1}
               rootMargin="-100px"
-              ease="power4.out"
+              delay={0.12}
+            />
+
+            <SplitLines
+              text="For over 10 years, we've helped businesses, schools, and organizations across Ghana source genuine printers, toner cartridges, ink cartridges, laptops, and office essentials. We're committed to quality products, reliable service, and fast nationwide delivery that keeps workplaces running efficiently."
+              tag="p"
+              className="paragraph max-w-full lg:max-w-[34rem] text-black/70"
+              duration={1}
+              stagger={0.015}
+              ease="power3.out"
+              yPercent={80}
+              threshold={0.1}
+              rootMargin="-60px"
+              delay={0.25}
             />
 
             {/* Stats */}
-            <div className="grid grid-cols-2 gap-4 pt-2 sm:gap-5 lg:max-w-[34rem]">
+            <div className="grid grid-cols-2 gap-3 sm:gap-4 pt-1 lg:max-w-[32rem]">
               {[
                 {
-                  value: 8,
-                  suffix: "+",
-                  label: "Years of Experience",
+                  value: "10+",
+                  label: "Years in Business",
                 },
                 {
-                  value: 100,
-                  suffix: "+",
-                  label: "Satisfied Clients",
+                  value: "5,000+",
+                  label: "Happy Customers",
                 },
                 {
-                  value: 20,
-                  suffix: "+",
-                  label: "Luxury Products",
+                  value: "1,000+",
+                  label: "Products Available",
                 },
                 {
-                  value: 100,
-                  suffix: "%",
-                  label: "Premium Quality",
+                  value: "100%",
+                  label: "Genuine Products",
                 },
               ].map((item) => (
                 <div
                   key={item.label}
                   className="
-                    rounded-2xl
+                    min-w-0
+                    rounded-xl
+                    sm:rounded-2xl
                     border
-                    border-white/10
-                    bg-white/5
-                    p-4
-                    sm:p-5
+                    border-black/10
+                    bg-[#f8f8f8]
+                    p-3.5
+                    sm:p-4
                   "
                 >
-                  <h3 className="text-[1.75rem] text-white sm:text-[2.25rem] lg:text-[2.5rem]">
-                    <CountUp
-                      from={0}
-                      to={item.value}
-                      duration={0.5}
-                      separator=","
-                    />
-                    {item.suffix}
+                  <h3 className="text-[1.5rem] sm:text-[1.75rem] lg:text-[2rem] font-bold text-[#ff0000]">
+                    {item.value}
                   </h3>
 
-                  <p className="mt-1 text-sm text-white/60">
+                  <p className="mt-1 text-xs sm:text-sm text-black/65">
                     {item.label}
                   </p>
                 </div>

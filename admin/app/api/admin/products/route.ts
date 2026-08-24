@@ -2,9 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
-import "@/models/Collection";
+import "@/models/Category";
 import { SortOrder } from "mongoose";
-import { notifySubscribersNewProduct } from "@/lib/notify-subscribers";
 import { priceFormatter } from "@/lib/priceFormatter";
 
 export async function GET(request: NextRequest) {
@@ -77,7 +76,7 @@ export async function GET(request: NextRequest) {
 
     const [products, total] = await Promise.all([
       Product.find(filter)
-        .populate("collectionId")
+        .populate("categoryId")
         .sort(sort)
         .skip(skip)
         .limit(limit)
@@ -130,23 +129,6 @@ export async function POST(request: NextRequest) {
     const product = await Product.create({
       ...body,
     });
-
-    // Notify active subscribers (non-blocking)
-    try {
-      const image =
-        product.media?.find(
-          (item: { type: string; url: string }) => item.type === "image"
-        )?.url ?? undefined;
-
-      void notifySubscribersNewProduct({
-        productName: product.name,
-        productImage: image,
-        productSlug: product.slug,
-        price: `${priceFormatter(Number(product.price))}`,
-      });
-    } catch (emailError) {
-      console.error("Failed to queue new product emails:", emailError);
-    }
 
     return NextResponse.json(product, {
       status: 201,

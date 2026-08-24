@@ -80,11 +80,11 @@ const Register = () => {
     <main className="min-h-screen overflow-x-hidden">
       <div className="flex min-h-screen">
         {/* Form Side */}
-        <div className="flex w-full items-center justify-center px-5 pt-24 pb-10 sm:px-6 sm:pt-28 sm:pb-12 md:px-8 md:pt-32 lg:w-1/2 lg:px-12 lg:pt-[9rem] lg:pb-12">
+        <div className="flex w-full items-center justify-center px-5 pt-24 pb-10 sm:px-6 sm:pt-28 sm:pb-12 md:px-8 md:pt-32 lg:w-full lg:px-12 lg:pt-[9rem] lg:pb-12">
           <div className="w-full max-w-[26rem] sm:max-w-[28rem] lg:max-w-[30rem]">
             {/* Heading */}
             <div className="mb-6 sm:mb-8 lg:mb-10">
-              <h1 className="heading-3 text-black">
+              <h1 className="heading-3 text-black ">
                 Create Your Account
               </h1>
             </div>
@@ -108,7 +108,7 @@ const Register = () => {
                   name="name"
                   id="name"
                   autoComplete="name"
-                  className="h-[2.75rem] rounded-full border-black/15 px-4 sm:h-[3rem] sm:px-5 lg:h-[3.2rem]"
+                  className="h-[2.75rem] rounded-[0.75rem] border-black/15 px-4 sm:h-[3rem] sm:px-5 lg:h-[3.2rem]"
                 />
               </div>
 
@@ -126,7 +126,7 @@ const Register = () => {
                   name="email"
                   id="email"
                   autoComplete="email"
-                  className="h-[2.75rem] rounded-full border-black/15 px-4 sm:h-[3rem] sm:px-5 lg:h-[3.2rem]"
+                  className="h-[2.75rem] rounded-[0.75rem] border-black/15 px-4 sm:h-[3rem] sm:px-5 lg:h-[3.2rem]"
                 />
               </div>
 
@@ -145,7 +145,7 @@ const Register = () => {
                     name="password"
                     id="password"
                     autoComplete="new-password"
-                    className="h-[2.75rem] rounded-full border-black/15 px-4 pr-[3rem] sm:h-[3rem] sm:px-5 sm:pr-[3.5rem] lg:h-[3.2rem]"
+                    className="h-[2.75rem] rounded-[0.75rem] border-black/15 px-4 pr-[3rem] sm:h-[3rem] sm:px-5 sm:pr-[3.5rem] lg:h-[3.2rem]"
                   />
 
                   <button
@@ -158,7 +158,7 @@ const Register = () => {
                         ? "Hide password"
                         : "Show password"
                     }
-                    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-black/40 transition-colors hover:text-[#FD3F92] sm:right-4"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-black/40 transition-colors hover:text-[#ee0a0a] sm:right-4"
                   >
                     {showPassword ? (
                       <EyeOff size={18} strokeWidth={1.5} className="sm:hidden" />
@@ -194,7 +194,7 @@ const Register = () => {
                     name="confirmPassword"
                     id="confirmPassword"
                     autoComplete="new-password"
-                    className="h-[2.75rem] rounded-full border-black/15 px-4 pr-[3rem] sm:h-[3rem] sm:px-5 sm:pr-[3.5rem] lg:h-[3.2rem]"
+                    className="h-[2.75rem] rounded-[0.75rem] border-black/15 px-4 pr-[3rem] sm:h-[3rem] sm:px-5 sm:pr-[3.5rem] lg:h-[3.2rem]"
                   />
 
                   <button
@@ -207,7 +207,7 @@ const Register = () => {
                         ? "Hide password"
                         : "Show password"
                     }
-                    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-black/40 transition-colors hover:text-[#FD3F92] sm:right-4"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer text-black/40 transition-colors hover:text-[#ee0a0a] sm:right-4"
                   >
                     {showConfirmPassword ? (
                       <EyeOff size={18} strokeWidth={1.5} className="sm:hidden" />
@@ -234,24 +234,12 @@ const Register = () => {
               Already have an account?{" "}
               <Link
                 href="/login"
-                className="text-black underline transition-colors hover:text-[#FD3F92]"
+                className="text-black underline transition-colors hover:text-[#ee0a0a]"
               >
                 Sign In
               </Link>
             </p>
           </div>
-        </div>
-
-        {/* Image Side */}
-        <div className="relative hidden h-screen lg:block lg:w-1/2">
-          <Image
-            src="/login.jpg"
-            alt="LoisBanks Beauty"
-            fill
-            priority
-            quality={75}
-            className="object-cover"
-          />
         </div>
       </div>
     </main>

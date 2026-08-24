@@ -13,7 +13,6 @@ import {
 
 import { getProducts } from "@/actions/product.actions";
 import { Product } from "@/types";
-import { useCurrencyStore } from "@/store/currency";
 import { priceFormatter } from "@/lib/priceFormatter";
 
 type SearchModalProps = {
@@ -28,11 +27,13 @@ function SearchModal({ openSearchModal, setOpenSearchModal }: SearchModalProps) 
   const [allProducts, setAllProducts] = useState<Product[]>([]);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const router = useRouter();
-  const currency = useCurrencyStore((s) => s.currency);
 
   useEffect(() => {
     (async () => {
-      const data = await getProducts();
+      const data = await getProducts({
+        page: 1,
+        limit: 500, // load enough products for search
+      });
       setAllProducts(Array.isArray(data) ? data : data.products ?? []);
     })();
   }, []);
@@ -41,17 +42,34 @@ function SearchModal({ openSearchModal, setOpenSearchModal }: SearchModalProps) 
     setSelectedIndex(-1);
   }, [products]);
 
-  useEffect(() => {
-    if (!query.trim()) {
-      setProducts(allProducts.slice(0, 8));
-      return;
-    }
+useEffect(() => {
+  if (!query.trim()) {
+    setProducts(allProducts.slice(0, 8));
+    return;
+  }
 
-    const filtered = allProducts.filter((p) =>
-      p.name.toLowerCase().includes(query.toLowerCase()),
+  const normalize = (value: string) =>
+    value
+      .toLowerCase()
+      .replace(/[-_/]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+
+  const q = normalize(query);
+  const words = q.split(" ").filter(Boolean);
+
+  const filtered = allProducts.filter((p) => {
+    const name = normalize(p.name ?? "");
+    const slug = normalize(p.slug ?? p.name ?? "");
+
+    // every word in the search must appear in name or slug
+    return words.every(
+      (word) => name.includes(word) || slug.includes(word)
     );
-    setProducts(filtered);
-  }, [query, allProducts]);
+  });
+
+  setProducts(filtered);
+}, [query, allProducts]);
 
   useEffect(() => {
     if (openSearchModal) {
@@ -172,7 +190,7 @@ function SearchModal({ openSearchModal, setOpenSearchModal }: SearchModalProps) 
                     </div>
 
                     <span className="shrink-0 text-[0.8rem] font-medium text-black/70 sm:text-[0.85rem]">
-                      {priceFormatter(product.price, currency)}
+                      {priceFormatter(product.price)}
                     </span>
                   </button>
                 ))}

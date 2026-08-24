@@ -32,9 +32,6 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
   const currency = useCurrencyStore((s) => s.currency);
 
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState<string | null>(
-    product.sizes?.[0] ?? null,
-  );
 
   const stockStatus = getStockStatus(product);
   const stockLabel = getStockLabel(product);
@@ -44,7 +41,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
     ? Math.max(1, product.stock)
     : Infinity;
 
-  const collectionSlug = product.collectionId?.name
+  const categorySlug = product.categoryId?.name
     ?.toLowerCase()
     .replace(/\s+/g, "-");
 
@@ -56,12 +53,12 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
 
   const handleAddToCart = () => {
     if (disabled) return;
-    addItem(product, quantity, selectedSize);
+    addItem(product, quantity);
   };
 
   const handleBuyNow = () => {
     if (disabled) return;
-    addItem(product, 1, selectedSize);
+    addItem(product, 1);
     router.push("/checkout");
   };
 
@@ -89,13 +86,13 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
             Home
           </Link>
           <span>/</span>
-          {product.collectionId && (
+          {product.categoryId && (
             <>
               <Link
-                href={`/collections/${collectionSlug}`}
+                href={`/categories/${categorySlug}`}
                 className="transition-colors hover:text-black"
               >
-                {product.collectionId.name}
+                {product.categoryId.name}
               </Link>
               <span>/</span>
             </>
@@ -108,7 +105,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
         {/* Name + stock */}
         <div className="mb-5 sm:mb-6">
           <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-            <h1 className="heading-1 max-w-[min(28rem,100%)] leading-[1.1]">
+            <h1 className="heading-1 max-w-[min(28rem,100%)]">
               {product.name}
             </h1>
 
@@ -156,16 +153,16 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
           {/* Price + discount */}
           <div className="flex flex-wrap items-center gap-3">
             <p className="text-[1.35rem] sm:text-[1.5rem] lg:text-[1.8rem]">
-              {priceFormatter(finalPrice, currency)}
+              {priceFormatter(finalPrice)}
             </p>
 
             {hasDiscount && (
               <>
                 <p className="text-[1.1rem] text-black/40 line-through sm:text-[1.25rem]">
-                  {priceFormatter(originalPrice, currency)}
+                  {priceFormatter(originalPrice)}
                 </p>
                 {discountLabel && (
-                  <span className="rounded-full bg-[#FD3F92] px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wide text-white">
+                  <span className="rounded-full bg-[#ee0a0a] px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wide text-white">
                     {discountLabel}
                   </span>
                 )}
@@ -174,34 +171,9 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
           </div>
         </div>
 
-        {/* Size */}
-        {product.sizes && product.sizes.length > 0 && (
-          <div className="mb-5 sm:mb-6">
-            <p className="mb-3 text-[0.7rem] font-medium uppercase tracking-[0.15em] text-black/50">
-              Size
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {product.sizes.map((size) => (
-                <button
-                  key={size}
-                  type="button"
-                  onClick={() => setSelectedSize(size)}
-                  className={`rounded-full border px-4 py-2 text-[0.65rem] font-medium uppercase tracking-[0.1em] transition-all duration-300 sm:px-5 sm:py-2.5 sm:text-[0.7rem] ${
-                    selectedSize === size
-                      ? "border-black bg-black text-white"
-                      : "border-black/15 text-black hover:border-black"
-                  }`}
-                >
-                  {size}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Quantity + Add to cart */}
         <div className="mb-3 flex flex-col gap-2.5 sm:flex-row sm:items-stretch sm:gap-3">
-          <div className="flex h-12 min-w-0 items-center justify-between gap-4 rounded-full border border-black/20 px-4 sm:h-[3.2rem] sm:min-w-[8rem]">
+          <div className="flex h-12 min-w-0 items-center justify-between gap-4 rounded-[0.75rem] border border-black/20 px-4 sm:h-[3.2rem] sm:min-w-[8rem]">
             <button
               type="button"
               disabled={disabled}
@@ -239,7 +211,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
           type="button"
           onClick={handleBuyNow}
           disabled={disabled}
-          className="mb-6 w-full rounded-full border border-black/15 py-3 text-[0.7rem] font-medium uppercase tracking-[0.1em] transition-all duration-300 hover:border-black hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:mb-8 sm:py-3.5 sm:text-[0.75rem]"
+          className="mb-6 w-full rounded-[0.75rem] border border-black/15 py-3 text-[0.7rem] font-medium uppercase tracking-[0.1em] transition-all duration-300 hover:border-black hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-50 sm:mb-8 sm:py-3.5 sm:text-[0.75rem]"
         >
           Buy Now
         </button>
@@ -247,9 +219,9 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
         <Accordion type="single" collapsible className="space-y-3">
           <AccordionItem
             value="description"
-            className="rounded-xl border border-black/10 bg-white px-3.5 py-1.5 shadow-xs sm:rounded-2xl sm:px-5 sm:py-2 md:px-6"
+            className="rounded-[0.75rem] border border-black/10 bg-white px-3.5 py-1.5 shadow-xs sm:rounded-2xl sm:px-5 sm:py-2 md:px-6"
           >
-            <AccordionTrigger className="py-3 text-left font-geist text-[0.8rem] font-medium uppercase transition-colors hover:text-[#FD3F92] sm:py-4 sm:text-[15px] md:text-[1rem]">
+            <AccordionTrigger className="py-3 text-left font-geist text-[0.8rem] font-medium uppercase transition-colors hover:text-[#ee0a0a] sm:py-4 sm:text-[15px] md:text-[1rem]">
               Description
             </AccordionTrigger>
             <AccordionContent className="pr-2 pb-3 font-geist text-[0.875rem] leading-6 text-black/70 sm:pr-6 sm:pb-4 sm:text-[0.925rem] sm:leading-7">

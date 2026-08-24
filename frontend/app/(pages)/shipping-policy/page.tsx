@@ -6,7 +6,7 @@ export default function ShippingPolicyPage() {
       <section className="mx-auto w-full max-w-4xl px-[1.5rem] sm:px-[2rem] lg:px-[3rem]">
         {/* Header */}
         <div className="mb-14 text-center">
-          <p className="subtitle mb-4">Lois Banks Beauty</p>
+          <p className="subtitle mb-4">How We Ship</p>
 
           <h1 className="heading-1 text-black">
             Shipping Policy

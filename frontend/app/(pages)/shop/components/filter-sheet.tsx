@@ -7,16 +7,16 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { priceFormatter } from "@/lib/priceFormatter";
 import { useCurrencyStore } from "@/store/currency";
-import { Collection } from "@/types";
+import { Category } from "@/types";
 
 export type AvailabilityFilter = "in-stock" | "out-of-stock";
 
 interface FilterSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  collections: Collection[];
-  selectedCollections: string[];
-  onToggleCollection: (collectionId: string) => void;
+  categories: Category[];
+  selectedCategories: string[];
+  onToggleCategory: (categoryId: string) => void;
   selectedAvailability: AvailabilityFilter[];
   onToggleAvailability: (value: AvailabilityFilter) => void;
   priceRange: [number, number];
@@ -35,9 +35,9 @@ const AVAILABILITY_OPTIONS: { value: AvailabilityFilter; label: string }[] = [
 const FilterSheet = ({
   open,
   onOpenChange,
-  collections,
-  selectedCollections,
-  onToggleCollection,
+  categories,
+  selectedCategories,
+  onToggleCategory,
   selectedAvailability,
   onToggleAvailability,
   priceRange,
@@ -56,14 +56,14 @@ const FilterSheet = ({
         className="z-[350] flex h-full w-full max-w-full flex-col gap-0 border-none bg-white p-0 sm:max-w-[28rem] lg:max-w-[32rem] [&>button]:hidden"
       >
         {/* Header */}
-        <div className="flex shrink-0 items-center justify-between border-b border-dashed border-[#FD3F92]/40 px-5 py-4 sm:px-6 sm:py-5 lg:px-8">
+        <div className="flex shrink-0 items-center justify-between border-b px-5 py-4 sm:px-6 sm:py-5 lg:px-8">
           <SheetTitle className="heading-3">Filters</SheetTitle>
 
           <button
             type="button"
             onClick={() => onOpenChange(false)}
             aria-label="Close filters"
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border border-dashed border-[#FD3F92]/40 transition-colors duration-300 hover:bg-[#FD3F92] hover:text-white sm:h-10 sm:w-10"
+            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full border transition-colors duration-300 hover:bg-[#ee0a0a] hover:text-white sm:h-10 sm:w-10"
           >
             <X size={18} strokeWidth={1.5} className="sm:size-5" />
           </button>
@@ -71,32 +71,32 @@ const FilterSheet = ({
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6 sm:py-6 lg:px-8">
-          {/* Collection */}
+          {/* Categories */}
           <div>
             <p className="text-[0.7rem] font-medium uppercase tracking-[0.05em] text-black/80">
-              Collection
+              Categories
             </p>
 
             <div className="mt-4 flex flex-col gap-3.5 sm:gap-4">
-              {collections.map((collection) => (
+              {categories.map((category) => (
                 <label
-                  key={collection._id}
+                  key={category._id}
                   className="flex cursor-pointer items-center gap-3"
                 >
                   <Checkbox
-                    checked={selectedCollections.includes(collection._id)}
-                    onCheckedChange={() => onToggleCollection(collection._id)}
-                    className="border-black/25 data-[state=checked]:border-[#FD3F92] data-[state=checked]:bg-[#FD3F92]"
+                    checked={selectedCategories.includes(category._id)}
+                    onCheckedChange={() => onToggleCategory(category._id)}
+                    className="border-black/25 data-[state=checked]:border-[#ee0a0a] data-[state=checked]:bg-[#ee0a0a]"
                   />
                   <span className="text-sm font-medium text-black/70">
-                    {collection.name}
+                    {category.name}
                   </span>
                 </label>
               ))}
 
-              {collections.length === 0 && (
+              {categories.length === 0 && (
                 <p className="text-sm text-black/40">
-                  No collections available.
+                  No categories available.
                 </p>
               )}
             </div>
@@ -117,7 +117,7 @@ const FilterSheet = ({
                   <Checkbox
                     checked={selectedAvailability.includes(option.value)}
                     onCheckedChange={() => onToggleAvailability(option.value)}
-                    className="border-black/25 data-[state=checked]:border-[#FD3F92] data-[state=checked]:bg-[#FD3F92]"
+                    className="border-black/25 data-[state=checked]:border-[#ee0a0a] data-[state=checked]:bg-[#ee0a0a]"
                   />
                   <span className="text-sm font-medium text-black/70">
                     {option.label}
@@ -142,15 +142,15 @@ const FilterSheet = ({
                 onValueChange={(value) =>
                   onPriceRangeChange(value as [number, number])
                 }
-                className="[&_.bg-primary]:bg-[#FD3F92] [&_[role=slider]]:border-[#FD3F92] [&_[role=slider]]:bg-white"
+                className="[&_.bg-primary]:bg-[#ee0a0a] [&_[role=slider]]:border-[#ee0a0a] [&_[role=slider]]:bg-white"
               />
 
               <div className="mt-4 flex items-center justify-between gap-3 text-xs font-medium text-black/50">
                 <span className="truncate">
-                  {priceFormatter(priceRange[0], currency)}
+                  {priceFormatter(priceRange[0])}
                 </span>
                 <span className="truncate">
-                  {priceFormatter(priceRange[1], currency)}
+                  {priceFormatter(priceRange[1])}
                 </span>
               </div>
             </div>

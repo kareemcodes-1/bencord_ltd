@@ -32,9 +32,9 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
 
       <div className="mx-auto max-w-[32rem] text-center">
         <div className="mb-6 flex justify-center sm:mb-8">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#FD3F92]/10 sm:h-20 sm:w-20">
+          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#ee0a0a]/10 sm:h-20 sm:w-20">
             <svg
-              className="h-8 w-8 text-[#FD3F92] sm:h-10 sm:w-10"
+              className="h-8 w-8 text-[#ee0a0a] sm:h-10 sm:w-10"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -70,7 +70,7 @@ export default async function CheckoutSuccessPage({ searchParams }: Props) {
           </Link>
           <Link
             href="/orders"
-            className="inline-flex h-11 items-center justify-center rounded-xl border border-black/10 px-6 text-sm font-medium transition hover:bg-black/5"
+            className="inline-flex items-center justify-center gap-2 rounded-[0.75rem] border border-black/15 px-8 py-[0.95rem] text-[0.8rem] font-medium uppercase tracking-wide transition-all duration-300 hover:border-black hover:bg-black hover:text-white"
           >
             View orders
           </Link>

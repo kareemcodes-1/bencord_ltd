@@ -53,7 +53,7 @@ const ProductGallery = ({ media, name }: ProductGalleryProps) => {
 
   if (!media.length) {
     return (
-      <div className="flex h-[50vh] w-full items-center justify-center bg-neutral-100 sm:h-[60vh] lg:h-screen lg:w-1/2">
+      <div className="flex h-[420px] w-full items-center justify-center bg-neutral-100 lg:w-1/2">
         <p className="text-sm text-black/40">No media available.</p>
       </div>
     );
@@ -61,21 +61,21 @@ const ProductGallery = ({ media, name }: ProductGalleryProps) => {
 
   return (
     <>
-      {/* Stacked gallery */}
-      <div className="flex w-full flex-col gap-2 sm:gap-3 lg:w-1/2">
+      {/* Gallery */}
+      <div className="flex w-full flex-col gap-3 lg:w-1/2">
         {media.map((item, index) => (
           <button
             key={item._id ?? index}
             type="button"
             onClick={() => setActiveIndex(index)}
-            className="relative h-[70vw] w-full cursor-zoom-in overflow-hidden bg-neutral-100 text-left sm:h-[55vw] md:h-[50vw] lg:h-screen"
+            className="relative aspect-[4/3] w-full cursor-zoom-in overflow-hidden bg-neutral-50 text-left"
             aria-label={`View ${name} media ${index + 1}`}
           >
             {item.type === "video" ? (
               <>
                 <video
                   src={item.url}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-contain p-6"
                   muted
                   playsInline
                   preload="metadata"
@@ -93,14 +93,14 @@ const ProductGallery = ({ media, name }: ProductGalleryProps) => {
                 quality={80}
                 priority={index === 0}
                 sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover"
+                className="object-contain p-6"
               />
             )}
           </button>
         ))}
       </div>
 
-      {/* Lightbox preview */}
+      {/* Lightbox */}
       {isOpen && activeItem && (
         <div
           className="fixed inset-0 z-[400] flex flex-col bg-black/95"
@@ -131,7 +131,7 @@ const ProductGallery = ({ media, name }: ProductGalleryProps) => {
                 type="button"
                 onClick={goPrev}
                 aria-label="Previous"
-                className="absolute left-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur transition-colors hover:bg-[#FD3F92] sm:left-4 sm:h-12 sm:w-12"
+                className="absolute left-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur transition-colors hover:bg-[#ee0a0a] sm:left-4 sm:h-12 sm:w-12"
               >
                 <ChevronLeft size={22} />
               </button>
@@ -166,7 +166,7 @@ const ProductGallery = ({ media, name }: ProductGalleryProps) => {
                 type="button"
                 onClick={goNext}
                 aria-label="Next"
-                className="absolute right-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur transition-colors hover:bg-[#FD3F92] sm:right-4 sm:h-12 sm:w-12"
+                className="absolute right-2 top-1/2 z-10 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur transition-colors hover:bg-[#ee0a0a] sm:right-4 sm:h-12 sm:w-12"
               >
                 <ChevronRight size={22} />
               </button>
@@ -183,7 +183,7 @@ const ProductGallery = ({ media, name }: ProductGalleryProps) => {
                   onClick={() => setActiveIndex(index)}
                   className={`relative h-14 w-14 shrink-0 overflow-hidden rounded-lg border-2 transition-colors sm:h-16 sm:w-16 ${
                     index === activeIndex
-                      ? "border-[#FD3F92]"
+                      ? "border-[#ee0a0a]"
                       : "border-transparent opacity-60 hover:opacity-100"
                   }`}
                 >

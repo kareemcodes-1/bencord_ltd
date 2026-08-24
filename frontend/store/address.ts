@@ -59,7 +59,7 @@ export const useAddressStore = create<AddressStore>()(
       clear: () => set({ addresses: [] }),
     }),
     {
-      name: "loisbanks-addresses", // localStorage key
+      name: "bencord-addresses", // localStorage key
     }
   )
 );

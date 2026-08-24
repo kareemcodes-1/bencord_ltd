@@ -11,7 +11,7 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://loisbanksbeauty.com"
 export default function OrderConfirmedEmail({ name, orderReference }: Props) {
   return (
     <EmailLayout preview={`Your order #${orderReference} has been confirmed`}>
-      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#FD3F92]">
+      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#ee0a0a]">
         Confirmed
       </Text>
 
@@ -40,7 +40,7 @@ export default function OrderConfirmedEmail({ name, orderReference }: Props) {
       <Section className="mt-8 text-center">
         <Button
           href={`${APP_URL}/orders`}
-          className="rounded-full bg-[#FD3F92] px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.08em] text-white no-underline"
+          className="rounded-full bg-[#ee0a0a] px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.08em] text-white no-underline"
         >
           View order
         </Button>

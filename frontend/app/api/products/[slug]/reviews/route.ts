@@ -86,12 +86,12 @@ export async function POST(
       );
     }
 
-    // Must have purchased this product (adjust statuses to match your Order model)
-    const hasPurchased = await Order.exists({
-      userId,
-      status: { $in: ["delivered", "completed"] },
-      "items.productId": product._id,
-    });
+    // Must have purchased this product
+const hasPurchased = await Order.exists({
+  userId: new Types.ObjectId(userId),
+  orderStatus: "delivered", // ✅ not status
+  "items.productId": product._id,
+});
 
     if (!hasPurchased) {
       return NextResponse.json(
@@ -129,7 +129,7 @@ export async function POST(
     return NextResponse.json(
       {
         message:
-          "Thank you! Your review was submitted and is pending approval.",
+          "Thank you! Your review was submitted",
         review: {
           _id: review._id,
           rating: review.rating,

@@ -11,12 +11,10 @@ export interface PaginationMeta {
 
 export interface DiscountPayload {
   title: string;
-  description: string;
+  description?: string;
   discountType: "percentage" | "fixed";
   discountValue: number;
   productIds: string[];
-  minimumAmount: number;
-  maxDiscount: number;
   startsAt: string; // ISO
   expiresAt: string; // ISO
   isActive: boolean;

@@ -4,7 +4,7 @@ import { MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { FaWhatsapp } from "react-icons/fa";
 
-const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "2348105001284";
+const WHATSAPP_NUMBER = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "2348182387806";
 const DEFAULT_MESSAGE = "Hi! I'd like to ask about a product.";
 
 export default function WhatsAppBubble() {

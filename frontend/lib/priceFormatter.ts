@@ -1,20 +1,12 @@
-import { type CurrencyCode, getCurrency } from "@/lib/currency";
-
 /**
- * @param priceInNgn - price stored in the database (Naira)
- * @param currencyCode - display currency (default NGN)
+ * Formats price in Ghanaian Cedi (GHS)
+ * @param price - price stored in the database (in GHS)
  */
-export function priceFormatter(
-  priceInNgn: number,
-  currencyCode: CurrencyCode = "NGN"
-) {
-  const { code, locale, rateFromNgn } = getCurrency(currencyCode);
-  const converted = priceInNgn * rateFromNgn;
-
-  return new Intl.NumberFormat(locale, {
+export function priceFormatter(price: number) {
+  return new Intl.NumberFormat("en-GH", {
     style: "currency",
-    currency: code,
+    currency: "GHS",
     minimumFractionDigits: 0,
-    maximumFractionDigits: code === "KWD" ? 3 : 2,
-  }).format(converted);
+    maximumFractionDigits: 2,
+  }).format(price);
 }

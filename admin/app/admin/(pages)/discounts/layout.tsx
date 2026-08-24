@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Discounts | Admin",
+  title: "Discounts",
   description:
     "Manage discounts, and promotional offers.",
 };

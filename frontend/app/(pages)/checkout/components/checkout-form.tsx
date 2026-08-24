@@ -18,6 +18,8 @@ import DeliverySection, {
 import ShippingMethodSection from "./shipping-method";
 import PaymentSection from "./payment-section";
 import OrderSummary from "./order-summary";
+import EmptyState from "@/app/components/empty-state";
+import { ShoppingBag } from "lucide-react";
 
 type UserData = {
   email: string;
@@ -41,16 +43,16 @@ export default function CheckoutForm({ user }: Props) {
     phone: user.phone || "",
   });
 
-  const [delivery, setDelivery] = useState<DeliveryData>({
-    firstName: "",
-    lastName: "",
-    address: "",
-    apartment: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "",
-  });
+ const [delivery, setDelivery] = useState<DeliveryData>({
+  firstName: "",
+  lastName: "",
+  address: "",
+  apartment: "",
+  city: "",
+  state: "",
+  postalCode: "",
+  country: "GH", // ← always Ghana
+});
 
   const [selectedAddressId, setSelectedAddressId] = useState<string | "new">(
     "new"
@@ -70,6 +72,7 @@ export default function CheckoutForm({ user }: Props) {
         ...prev,
         firstName: user.name?.split(" ")[0] || "",
         lastName: user.name?.split(" ").slice(1).join(" ") || "",
+        country: "GH",
       }));
       return;
     }
@@ -94,18 +97,18 @@ export default function CheckoutForm({ user }: Props) {
     setSelectedAddressId(id);
 
     if (id === "new") {
-      setDelivery({
-        firstName: user.name?.split(" ")[0] || "",
-        lastName: user.name?.split(" ").slice(1).join(" ") || "",
-        address: "",
-        apartment: "",
-        city: "",
-        state: "",
-        postalCode: "",
-        country: "",
-      });
-      return;
-    }
+  setDelivery({
+    firstName: user.name?.split(" ")[0] || "",
+    lastName: user.name?.split(" ").slice(1).join(" ") || "",
+    address: "",
+    apartment: "",
+    city: "",
+    state: "",
+    postalCode: "",
+    country: "GH", // ← always Ghana
+  });
+  return;
+}
 
     const addr = user.addresses.find((a) => a._id === id);
     if (!addr) return;
@@ -176,7 +179,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     const shippingFeeBase = shippingMethod === "delivery" ? DOOR_DELIVERY_FEE : 0;
     const totalAmountBase = subtotalBase + shippingFeeBase;
 
-    const res = await fetch("/api/paystack/initialize", {
+    const res = await fetch("/api/flutterwave/initialize", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -232,13 +235,18 @@ const handleSubmit = async (e: React.FormEvent) => {
   }
 
   // 2. Only show empty state after hydration is complete
-  if (items.length === 0) {
-    return (
-      <div className="py-20 text-center">
-        <p className="text-black/60">Your cart is empty.</p>
-      </div>
-    );
-  }
+ if (items.length === 0) {
+  return (
+    <div className="flex min-h-[50vh] items-center justify-center py-20">
+      <EmptyState
+        icon={ShoppingBag}
+        message="No items in your cart"
+        buttonText="Back to Home"
+        buttonHref="/"
+      />
+    </div>
+  );
+}
 
   return (
     <form onSubmit={handleSubmit}>
@@ -259,7 +267,6 @@ const handleSubmit = async (e: React.FormEvent) => {
             method={shippingMethod}
             onChange={setShippingMethod}
             shippingFee={DOOR_DELIVERY_FEE}
-            currency={currency}
             priceFormatter={priceFormatter}
           />
 

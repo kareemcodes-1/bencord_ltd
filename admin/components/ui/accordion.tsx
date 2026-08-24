@@ -50,7 +50,7 @@ function AccordionTrigger({
         {children}
 
         {/* Pink Plus Button */}
-        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#FD3F92] text-white shrink-0">
+        <div className="flex items-center justify-center w-8 h-8 rounded-full bg-[#ee0a0a] text-white shrink-0">
           <Plus
             data-slot="accordion-trigger-icon"
             className="pointer-events-none size-6 transition-transform duration-300 group-data-[state=open]/accordion-trigger:rotate-45"

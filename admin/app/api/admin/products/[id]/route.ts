@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
-import "@/models/Collection";
+import "@/models/Category";
 
 interface RouteContext {
   params: Promise<{
@@ -21,7 +21,7 @@ export async function GET(
     const { id } = await context.params;
 
     const product = await Product.findById(id)
-      .populate("collectionId")
+      .populate("categoryId")
       .lean();
 
     if (!product) {
@@ -71,7 +71,7 @@ export async function PUT(
         runValidators: true,
       }
     )
-      .populate("collectionId")
+      .populate("categoryId")
       .lean();
 
     if (!product) {

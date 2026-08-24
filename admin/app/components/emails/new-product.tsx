@@ -19,7 +19,7 @@ export default function NewProductEmail({
   return (
     <EmailLayout preview={`New drop: ${productName}`}>
       {/* Eyebrow */}
-      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#FD3F92]">
+      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#ee0a0a]">
         Just dropped
       </Text>
 
@@ -63,7 +63,7 @@ export default function NewProductEmail({
       <Section className="mt-8 text-center">
         <Button
           href={`${APP_URL}/shop/p/${productSlug}`}
-          className="rounded-full bg-[#FD3F92] px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.08em] text-white no-underline"
+          className="rounded-full bg-[#ee0a0a] px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.08em] text-white no-underline"
         >
           Shop now
         </Button>

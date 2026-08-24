@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Reviews | Admin",
+  title: "Reviews",
   description:
     "Manage customer reviews, ratings, and review approvals.",
 };

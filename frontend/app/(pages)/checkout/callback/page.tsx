@@ -1,4 +1,3 @@
-// app/checkout/callback/page.tsx
 import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -7,7 +6,11 @@ import Order from "@/models/Order";
 import User from "@/models/User";
 
 type Props = {
-  searchParams: Promise<{ reference?: string }>;
+  searchParams: Promise<{
+    status?: string;
+    tx_ref?: string;
+    transaction_id?: string;
+  }>;
 };
 
 export default async function CheckoutCallbackPage({ searchParams }: Props) {
@@ -16,32 +19,40 @@ export default async function CheckoutCallbackPage({ searchParams }: Props) {
     redirect("/login");
   }
 
-  const { reference } = await searchParams;
+  const { status, tx_ref, transaction_id } = await searchParams;
 
-  if (!reference) {
+  if (!tx_ref || !transaction_id) {
     redirect("/checkout?error=missing_reference");
+  }
+
+  // If user cancelled
+  if (status === "cancelled") {
+    redirect("/checkout?error=payment_cancelled");
   }
 
   await connectDB();
 
-  // 1. Verify with Paystack
+  // 1. Verify with Flutterwave
   const verifyRes = await fetch(
-    `https://api.paystack.co/transaction/verify/${reference}`,
+    `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
     {
       headers: {
-        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+        Authorization: `Bearer ${process.env.FLUTTERWAVE_SECRET_KEY}`,
       },
-    }
+    },
   );
 
   const verifyData = await verifyRes.json();
 
-  if (!verifyData.status || verifyData.data.status !== "success") {
+  if (
+    verifyData.status !== "success" ||
+    verifyData.data.status !== "successful"
+  ) {
     redirect("/checkout?error=payment_failed");
   }
 
-  const { metadata, amount, channel, paid_at } = verifyData.data;
-  const orderId = metadata?.orderId;
+  const { meta, amount, payment_type, created_at } = verifyData.data;
+  const orderId = meta?.orderId;
 
   if (!orderId) {
     redirect("/checkout?error=invalid_order");
@@ -60,23 +71,22 @@ export default async function CheckoutCallbackPage({ searchParams }: Props) {
 
   // 3. Update order to paid
   order.paymentInfo = {
-    transactionId: reference,
-    gateway: "paystack",
+    transactionId: tx_ref,
+    gateway: "flutterwave",
     paymentStatus: "paid",
-    channel: channel || null,
-    paidAt: paid_at ? new Date(paid_at) : new Date(),
+    channel: payment_type || null,
+    paidAt: created_at ? new Date(created_at) : new Date(),
   };
   order.orderStatus = "processing";
   await order.save();
 
   // 4. Save address to user if it was a new address
-  const selectedAddressId = metadata?.selectedAddressId;
+  const selectedAddressId = meta?.selectedAddressId;
 
   if (selectedAddressId === "new") {
     const user = await User.findById(session.user.id);
     if (user) {
-      // Set all existing addresses to non-default
-      user.addresses.forEach((addr) => {
+      user.addresses.forEach((addr: any) => {
         addr.isDefault = false;
       });
 

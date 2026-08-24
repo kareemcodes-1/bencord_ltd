@@ -3,7 +3,6 @@ import connectDB from "@/lib/mongodb";
 import Discount from "@/models/Discount";
 import "@/models/Product"; // needed for populate
 import { SortOrder } from "mongoose";
-import { notifySubscribersNewDiscount } from "@/lib/notify-subscribers";
 import { priceFormatter } from "@/lib/priceFormatter";
 
 export async function GET(request: NextRequest) {
@@ -89,37 +88,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     const discount = await Discount.create(body);
-
-    // Notify active subscribers (non-blocking)
-    try {
-      // Adjust field names if your Discount model differs
-      const value = Number(discount.discountValue ?? 0);
-      const type = discount.discountType as string | undefined;
-
-      const discountLabel =
-        type === "percentage"
-          ? `${value}% OFF`
-          : type === "fixed"
-            ? `${priceFormatter(value)} OFF`
-            : `${value} OFF`;
-
-      const expiresAt = discount.expiresAt
-        ? new Intl.DateTimeFormat("en-NG", {
-            day: "numeric",
-            month: "short",
-            year: "numeric",
-          }).format(new Date(discount.expiresAt))
-        : undefined;
-
-      void notifySubscribersNewDiscount({
-        title: discount.title,
-        description: discount.description ?? "",
-        discountLabel,
-        expiresAt,
-      });
-    } catch (emailError) {
-      console.error("Failed to queue discount emails:", emailError);
-    }
 
     return NextResponse.json(discount, { status: 201 });
   } catch (error: any) {

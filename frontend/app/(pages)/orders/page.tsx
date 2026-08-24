@@ -21,8 +21,8 @@ export default async function OrdersPage({ searchParams }: Props) {
   return (
     <div className="min-h-screen px-6 pb-24 pt-[9rem] lg:px-[3rem]">
      <div className="mx-auto mb-8 max-w-[60rem] text-center sm:mb-10 lg:mb-12">
-        <span className="subtitle">Order History</span>
-        <h1 className="heading-1 mt-3">All Your Orders</h1>
+        <span className="subtitle">Orders</span>
+        <h1 className="heading-1 mt-3">Order History</h1>
         <p className="mx-auto mt-3 max-w-[22rem] text-sm text-black/50 sm:max-w-[28rem]">
   View your orders, check order details, and track your deliveries.
         </p>

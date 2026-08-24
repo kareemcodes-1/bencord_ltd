@@ -42,22 +42,36 @@ const Products = () => {
   return (
     <section className="section-spacing w-full">
       <div className="flex flex-col">
-        <div className="mb-8 flex flex-col items-center gap-3 text-center md:mb-12 md:gap-4">
-           <FadeContent blur={true} duration={0.5} initialOpacity={0}>
-              <span className="subtitle">Handpicked Favorites</span>
-          </FadeContent>
+        <div className="mb-8 flex flex-col items-center gap-3 text-center md:mb-12">
 
-              <SplitLines
-                              tag="h2"
-                              text="Featured Products"
-                              className="heading-1 max-w-[min(40rem,100%)]"
-                              duration={1}
-                              stagger={0.025}
-                              yPercent={100}
-                              rootMargin="-100px"
-                              ease="power4.out"
-                            />
-        </div>
+  <SplitLines
+    text="Featured Products"
+    tag="span"
+    className="subtitle"
+    duration={0.8}
+    stagger={0.02}
+    ease="power3.out"
+    yPercent={120}
+    threshold={0.1}
+    rootMargin="-80px"
+  />
+
+  <SplitLines
+    text="Shop Best Sellers"
+    tag="h2"
+    className="heading-1"
+    duration={1}
+    stagger={0.025}
+    ease="power3.out"
+    yPercent={150}
+    threshold={0.1}
+    rootMargin="-100px"
+    delay={0.05}
+  />
+
+  {/* Red accent line */}
+  <div className="line-border" />
+</div>
 
         <div className="relative w-full">
           {/* Nav buttons — inset so they don’t clip when zoomed */}
@@ -66,7 +80,7 @@ const Products = () => {
             ref={setPrevEl}
             type="button"
             aria-label="Previous products"
-            className="absolute left-[-1rem] top-[32%] z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-black/15 bg-white/95 shadow-sm backdrop-blur transition-colors duration-300 hover:bg-[#FD3F92] hover:text-white sm:left-2 sm:h-11 sm:w-11 md:top-1/2 lg:left-[-1.25rem] lg:h-14 lg:w-14 xl:left-[-2rem]"
+            className="absolute left-[-1rem] top-[32%] z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-black/15 bg-white/95 shadow-sm backdrop-blur transition-colors duration-300 hover:bg-[#ee0a0a] hover:text-white sm:left-2 sm:h-11 sm:w-11 md:top-1/2 lg:left-[-1.25rem] lg:h-14 lg:w-14 xl:left-[-2rem]"
           >
             <ArrowLeft size={18} className="lg:size-[22px]" />
           </button>
@@ -76,7 +90,7 @@ const Products = () => {
             ref={setNextEl}
             type="button"
             aria-label="Next products"
-            className="absolute right-[-1rem] top-[32%] z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-black/15 bg-white/95 shadow-sm backdrop-blur transition-colors duration-300 hover:bg-[#FD3F92] hover:text-white sm:right-2 sm:h-11 sm:w-11 md:top-1/2 lg:right-[-1.25rem] lg:h-14 lg:w-14 xl:right-[-2rem]"
+            className="absolute right-[-1rem] top-[32%] z-20 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-black/15 bg-white/95 shadow-sm backdrop-blur transition-colors duration-300 hover:bg-[#ee0a0a] hover:text-white sm:right-2 sm:h-11 sm:w-11 md:top-1/2 lg:right-[-1.25rem] lg:h-14 lg:w-14 xl:right-[-2rem]"
           >
             <ArrowRight size={18} className="lg:size-[22px]" />
           </button>

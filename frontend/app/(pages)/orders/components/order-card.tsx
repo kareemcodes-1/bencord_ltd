@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useCurrencyStore } from "@/store/currency";
 import { priceFormatter } from "@/lib/priceFormatter";
 import type { Order } from "@/types";
+import { ChevronRight } from "lucide-react";
 
 type Props = {
   order: Order;
@@ -64,14 +65,14 @@ export default function OrderCard({ order }: Props) {
 
       {/* Main */}
       <div className="mt-5 flex items-center gap-4">
-        <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-2xl bg-neutral-100">
+        <div className="relative h-[72px] w-[72px] shrink-0 overflow-hidden rounded-2xl border">
           {firstImage && (
             <Image
               src={firstImage}
               alt={order.items[0]?.name || "Product"}
               fill
               sizes="72px"
-              className="object-cover transition-transform duration-500 group-hover:scale-105"
+              className="object-contain transition-transform duration-500 group-hover:scale-105"
             />
           )}
         </div>
@@ -92,7 +93,7 @@ export default function OrderCard({ order }: Props) {
           </p>
 
           <p className="mt-2 text-[15px] font-medium tracking-[-0.01em]">
-            {priceFormatter(order.totalAmount, currency)}
+            {priceFormatter(order.totalAmount)}
           </p>
         </div>
       </div>
@@ -104,11 +105,19 @@ export default function OrderCard({ order }: Props) {
         </p>
 
         <Link
-          href={`/orders/${order._id}`}
-          className="text-[13px] font-medium text-[#FD3F92] transition-opacity hover:opacity-70"
-        >
-          View details
-        </Link>
+    href={`/orders/${order._id}`}
+    className="flex items-center justify-center text-[#ee0a0a] transition-opacity hover:opacity-70"
+  >
+    {/* Mobile: arrow button */}
+    <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#ee0a0a]/20 bg-[#ee0a0a]/5 sm:hidden">
+      <ChevronRight size={18} strokeWidth={1.75} />
+    </span>
+
+    {/* Desktop: text */}
+    <span className="hidden text-[13px] font-medium sm:inline">
+      View details
+    </span>
+  </Link>
       </div>
     </div>
   );

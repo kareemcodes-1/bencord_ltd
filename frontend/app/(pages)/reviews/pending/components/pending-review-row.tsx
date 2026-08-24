@@ -58,7 +58,7 @@ export default function PendingReviewRow({ item, onRate }: Props) {
                     size={12}
                     className={
                       i < (item.rating || 0)
-                        ? "fill-[#FD3F92] text-[#FD3F92]"
+                        ? "fill-yellow-500 text-yellow-500"
                         : "fill-transparent text-black/15"
                     }
                   />

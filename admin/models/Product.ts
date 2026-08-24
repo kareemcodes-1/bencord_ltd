@@ -24,7 +24,7 @@ const productMediaSchema = new Schema(
 export interface IProductDocument extends Document {
   name: string;
   slug: string;
-  collectionId: mongoose.Types.ObjectId;
+  categoryId: mongoose.Types.ObjectId;
   description: string;
   price: number;
 
@@ -40,8 +40,6 @@ export interface IProductDocument extends Document {
   stock: number;
   lowStockThreshold: number;
   isActive: boolean;
-
-  sizes: string[];
 
   averageRating: number;
   reviewCount: number;
@@ -66,9 +64,9 @@ const productSchema = new Schema<IProductDocument>(
       trim: true,
     },
 
-    collectionId: {
+    categoryId: {
       type: Schema.Types.ObjectId,
-      ref: "Collection",
+      ref: "Category",
       required: true,
     },
 
@@ -114,11 +112,6 @@ const productSchema = new Schema<IProductDocument>(
     isActive: {
       type: Boolean,
       default: true,
-    },
-
-    sizes: {
-      type: [String],
-      default: [],
     },
 
 

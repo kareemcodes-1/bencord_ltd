@@ -45,7 +45,7 @@ const StickyAddToCartBar = ({ product }: StickyAddToCartBarProps) => {
 
   const handleAddToCart = () => {
     if (disabled) return;
-    addItem(product, 1, product.sizes?.[0] ?? null);
+    addItem(product, 1);
   };
 
   const stockBadgeClass =
@@ -92,12 +92,12 @@ const StickyAddToCartBar = ({ product }: StickyAddToCartBarProps) => {
 
           <div className="flex flex-wrap items-center gap-2">
             <p className="text-sm font-medium text-black/80">
-              {priceFormatter(finalPrice, currency)}
+              {priceFormatter(finalPrice)}
             </p>
 
             {hasDiscount && (
               <p className="text-xs text-black/40 line-through">
-                {priceFormatter(originalPrice, currency)}
+                {priceFormatter(originalPrice)}
               </p>
             )}
           </div>

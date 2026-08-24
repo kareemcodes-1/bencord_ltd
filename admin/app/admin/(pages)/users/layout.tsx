@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Users | Admin",
+  title: "Users",
   description:
     "Manage users, customer accounts, and user information.",
 };

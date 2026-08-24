@@ -18,7 +18,7 @@ export default function NewDiscountEmail({
 }: Props) {
   return (
     <EmailLayout preview={`${discountLabel} — ${title}`}>
-      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#FD3F92]">
+      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#ee0a0a]">
         Special offer
       </Text>
 
@@ -32,7 +32,7 @@ export default function NewDiscountEmail({
 
       {/* Discount badge */}
       <Section className="mt-8 text-center">
-        <Text className="m-0 inline-block rounded-full bg-[#FD3F92] px-6 py-3 text-[18px] font-medium tracking-wide text-white">
+        <Text className="m-0 inline-block rounded-full bg-[#ee0a0a] px-6 py-3 text-[18px] font-medium tracking-wide text-white">
           {discountLabel}
         </Text>
       </Section>
@@ -50,7 +50,7 @@ export default function NewDiscountEmail({
       <Section className="mt-8 text-center">
         <Button
           href={`${APP_URL}/shop`}
-          className="rounded-full bg-[#FD3F92] px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.08em] text-white no-underline"
+          className="rounded-full bg-[#ee0a0a] px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.08em] text-white no-underline"
         >
           Shop the offer
         </Button>

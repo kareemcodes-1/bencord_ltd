@@ -30,9 +30,6 @@ export default function ProductsPage() {
 
     const handleOpenChange = (open: boolean) => {
         setDialogOpen(open);
-
-        // clear out the editing product once the dialog has closed so
-        // the next "Create Product" click doesn't reopen it pre-filled
         if (!open) {
             setEditingProduct(null);
         }

@@ -1,126 +1,122 @@
 "use client";
 
-import FadeContent from "@/components/animations/fade-content";
+import { Star, Quote } from "lucide-react";
 import { SplitLines } from "@/components/animations/SplitLines";
-import Marquee from "react-fast-marquee";
 
 const testimonials = [
   {
-    name: "Adaeze O.",
+    id: 1,
+    name: "Michael Owusu",
     review:
-      "I ordered the camilla curls for my cousin’s wedding and they mixed with my own hair better than I expected. Washed them twice already and they still feel soft.",
+      "We've been ordering our HP toner cartridges from Bencord for over a year. Their products are always genuine, delivery is fast, and we've never had compatibility issues.",
+    rating: 5,
   },
   {
-    name: "Chioma E.",
+    id: 2,
+    name: "Sarah Mensah",
     review:
-      "Took about 4 days to get to Port Harcourt. The texture is close to what I saw on the site — not stiff. I’ve been using a light leave-in and it’s holding up.",
+      "Finding original Canon ink cartridges used to be difficult until we discovered Bencord. Excellent customer service and very competitive prices.",
+    rating: 5,
   },
   {
-    name: "Blessing A.",
+    id: 3,
+    name: "Daniel Boateng",
     review:
-      "Second time ordering. First pack lasted me a few months with regular wear. Packaging was neat and the length was true to the description.",
-  },
-  {
-    name: "Hauwa B.",
-    review:
-      "I was worried about shedding but it’s been minimal so far. Install was straightforward and the colour matched my dye job pretty well.",
-  },
-  {
-    name: "Tola A.",
-    review:
-      "Bought these for everyday use, not just events. They don’t tangle as much as a cheaper set I had before. Will stick with this brand for now.",
-  },
-  {
-    name: "Ngozi N.",
-    review:
-      "Customer service replied when I asked about maintenance, which helped. Hair looks good in a ponytail and when I straighten it lightly.",
+      "Our office purchased printers and accessories through Bencord, and the experience was smooth from ordering to delivery. Highly recommended.",
+    rating: 5,
   },
 ];
 
-function TestimonialCard({
-  t,
-}: {
-  t: (typeof testimonials)[number];
-}) {
+export default function Testimonials() {
   return (
-    <div className="flex min-h-[14rem] w-full flex-col gap-3 rounded-2xl border border-black/5 bg-white p-5 shadow-sm sm:min-h-[16rem] sm:gap-4 sm:p-6">
-      <div className="flex gap-0.5">
-        {Array.from({ length: 5 }).map((_, s) => (
-          <span key={s} className="text-base text-[#FD3F92] sm:text-lg">
-            ★
-          </span>
-        ))}
-      </div>
-
-      <p className="flex-1 text-[0.875rem] leading-6 text-black/70 sm:text-sm sm:leading-7">
-        {t.review}
-      </p>
-
-      <div className="flex flex-col gap-1 border-t border-dashed border-[#FD3F92]/40 pt-3 sm:pt-4">
-        <p className="text-sm font-semibold text-black">{t.name}</p>
-      </div>
-    </div>
-  );
-}
-
-const Testimonials = () => {
-  const mobileTestimonials = testimonials.slice(0, 3);
-
-  return (
-    <section className="section-spacing w-full overflow-hidden bg-white">
-      <div className="flex flex-col gap-8 sm:gap-10 lg:gap-14">
-        <div className="flex flex-col items-center gap-3 px-1 text-center sm:gap-4">
-          <FadeContent blur={true} duration={0.5} initialOpacity={0}>
-            <span className="subtitle">Testimonials</span>
-          </FadeContent>
+    <section className="section-spacing bg-white overflow-hidden">
+      <div className="mx-auto max-w-7xl">
+        {/* Header */}
+        <div className="flex flex-col items-center gap-3 text-center">
+          <SplitLines
+            text="Testimonials"
+            tag="span"
+            className="subtitle"
+            duration={0.8}
+            stagger={0.02}
+            ease="power3.out"
+            yPercent={120}
+            threshold={0.1}
+            rootMargin="-80px"
+          />
 
           <SplitLines
+            text="Trusted by Businesses Across Ghana"
             tag="h2"
-            text="Trusted by Women Who Choose Luxury"
-            className="heading-1 mx-auto max-w-[min(36rem,100%)] text-balance text-black"
+            className="heading-1"
             duration={1}
             stagger={0.025}
-            yPercent={100}
+            ease="power3.out"
+            yPercent={150}
+            threshold={0.1}
             rootMargin="-100px"
-            ease="power4.out"
+            delay={0.05}
           />
+
+          <div className="line-border" />
         </div>
 
-        {/* Mobile: grid (3 cards) */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:hidden">
-          {mobileTestimonials.map((t, i) => (
-            <FadeContent blur={true} key={i} duration={1000} initialOpacity={0}>
-              <TestimonialCard t={t} />
-            </FadeContent>
-          ))}
-        </div>
+        {/* Cards */}
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:mt-16 lg:grid-cols-3 lg:gap-7">
+          {testimonials.map((testimonial, index) => (
+            <div
+              key={testimonial.id}
+              className={`
+                group relative overflow-hidden rounded-2xl border border-black/5
+                bg-[#fafafa] p-6 sm:p-7
+                transition-all duration-500
+                hover:-translate-y-2 hover:bg-red-50/60 hover:border-[#ee0a0a]/20 hover:shadow-xl
+                ${index === 1 ? "lg:-translate-y-6" : ""}
+              `}
+            >
+              {/* Faint quote icon */}
+              <Quote
+                size={56}
+                strokeWidth={1.5}
+                className="absolute right-5 top-5 text-[#ee0a0a]/10"
+              />
 
-        {/* Desktop: marquee */}
-        <div className="relative hidden w-full md:block">
-          <div className="pointer-events-none absolute left-0 top-0 z-20 h-full w-8 bg-gradient-to-r from-white to-transparent sm:w-16 lg:w-32" />
-          <div className="pointer-events-none absolute right-0 top-0 z-20 h-full w-8 bg-gradient-to-l from-white to-transparent sm:w-16 lg:w-32" />
-
-          <Marquee
-            speed={30}
-            pauseOnHover
-            gradient={false}
-            autoFill
-            className="py-2"
-          >
-            {testimonials.map((t, i) => (
-               <FadeContent blur={true} key={i} duration={1000} initialOpacity={0}>
-              <div
-                className="mx-2 w-[min(18rem,85vw)] sm:mx-3 sm:w-[20rem] md:w-[22.5rem] lg:w-[25rem]"
-              >
-                <TestimonialCard t={t} />
+              {/* Stars */}
+              <div className="mb-5 flex gap-1">
+                {[...Array(testimonial.rating)].map((_, i) => (
+                  <Star
+                    key={i}
+                    size={16}
+                    className="fill-[#ee0a0a] text-[#ee0a0a]"
+                  />
+                ))}
               </div>
-              </FadeContent>
-            ))}
-          </Marquee>
+
+              {/* Review */}
+              <p className="relative z-10 mb-8 text-[0.95rem] leading-relaxed text-black/70">
+                “{testimonial.review}”
+              </p>
+
+              {/* Author */}
+              <div className="flex items-center gap-4">
+                {/* Name initial avatar */}
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[#ee0a0a]/10 text-lg font-semibold text-[#ee0a0a] ring-4 ring-white">
+                  {testimonial.name.charAt(0)}
+                </div>
+
+                <div className="min-w-0">
+                  <h4 className="truncate text-base font-semibold text-black">
+                    {testimonial.name}
+                  </h4>
+                  <span className="mt-1 inline-flex items-center rounded-full bg-green-50 px-2.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+    Verified purchase
+  </span>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
   );
-};
-
-export default Testimonials;
+}

@@ -71,7 +71,7 @@ function ResetPasswordForm() {
         </p>
         <Link
           href="/forgot-password"
-          className="text-black underline hover:text-[#FD3F92]"
+          className="text-black underline hover:text-[#ee0a0a]"
         >
           Request a new link
         </Link>
@@ -101,7 +101,7 @@ function ResetPasswordForm() {
           <button
             type="button"
             onClick={() => setShowPassword((p) => !p)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-black/40 hover:text-[#FD3F92]"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-black/40 hover:text-[#ee0a0a]"
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
@@ -133,7 +133,7 @@ function ResetPasswordForm() {
       <p className="pt-2 text-center text-[0.75rem] uppercase text-muted-foreground">
         <Link
           href="/login"
-          className="text-black underline hover:text-[#FD3F92]"
+          className="text-black underline hover:text-[#ee0a0a]"
         >
           Back to login
         </Link>

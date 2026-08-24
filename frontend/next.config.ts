@@ -10,13 +10,15 @@ const nextConfig = {
         protocol: "https",
         hostname: "api.dicebear.com",
       },
+
       {
+        protocol: "https",
+        hostname: "claytonprints.com",
+      },
+
+       {
         protocol: "https",
         hostname: "framerusercontent.com",
-      },
-      {
-        protocol: "https",
-        hostname: "cdn.shopify.com",
       },
       {
         protocol: "http",
@@ -32,11 +34,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "onskn.com",
-      },
-      {
-        protocol: "https",
-        hostname: "lh3.googleusercontent.com",
+        hostname: "ik.imagekit.io",
       },
     ],
   },

@@ -159,7 +159,7 @@ export const useCartStore = create<CartState>()(
       },
     }),
     {
-      name: "loisbanks-cart",
+      name: "bencord-cart",
       storage: createJSONStorage(() => localStorage),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

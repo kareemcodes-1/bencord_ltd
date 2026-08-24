@@ -16,11 +16,11 @@ const geist = Geist({
 
 export const metadata: Metadata = {
   title: {
-    default: "LoisBanks Beauty — Admin",
-    template: "%s | LoisBanks Beauty Admin",
+    default: "Bencord Ltd — Admin",
+    template: "%s | Bencord Ltd Admin",
   },
-  description: "LoisBanks Beauty administration dashboard.",
-  applicationName: "LoisBanks Beauty Admin",
+  description: "Bencord Ltd administration dashboard.",
+  applicationName: "Bencord Ltd Admin",
   robots: {
     index: false,
     follow: false,
@@ -39,12 +39,12 @@ export default function RootLayout({
       <ToastProvider />
 
       <NextTopLoader
-        color="#FD3F92"
+        color="#ee0a0a"
         height={2}
         showSpinner={false}
         crawlSpeed={200}
         speed={400}
-        shadow="0 0 10px #FD3F92, 0 0 5px #FD3F92"
+        shadow="0 0 10px #ee0a0a, 0 0 5px #ee0a0a"
       />
         <ThemeProvider
           attribute="class"

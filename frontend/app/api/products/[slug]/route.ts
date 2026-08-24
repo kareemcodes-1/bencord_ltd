@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
 import Discount from "@/models/Discount";
-import "@/models/Collection";
+import "@/models/Category";
 
 export async function GET(
   request: NextRequest,
@@ -15,7 +15,7 @@ export async function GET(
     const { slug } = await params;
 
     const product = await Product.findOne({ slug, isActive: true })
-      .populate("collectionId")
+      .populate("categoryId")
       .lean();
 
     if (!product) {

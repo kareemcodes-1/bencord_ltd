@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowUpDown, Check, ShoppingBag } from "lucide-react";
 
 import ProductCard from "@/app/components/products/product-card";
-import { Product, Collection } from "@/types";
+import { Product, Category } from "@/types";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,7 +34,7 @@ interface PaginationMeta {
 
 type Props = {
   initialProducts: Product[];
-  collections: Collection[];
+  categories: Category[];
   pagination: PaginationMeta;
 };
 
@@ -45,7 +45,7 @@ function isProductInStock(product: Product) {
 
 export default function ShopClient({
   initialProducts,
-  collections,
+  categories,
   pagination,
 }: Props) {
   const router = useRouter();
@@ -54,7 +54,7 @@ export default function ShopClient({
   const [sort, setSort] = useState<SortValue>("default");
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
 
-  const [selectedCollections, setSelectedCollections] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedAvailability, setSelectedAvailability] = useState<
     AvailabilityFilter[]
   >([]);
@@ -80,7 +80,7 @@ export default function ShopClient({
     maxPrice,
   ]);
 
-  const [draftCollections, setDraftCollections] = useState<string[]>([]);
+  const [draftCategories, setDraftCategories] = useState<string[]>([]);
   const [draftPriceRange, setDraftPriceRange] = useState<[number, number]>([
     minPrice,
     maxPrice,
@@ -88,7 +88,7 @@ export default function ShopClient({
 
   useEffect(() => {
     if (filterSheetOpen) {
-      setDraftCollections(selectedCollections);
+      setDraftCategories(selectedCategories);
       setDraftPriceRange(priceRange);
       setDraftAvailability(selectedAvailability);
     }
@@ -104,23 +104,23 @@ export default function ShopClient({
   };
 
   const handleClearFilters = () => {
-    setDraftCollections([]);
+    setDraftCategories([]);
     setDraftPriceRange([minPrice, maxPrice]);
     setDraftAvailability([]);
   };
 
   const handleApplyFilters = () => {
-    setSelectedCollections(draftCollections);
+    setSelectedCategories(draftCategories);
     setPriceRange(draftPriceRange);
     setSelectedAvailability(draftAvailability);
     setFilterSheetOpen(false);
   };
 
-  const handleToggleCollection = (collectionId: string) => {
-    setDraftCollections((prev) =>
-      prev.includes(collectionId)
-        ? prev.filter((id) => id !== collectionId)
-        : [...prev, collectionId],
+  const handleToggleCategory = (categoryId: string) => {
+    setDraftCategories((prev) =>
+      prev.includes(categoryId)
+        ? prev.filter((id) => id !== categoryId)
+        : [...prev, categoryId],
     );
   };
 
@@ -131,15 +131,15 @@ export default function ShopClient({
   };
 
   const activeFilterCount =
-    selectedCollections.length +
+    selectedCategories.length +
     selectedAvailability.length +
     (priceRange[0] !== minPrice || priceRange[1] !== maxPrice ? 1 : 0);
 
   const filteredProducts = initialProducts.filter((product) => {
-    const matchesCollection =
-      selectedCollections.length === 0 ||
-      (product.collectionId?._id &&
-        selectedCollections.includes(product.collectionId._id));
+    const matchesCategory =
+      selectedCategories.length === 0 ||
+      (product.categoryId?._id &&
+        selectedCategories.includes(product.categoryId._id));
 
     const matchesPrice =
       product.price >= priceRange[0] && product.price <= priceRange[1];
@@ -150,7 +150,7 @@ export default function ShopClient({
       (selectedAvailability.includes("in-stock") && inStock) ||
       (selectedAvailability.includes("out-of-stock") && !inStock);
 
-    return matchesCollection && matchesPrice && matchesAvailability;
+    return matchesCategory && matchesPrice && matchesAvailability;
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -162,27 +162,26 @@ export default function ShopClient({
   const activeSortLabel =
     SORT_OPTIONS.find((option) => option.value === sort)?.label ?? "Default";
 
-   return (
+  return (
     <section className="w-full px-[1.5rem] sm:px-8 lg:px-[3rem] pb-[4rem] pt-[9rem]">
       <div className="mx-auto w-full">
-        <div className="mx-auto flex max-w-[min(50rem,100%)] flex-col items-center gap-3 text-center">
+        <div className="mx-auto flex max-w-[min(50rem,100%)] flex-col items-center gap-[1rem] text-center">
           <span className="subtitle">Shop</span>
 
           <SplitLines
-                      text="Find Your Perfect Match"
-                      tag="h1"
-                      className="heading-1 max-w-[min(40rem,100%)]"
-                      duration={1}
-                      stagger={0.025}
-                      ease="power4.out"
-                      yPercent={150}
-                      threshold={0.1}
-                      rootMargin="-100px"
-                    />
+            text="Quality Office Essentials"
+            tag="h1"
+            className="heading-1 max-w-[min(40rem,100%)]"
+            duration={1}
+            stagger={0.025}
+            ease="power4.out"
+            yPercent={150}
+            threshold={0.1}
+            rootMargin="-100px"
+          />
 
           <p className="mx-auto max-w-[min(32rem,100%)] text-[0.875rem] leading-relaxed text-black/50 sm:text-[0.9rem] lg:text-[1rem]">
-           Luxury hair, beauty essentials, and athleisure curated for 
-women who know exactly what they want.
+             Reliable printing solutions, office equipment, and essentials to keep your business productive.
           </p>
         </div>
 
@@ -191,12 +190,12 @@ women who know exactly what they want.
           <button
             type="button"
             onClick={() => setFilterSheetOpen(true)}
-            className="relative flex w-full items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[0.7rem] font-medium uppercase tracking-[0.05em] text-black shadow-sm transition-all duration-300 hover:border-[#FD3F92] hover:bg-[#FD3F92]/10 hover:text-[#FD3F92] sm:w-auto sm:justify-start"
+            className="relative flex w-full items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-5 py-2.5 text-[0.7rem] font-medium uppercase tracking-[0.05em] text-black shadow-sm transition-all duration-300 hover:border-[#ee0a0a] hover:bg-[#ee0a0a]/10 hover:text-[#ee0a0a] sm:w-auto sm:justify-start"
           >
             <span className="text-base leading-none">+</span>
             Filters
             {activeFilterCount > 0 && (
-              <span className="ml-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#FD3F92] px-1 text-[0.6rem] font-semibold text-white">
+              <span className="ml-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#ee0a0a] px-1 text-[0.6rem] font-semibold text-white">
                 {activeFilterCount}
               </span>
             )}
@@ -206,11 +205,11 @@ women who know exactly what they want.
             <DropdownMenuTrigger asChild>
               <button
                 type="button"
-                className="group flex w-full items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2.5 text-[0.7rem] font-medium uppercase tracking-[0.08em] text-black shadow-sm transition-all duration-300 hover:border-[#FD3F92] hover:bg-[#FD3F92]/10 hover:text-[#FD3F92] sm:w-auto sm:justify-start"
+                className="group flex w-full items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-4 py-2.5 text-[0.7rem] font-medium uppercase tracking-[0.08em] text-black shadow-sm transition-all duration-300 hover:border-[#ee0a0a] hover:bg-[#ee0a0a]/10 hover:text-[#ee0a0a] sm:w-auto sm:justify-start"
               >
                 <ArrowUpDown
                   size={14}
-                  className="text-black/50 transition-colors group-hover:text-[#FD3F92]"
+                  className="text-black/50 transition-colors group-hover:text-[#ee0a0a]"
                 />
                 <span className="max-w-[10rem] truncate">{activeSortLabel}</span>
               </button>
@@ -227,7 +226,7 @@ women who know exactly what they want.
                   onClick={() => setSort(option.value)}
                   className={`cursor-pointer gap-2 rounded-xl px-3 py-2.5 text-[0.8rem] font-medium ${
                     sort === option.value
-                      ? "bg-[#FD3F92]/10 text-[#FD3F92]"
+                      ? "bg-[#ee0a0a]/10 text-[#ee0a0a]"
                       : ""
                   }`}
                 >
@@ -276,9 +275,9 @@ women who know exactly what they want.
       <FilterSheet
         open={filterSheetOpen}
         onOpenChange={setFilterSheetOpen}
-        collections={collections}
-        selectedCollections={draftCollections}
-        onToggleCollection={handleToggleCollection}
+        categories={categories}
+        selectedCategories={draftCategories}
+        onToggleCategory={handleToggleCategory}
         selectedAvailability={draftAvailability}
         onToggleAvailability={handleToggleAvailability}
         priceRange={draftPriceRange}

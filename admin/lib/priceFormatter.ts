@@ -1,11 +1,12 @@
 /**
- * Format money for the admin panel (always Naira).
+ * Formats price in Ghanaian Cedi (GHS)
+ * @param price - price stored in the database (in GHS)
  */
-export function priceFormatter(amount: number): string {
-  return new Intl.NumberFormat("en-NG", {
+export function priceFormatter(price: number) {
+  return new Intl.NumberFormat("en-GH", {
     style: "currency",
-    currency: "NGN",
+    currency: "GHS",
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  }).format(amount || 0);
+  }).format(price);
 }

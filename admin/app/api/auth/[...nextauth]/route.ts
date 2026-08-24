@@ -80,23 +80,34 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.role = user.role;
-      }
+    async jwt({ token, user, trigger, session }) {
+    // On login
+    if (user) {
+      token.id = user.id;
+      token.role = (user as any).role;
+      token.name = user.name;
+      token.email = user.email;
+    }
 
-      return token;
-    },
+    // When client calls update()
+    if (trigger === "update" && session) {
+      token.name = session.name ?? token.name;
+      token.email = session.email ?? token.email;
+    }
 
-    async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as "user" | "admin";
-      }
+    return token;
+  },
 
-      return session;
-    },
+  async session({ session, token }) {
+    if (session.user) {
+      session.user.id = token.id as string;
+      session.user.role = token.role as "user" | "admin";
+      session.user.name = token.name as string;
+      session.user.email = token.email as string;
+    }
+
+    return session;
+  },
 
     async redirect({ url, baseUrl }) {
       if (url.startsWith("/")) {

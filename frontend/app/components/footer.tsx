@@ -1,30 +1,98 @@
 "use client";
 
 import Link from "next/link";
-import React, { useRef } from "react";
+import { useEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { useGSAP } from "@gsap/react";
+
+import {
+  FaWhatsapp,
+  FaFacebookF,
+  FaInstagram,
+  FaTiktok,
+} from "react-icons/fa";
 import { usePathname } from "next/navigation";
-import { FaEnvelope, FaInstagram, FaPhone } from "react-icons/fa";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const Footer = () => {
-  const footerRef = useRef<HTMLElement>(null);
-  const triggerRef = useRef<HTMLDivElement>(null);
+const footerSections = [
+  {
+    title: "Quick Links",
+    items: [
+      { label: "Home", href: "/" },
+      { label: "About Us", href: "/about" },
+      { label: "Shop", href: "/shop" },
+      { label: "Contact", href: "/contact" },
+    ],
+  },
 
+  {
+    title: "Contact",
+    items: [
+      {
+        label: "Phone",
+        value: "+233552256922",
+        href: "tel:+233552256922",
+      },
+      {
+        label: "Email",
+        value: "bencordinvestmentt@gmail.com",
+        href: "mailto:bencordinvestmentt@gmail.com",
+      },
+    ],
+  },
+
+  {
+    title: "Business Info",
+    items: [
+      {
+        label: "Open Hours",
+        value: "Monday – Friday\n8:00 AM – 5:00 PM",
+      },
+      {
+      label: "Address",
+      value:
+        "71, JONES NELSON ROAD , GOIL FILLING STATION, OPPOSITE CUA HOUSE, ACCRA",
+      href: "https://www.google.com/maps/dir//Bencord+ltd,+Opposite+CUA+House,+71,+Jones+Nelson+Road+Goil+filling+station,+Ghana/data=!4m6!4m5!1m1!4e2!1m2!1m1!1s0xfdf91c8b23506e3:0xb83c276c1cff35fb?sa=X&ved=1t:57443&ictx=111",
+    },
+    ],
+  },
+
+  {
+    title: "Socials",
+    socials: [
+      {
+        href: "https://www.instagram.com/bencord_ltd",
+        icon: FaInstagram,
+      },
+      {
+        href: "https://www.facebook.com/share/1EUezpzKmX/?mibextid=wwXIfr",
+        icon: FaFacebookF,
+      },
+      {
+        href: "https://www.tiktok.com/@bencord_ltd?_r=1&_t=ZS-97SWqjySiTU",
+        icon: FaTiktok,
+      },
+      {
+        href: "https://wa.me/+2348182387806",
+        icon: FaWhatsapp,
+      },
+    ],
+  },
+];
+
+const Footer = () => {
   const pathname = usePathname();
 
-  useGSAP(
-    () => {
-      if (!footerRef.current || !triggerRef.current) return;
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Reset footer position first
+      gsap.set(".footer", {
+        yPercent: -50,
+        clearProps: "transform", // helps avoid leftover transforms
+      });
 
-      const footer = footerRef.current;
-      const trigger = triggerRef.current;
-
-      // Make sure the footer always starts from the correct position
-      gsap.set(footer, {
+      gsap.set(".footer", {
         yPercent: -50,
       });
 
@@ -32,194 +100,199 @@ const Footer = () => {
         paused: true,
       });
 
-      uncover.to(footer, {
+      uncover.to(".footer", {
         yPercent: 0,
         ease: "none",
       });
 
-      const scrollTrigger = ScrollTrigger.create({
-        trigger,
+      ScrollTrigger.create({
+        trigger: ".scroll-trigger",
         start: "bottom bottom",
         end: "+=50%",
         animation: uncover,
         scrub: true,
+        invalidateOnRefresh: true,
       });
 
-      // Recalculate positions after navigation/layout changes
-      requestAnimationFrame(() => {
-        ScrollTrigger.refresh();
-      });
+      // Important after client-side navigation
+      ScrollTrigger.refresh();
+    });
 
-      return () => {
-        scrollTrigger.kill();
-        uncover.kill();
-
-        // Remove any transform left behind by the animation
-        gsap.set(footer, {
-          clearProps: "transform",
-        });
-      };
-    },
-    {
-      dependencies: [pathname],
-      scope: footerRef,
-      revertOnUpdate: true,
-    }
-  );
+    return () => {
+      ctx.revert();
+    };
+  }, [pathname]);
 
   return (
     <>
-      {/* Footer scroll trigger */}
-      <div ref={triggerRef} className="section" />
+      <div className="section scroll-trigger" />
 
-      {/* Footer */}
-      <div className="relative w-full overflow-hidden bg-black">
+      <div className="relative overflow-hidden bg-black">
+
         <footer
-          ref={footerRef}
-          className="bg-black px-5 pb-8 pt-12 text-white sm:px-8 sm:pt-16 md:px-12 md:pb-8 md:pt-28 lg:px-[3rem]"
+          className="
+            footer
+            relative
+            z-10
+            mt-10
+            pt-14
+            sm:pt-16
+            lg:pt-20
+            pb-8
+            text-white
+          "
         >
-          <div className="mb-10 border-t border-dashed border-pink-500/40 sm:mb-14 md:mb-16" />
+          {/* Grid */}
 
-          <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 sm:gap-12 lg:grid-cols-4 lg:gap-0">
-            {/* Brand */}
-            <div className="flex flex-col gap-5 sm:gap-6 lg:pr-10">
-              <Link href="/" className="w-fit">
-                <img
-                  src="/favicon.jpeg"
-                  className="h-14 w-14 rounded-full object-cover sm:h-16 sm:w-16"
-                  alt="LoisBanks Beauty"
-                />
-              </Link>
+          <div
+            className="
+              grid
+              grid-cols-1
+              sm:grid-cols-2
+              lg:grid-cols-4
+              gap-8
+              sm:gap-10
+              px-6
+              sm:px-8
+              lg:px-12
+              min-w-0
+            "
+          >
+            {footerSections.map((section: any) => (
+              <div
+                key={section.title}
+                className="flex flex-col gap-4 sm:gap-5 min-w-0"
+              >
+                <h4 className="text-[1.1rem] sm:text-[1.2rem] font-semibold text-[#e10707f0]">
+                  {section.title}
+                </h4>
 
-              <p className="max-w-xs text-[0.9rem] leading-relaxed text-white/60 sm:text-base">
-                Premium luxury hair extensions crafted for confidence, beauty
-                and timeless elegance.
-              </p>
+                {/* Normal Links / Info */}
+                {section.items && (
+                  <div className="flex flex-col gap-4 sm:gap-5 text-white/60 min-w-0">
+                    {section.items.map((item: any) => (
+                      <div key={item.label} className="min-w-0 break-words">
+                        {item.value ? (
+                          <>
+                            <p className="text-sm font-medium text-white">
+                              {item.label}
+                            </p>
 
-              <div className="mt-1 flex gap-3">
-                <Link
-                  href="mailto:lbanksluxuryhairs@gmail.com"
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition hover:bg-[#FD3F92] sm:h-11 sm:w-11"
-                  aria-label="Email"
-                >
-                  <FaEnvelope size={15} />
-                </Link>
+                            {item.href ? (
+                              <Link
+                                href={item.href}
+                                className="transition hover:text-red-500 whitespace-pre-line break-words"
+                              >
+                                {item.value}
+                              </Link>
+                            ) : (
+                              <p className="whitespace-pre-line break-words">
+                                {item.value}
+                              </p>
+                            )}
+                          </>
+                        ) : (
+                          <Link
+                            href={item.href!}
+                            className="transition hover:text-red-500"
+                          >
+                            {item.label}
+                          </Link>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
 
-                <Link
-                  href="tel:+2348105001284"
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition hover:bg-[#FD3F92] sm:h-11 sm:w-11"
-                  aria-label="Phone"
-                >
-                  <FaPhone size={15} />
-                </Link>
+                {/* Social Icons */}
+                {section.socials && (
+                  <div className="flex flex-wrap items-center gap-3">
+                    {section.socials.map((social: any) => {
+                      const Icon = social.icon;
 
-                <Link
-                  href="https://www.instagram.com/loisbanks_hair"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 transition hover:bg-[#FD3F92] sm:h-11 sm:w-11"
-                  aria-label="Instagram"
-                >
-                  <FaInstagram size={15} />
-                </Link>
+                      return (
+                        <Link
+                          key={social.href}
+                          href={social.href}
+                          target="_blank"
+                          className="
+                            flex
+                            h-10
+                            w-10
+                            shrink-0
+                            items-center
+                            justify-center
+                            rounded-full
+                            bg-white/10
+                            transition-all
+                            duration-300
+                            hover:bg-red-600
+                            hover:text-white
+                          "
+                        >
+                          <Icon size={17} />
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
-            </div>
-
-            {/* Quick Links */}
-            <div className="flex flex-col gap-4 border-dashed border-pink-500/40 sm:gap-5 lg:border-l lg:px-10">
-              <h4 className="text-[1.05rem] font-medium text-white sm:text-[1.2rem]">
-                Quick Links
-              </h4>
-
-              <div className="flex flex-col gap-3 text-[0.9rem] text-white/60 sm:gap-4 sm:text-base">
-                <Link href="/" className="transition hover:text-white">
-                  Home
-                </Link>
-
-                <Link href="/shop" className="transition hover:text-white">
-                  Shop
-                </Link>
-
-                <Link href="/about" className="transition hover:text-white">
-                  About Us
-                </Link>
-
-                <Link href="/contact" className="transition hover:text-white">
-                  Contact Us
-                </Link>
-              </div>
-            </div>
-
-            {/* Get in Touch */}
-            <div className="flex flex-col gap-4 border-dashed border-pink-500/40 sm:gap-5 lg:border-l lg:px-10">
-              <h4 className="text-[1.05rem] font-medium text-white sm:text-[1.2rem]">
-                Get in Touch
-              </h4>
-
-              <div className="flex flex-col gap-4 text-[0.9rem] text-white/60 sm:gap-5 sm:text-base">
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm font-medium text-white">Email</p>
-
-                  <Link
-                    href="mailto:lbanksluxuryhairs@gmail.com"
-                    className="break-all transition hover:text-white"
-                  >
-                    lbanksluxuryhairs@gmail.com
-                  </Link>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm font-medium text-white">WhatsApp</p>
-
-                  <Link
-                    href="https://wa.me/2348105001284"
-                    className="transition hover:text-white"
-                  >
-                    Chat with us
-                  </Link>
-                </div>
-
-                <div className="flex flex-col gap-1">
-                  <p className="text-sm font-medium text-white">Hours</p>
-
-                  <p>Mon – Sat | 9 AM – 6 PM</p>
-                </div>
-              </div>
-            </div>
-
-            {/* Visit Us */}
-            <div className="flex flex-col gap-4 border-dashed border-pink-500/40 sm:gap-5 lg:border-l lg:px-10">
-              <h4 className="text-[1.05rem] font-medium text-white sm:text-[1.2rem]">
-                Visit Us
-              </h4>
-
-              <div className="flex flex-col gap-2 text-[0.9rem] text-white/60 sm:text-base">
-                <p className="text-sm font-medium text-white">Address</p>
-
-                <p className="max-w-xs leading-relaxed">
-                  33a Sedona mall, opp Monty suites, Adebayo Doherty street,
-                  Lekki Phase 1
-                </p>
-              </div>
-            </div>
+            ))}
           </div>
 
-          <div className="mt-12 border-t border-dashed border-pink-500/40 sm:mt-14 md:mt-16" />
+          {/* Huge Text */}
 
-          <div className="flex flex-col gap-4 pt-6 text-sm text-white/50 sm:pt-8 md:flex-row md:items-center md:justify-between md:gap-6 md:pt-10">
-            <p>© 2026 LoisBanks Beauty. All rights reserved.</p>
+          <h2
+            className="
+    hidden
+    lg:block
+    pointer-events-none
+    select-none
+    whitespace-nowrap
+    overflow-hidden
+    font-black
+    uppercase
+    !tracking-[-0.11em]
+    text-[#1d1d1d]
+    opacity-80
+    text-[17rem]
+    px-[2rem]
+    mt-0
+  "
+          >
+            BENCORD
+          </h2>
 
-            <div className="flex flex-wrap gap-4 sm:gap-6">
-              <Link
-                href="/refund-policy"
-                className="transition hover:text-white"
-              >
-                Refund Policy
-              </Link>
+          {/* Bottom */}
+
+          <div
+            className="
+              px-6
+              sm:px-8
+              lg:px-12
+              flex
+              flex-col
+              items-center
+              justify-between
+              gap-5
+              sm:gap-6
+              pt-8
+              text-center
+              text-sm
+              text-white/50
+              lg:flex-row
+              min-w-0
+            "
+          >
+            <p>
+              © {new Date().getFullYear()} Bencord Ltd. All rights reserved.
+            </p>
+
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
 
               <Link
                 href="/shipping-policy"
-                className="transition hover:text-white"
+                className="transition hover:text-red-500"
               >
                 Shipping Policy
               </Link>

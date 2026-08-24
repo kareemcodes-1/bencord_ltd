@@ -4,7 +4,7 @@ import { Home, Search } from "lucide-react";
 export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center overflow-x-hidden px-5 pt-20 text-center sm:px-6 sm:pt-[5rem]">
-      <p className="mb-3 text-[0.7rem] font-medium uppercase tracking-[0.2em] text-[#FD3F92]">
+      <p className="mb-3 text-[0.7rem] font-medium uppercase tracking-[0.2em] text-[#ee0a0a]">
         Error 404
       </p>
 
