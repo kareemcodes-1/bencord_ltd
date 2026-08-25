@@ -56,7 +56,6 @@ export interface Product {
     discountType: "percentage" | "fixed";
     discountValue: number;
     title?: string;
-    maxDiscount?: number;
   } | null;
 
   media: ProductMedia[];
@@ -84,8 +83,6 @@ export interface Discount {
   discountType: DiscountType;
   discountValue: number;
   productIds: string[] | { _id: string; name: string; slug?: string }[];
-  minimumAmount: number;
-  maxDiscount: number;
   startsAt: string | Date;
   expiresAt: string | Date;
   isActive: boolean;

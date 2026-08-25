@@ -17,9 +17,6 @@ export function getProductPricing(product: Product) {
 
   if (discount.discountType === "percentage") {
     discountAmount = (originalPrice * discount.discountValue) / 100;
-    if (discount.maxDiscount && discount.maxDiscount > 0) {
-      discountAmount = Math.min(discountAmount, discount.maxDiscount);
-    }
   } else {
     discountAmount = discount.discountValue;
   }
