@@ -11,37 +11,6 @@ gsap.registerPlugin(useGSAP);
 
 export default function Hero() {
 
-  const buttonRef = useRef<HTMLAnchorElement>(null);
-
-  useGSAP(() => {
-    if (!buttonRef.current) return;
-
-    gsap.set(buttonRef.current, {
-      yPercent: 300,
-    });
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (!entry.isIntersecting) return;
-
-        gsap.to(buttonRef.current, {
-          yPercent: 0,
-          duration: 1,
-          ease: "power3.out",
-        });
-
-        observer.disconnect();
-      },
-      {
-        rootMargin: "0px",
-      },
-    );
-
-    observer.observe(buttonRef.current);
-
-    return () => observer.disconnect();
-  });
-
   return (
     <section className="relative overflow-hidden bg-white pt-28 pb-16 sm:pt-32 sm:pb-20 lg:pt-36 lg:min-h-screen lg:flex lg:items-center">
       <div className="mx-auto grid w-full items-start gap-10 px-6 sm:gap-12 sm:px-8 lg:grid-cols-2 lg:gap-16 lg:px-12 xl:px-16">
