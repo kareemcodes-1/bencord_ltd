@@ -127,15 +127,12 @@ export default function Hero() {
           />
 
           <div className="mt-8 flex flex-col gap-4 sm:mt-10 sm:flex-row">
-            <div className="overflow-hidden">
               <Link
-                ref={buttonRef}
                 href={"/shop"}
                 className="btn-primary"
               >
                 {"Shop Now"}
               </Link>
-            </div>
           </div>
         </div>
 
