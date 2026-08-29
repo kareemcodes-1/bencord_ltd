@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
 import Discount from "@/models/Discount";
-import "@/models/Collection";
+import "@/models/Category";
 
 export async function GET() {
   try {
@@ -13,7 +13,7 @@ export async function GET() {
 
     const [products, activeDiscounts] = await Promise.all([
       Product.find({ isActive: true, featured: true })
-        .populate("collectionId")
+        .populate("categoryId")
         .sort({ createdAt: -1 })
         .lean(),
       Discount.find({
