@@ -11,8 +11,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
-import { getProducts } from "@/actions/product.actions";
-import { Product } from "@/types";
+import { searchProducts } from "@/actions/product.actions";
+import type { Product } from "@/types";
 import { priceFormatter } from "@/lib/priceFormatter";
 
 type SearchModalProps = {
@@ -24,57 +24,60 @@ function SearchModal({ openSearchModal, setOpenSearchModal }: SearchModalProps) 
   const inputRef = useRef<HTMLInputElement | null>(null);
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
-  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const router = useRouter();
 
+  // Load suggestions when modal opens
   useEffect(() => {
+    if (!openSearchModal) return;
+
+    let cancelled = false;
+
     (async () => {
-      const data = await getProducts({
-        page: 1,
-        limit: 500, // load enough products for search
-      });
-      setAllProducts(Array.isArray(data) ? data : data.products ?? []);
+      setLoading(true);
+      try {
+        const data = await searchProducts("", 8);
+        if (!cancelled) setProducts(data.products ?? []);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     })();
-  }, []);
 
+    return () => {
+      cancelled = true;
+    };
+  }, [openSearchModal]);
+
+  // Debounced search while typing
   useEffect(() => {
-    setSelectedIndex(-1);
-  }, [products]);
+    if (!openSearchModal) return;
 
-useEffect(() => {
-  if (!query.trim()) {
-    setProducts(allProducts.slice(0, 8));
-    return;
-  }
+    const timer = setTimeout(async () => {
+      setLoading(true);
+      try {
+        const data = await searchProducts(query, query.trim() ? 20 : 8);
+        setProducts(data.products ?? []);
+        setSelectedIndex(-1);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    }, 300);
 
-  const normalize = (value: string) =>
-    value
-      .toLowerCase()
-      .replace(/[-_/]/g, " ")
-      .replace(/\s+/g, " ")
-      .trim();
-
-  const q = normalize(query);
-  const words = q.split(" ").filter(Boolean);
-
-  const filtered = allProducts.filter((p) => {
-    const name = normalize(p.name ?? "");
-    const slug = normalize(p.slug ?? p.name ?? "");
-
-    // every word in the search must appear in name or slug
-    return words.every(
-      (word) => name.includes(word) || slug.includes(word)
-    );
-  });
-
-  setProducts(filtered);
-}, [query, allProducts]);
+    return () => clearTimeout(timer);
+  }, [query, openSearchModal]);
 
   useEffect(() => {
     if (openSearchModal) {
       const t = setTimeout(() => inputRef.current?.focus(), 50);
       return () => clearTimeout(t);
+    } else {
+      setQuery("");
+      setSelectedIndex(-1);
     }
   }, [openSearchModal]);
 
@@ -93,7 +96,7 @@ useEffect(() => {
       if (e.key === "ArrowDown") {
         e.preventDefault();
         setSelectedIndex((prev) =>
-          Math.min(prev + 1, products.length - 1),
+          Math.min(prev + 1, products.length - 1)
         );
       }
       if (e.key === "ArrowUp") {
@@ -111,13 +114,12 @@ useEffect(() => {
 
   return (
     <Dialog open={openSearchModal} onOpenChange={setOpenSearchModal}>
-            <DialogContent
+      <DialogContent
         showCloseButton={false}
         className="top-[6%] z-[350] flex max-h-[min(36rem,88dvh)] w-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] translate-y-0 flex-col gap-0 overflow-hidden rounded-2xl border border-black/10 p-0 shadow-2xl sm:top-[10%] sm:max-h-[min(36rem,80vh)] sm:w-full sm:max-w-[42rem] [&>button]:hidden"
       >
         <DialogTitle className="sr-only">Search products</DialogTitle>
 
-        {/* Input */}
         <div className="flex shrink-0 items-center gap-2.5 border-b border-black/10 px-4 py-3.5 sm:gap-3 sm:px-5 sm:py-4">
           <Search
             size={18}
@@ -142,9 +144,12 @@ useEffect(() => {
           </button>
         </div>
 
-        {/* Results */}
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-          {products.length > 0 ? (
+          {loading && products.length === 0 ? (
+            <div className="px-5 py-12 text-center text-sm text-black/40">
+              Searching...
+            </div>
+          ) : products.length > 0 ? (
             <>
               <p className="sticky top-0 z-10 bg-white px-4 pb-2 pt-3.5 text-[0.65rem] font-medium uppercase tracking-[0.15em] text-black/40 sm:px-5 sm:pt-4">
                 {query
@@ -180,13 +185,6 @@ useEffect(() => {
                       <p className="truncate text-[0.85rem] font-medium text-black sm:text-[0.9rem]">
                         {product.name}
                       </p>
-                      <p className="mt-0.5 hidden truncate text-[0.75rem] text-black/40 sm:block">
-                        /shop/p/
-                        {(
-                          product.slug ??
-                          product.name.replace(/\s+/g, "-")
-                        ).toLowerCase()}
-                      </p>
                     </div>
 
                     <span className="shrink-0 text-[0.8rem] font-medium text-black/70 sm:text-[0.85rem]">
@@ -213,7 +211,6 @@ useEffect(() => {
           )}
         </div>
 
-        {/* Footer — hide keyboard hints on very small screens */}
         <div className="hidden shrink-0 items-center gap-4 border-t border-black/10 px-5 py-3 sm:flex">
           <span className="text-[0.65rem] font-medium uppercase tracking-[0.12em] text-black/30">
             ↵ Select

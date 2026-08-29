@@ -8,7 +8,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
 
 import ProductCard from "./product-card";
-import { getProducts } from "@/actions/product.actions";
+import { getFeaturedProducts, getProducts } from "@/actions/product.actions";
 import type { Product } from "@/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import EmptyState from "../empty-state";
@@ -27,7 +27,7 @@ const Products = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const data = await getProducts({ page: 1, limit: 8 });
+        const data = await getFeaturedProducts();
         setProducts(data.products);
       } catch (error) {
         console.error("Failed to fetch products:", error);

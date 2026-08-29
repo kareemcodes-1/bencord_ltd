@@ -35,6 +35,49 @@ export async function getProducts({
 }
 
 
+export async function getFeaturedProducts(): Promise<GetProductsResult> {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/products/featured`,
+    {
+      method: "GET",
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch featured products");
+  }
+
+  return response.json();
+}
+
+export async function searchProducts(
+  q: string,
+  limit = 12
+): Promise<{ products: Product[] }> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+  });
+
+  if (q.trim()) {
+    params.set("q", q.trim());
+  }
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_API_URL}/api/products/search?${params.toString()}`,
+    {
+      method: "GET",
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("Failed to search products");
+  }
+
+  return response.json();
+}
+
 export async function getProductBySlug(slug: string): Promise<Product | null> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/products/${slug}`,
