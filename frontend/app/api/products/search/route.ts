@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
 import Discount from "@/models/Discount";
-import "@/models/Collection";
+import "@/models/Category";
 
 export async function GET(request: NextRequest) {
   try {
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     const [products, activeDiscounts] = await Promise.all([
       Product.find(filter)
-        .populate("collectionId")
+        .populate("categoryId")
         .sort({ createdAt: -1 })
         .limit(limit)
         .lean(),
