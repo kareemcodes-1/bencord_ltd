@@ -4,6 +4,8 @@ import "./globals.css";
 import { Geist } from "next/font/google";
 import ToastProvider from "@/providers/toast-provider";
 import AuthProvider from "@/providers/session-provider";
+import WebsiteSchema from "./components/seo/website-schema";
+import OrganizationSchema from "./components/seo/organization-schema";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -48,13 +50,13 @@ export const metadata: Metadata = {
     description:
       "Shop genuine printers, toner cartridges, ink cartridges, laptops, accessories, and office supplies with fast nationwide delivery across Ghana.",
 
-    url: "https://bencordltd.com",
+    url: "https://bencordltd.com.ng",
 
     siteName: "Bencord Ltd",
 
     images: [
       {
-        url: "https://ik.imagekit.io/jl7pziosr/logo.jpeg?updatedAt=1787569894340",
+        url: "https://ik.imagekit.io/jl7pziosr/logo.jpeg",
         width: 1200,
         height: 630,
         alt: "Bencord Ltd Office Supplies",
@@ -81,6 +83,19 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+
+   icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/icon.png",
   },
 };
 
@@ -93,6 +108,8 @@ export default function RootLayout({
     <html lang="en" className={geist.variable}>
       <body className="bg-white text-black antialiased">
         <ToastProvider />
+        <WebsiteSchema />
+        <OrganizationSchema />
 
         <AuthProvider>{children}</AuthProvider>
       </body>

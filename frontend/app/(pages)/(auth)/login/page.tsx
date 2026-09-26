@@ -36,18 +36,60 @@ const Login = () => {
     }
 
     try {
-      const res = await signIn("credentials", {
-        redirect: false,
-        email,
-        password,
-      });
+     const res = await signIn("credentials", {
+  redirect: false,
+  email,
+  password,
+});
 
-      if (res?.ok) {
-        toast.success("Logged In.");
-        router.push("/");
-      } else {
-        toast.error("Invalid email or password.");
+if (res?.ok) {
+  toast.success("Logged In.");
+  router.push("/");
+  return;
+}
+
+if (res?.error === "EMAIL_NOT_VERIFIED") {
+  try {
+    const verificationRes = await fetch(
+      "/api/auth/send-verification",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
       }
+    );
+
+    const verificationData = await verificationRes.json();
+
+    if (!verificationRes.ok) {
+      toast.error(
+        verificationData.message ||
+          "Failed to send verification code."
+      );
+      return;
+    }
+
+    toast.success("Verification code sent to your email.");
+
+    router.push(
+      `/verify-email?email=${encodeURIComponent(email)}`
+    );
+
+    return;
+  } catch (error) {
+    console.error("Verification email error:", error);
+
+    toast.error(
+      "Failed to send verification code. Please try again."
+    );
+
+    return;
+  }
+}
+
+toast.error("Invalid email or password.");
     } catch (error) {
       console.error("Login error:", error);
       toast.error("Something went wrong. Please try again.");

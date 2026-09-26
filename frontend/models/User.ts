@@ -1,3 +1,4 @@
+
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 const addressSchema = new Schema(
@@ -59,6 +60,18 @@ export interface IUserDocument extends Document {
   password: string;
   phone?: string;
   role: "user" | "admin";
+
+  // Email verification
+  emailVerified: boolean;
+  emailVerificationCode?: string;
+  emailVerificationCodeExpires?: Date;
+  emailVerificationAttempts?: number;
+
+  // Temporary token used to automatically log the user in
+  // immediately after successful email verification.
+  emailVerificationLoginToken?: string;
+  emailVerificationLoginTokenExpires?: Date;
+
   addresses: {
     _id?: mongoose.Types.ObjectId;
     firstName: string;
@@ -71,8 +84,10 @@ export interface IUserDocument extends Document {
     country: string;
     isDefault: boolean;
   }[];
+
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+
   createdAt: Date;
   updatedAt: Date;
 }
@@ -84,6 +99,7 @@ const userSchema = new Schema<IUserDocument>(
       required: true,
       trim: true,
     },
+
     email: {
       type: String,
       required: true,
@@ -91,28 +107,79 @@ const userSchema = new Schema<IUserDocument>(
       lowercase: true,
       trim: true,
     },
+
     password: {
       type: String,
       required: true,
       select: false,
     },
+
     phone: {
       type: String,
       trim: true,
     },
+
     role: {
       type: String,
       enum: ["user", "admin"],
       default: "user",
     },
+
+    // =========================
+    // Email Verification
+    // =========================
+
+    emailVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    emailVerificationCode: {
+      type: String,
+      select: false,
+    },
+
+    emailVerificationCodeExpires: {
+      type: Date,
+      select: false,
+    },
+
+    emailVerificationAttempts: {
+      type: Number,
+      default: 0,
+      select: false,
+    },
+
+    // Temporary login token
+    // Created only after the correct verification code is entered.
+    emailVerificationLoginToken: {
+      type: String,
+      select: false,
+    },
+
+    emailVerificationLoginTokenExpires: {
+      type: Date,
+      select: false,
+    },
+
+    // =========================
+    // Addresses
+    // =========================
+
     addresses: {
       type: [addressSchema],
       default: [],
     },
+
+    // =========================
+    // Password Reset
+    // =========================
+
     resetPasswordToken: {
       type: String,
       select: false,
     },
+
     resetPasswordExpires: {
       type: Date,
       select: false,
@@ -128,3 +195,4 @@ const User: Model<IUserDocument> =
   mongoose.model<IUserDocument>("User", userSchema);
 
 export default User;
+

@@ -5,29 +5,33 @@ type Props = {
   name: string;
 };
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://loisbanksbeauty.com";
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL || "https://loisbanksbeauty.com";
 
 export default function WelcomeEmail({ name }: Props) {
   return (
     <EmailLayout preview="Welcome to LoisBanks Beauty">
-      <Heading className="m-0 text-2xl font-medium text-black">
-        Welcome, {name}
+      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#FD3F92]">
+        Welcome
+      </Text>
+
+      <Heading className="mt-3 mb-0 text-center text-[26px] font-medium leading-tight text-black">
+        Welcome to LoisBanks Beauty
       </Heading>
 
-      <Text className="mt-4 text-[15px] leading-relaxed text-black/70">
-        Thank you for joining LoisBanks Beauty. We&apos;re excited to have you
-        here.
+      <Text className="mt-4 mb-0 text-center text-[15px] leading-relaxed text-black/60">
+        Hi {name}, we&apos;re so happy to have you here.
       </Text>
 
-      <Text className="mt-3 text-[15px] leading-relaxed text-black/70">
-        Explore our latest collections and enjoy exclusive offers curated just
-        for you.
+      <Text className="mt-3 mb-0 text-center text-[15px] leading-relaxed text-black/60">
+        Discover our latest collections, explore your favorites, and enjoy
+        exclusive offers made for our customers.
       </Text>
 
-      <Section className="mt-8">
+      <Section className="mt-8 text-center">
         <Button
           href={`${APP_URL}/shop`}
-          className="rounded-xl bg-[#ee0a0a] px-6 py-3 text-sm font-medium text-white no-underline"
+          className="rounded-full bg-[#FD3F92] px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.08em] text-white no-underline"
         >
           Start Shopping
         </Button>
@@ -35,3 +39,4 @@ export default function WelcomeEmail({ name }: Props) {
     </EmailLayout>
   );
 }
+

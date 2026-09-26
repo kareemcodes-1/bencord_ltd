@@ -91,7 +91,7 @@ lg:gap-6
                     {item.name}
                   </h4>
 
-                  <Link href="/shop" className="btn-primary w-fit whitespace-nowrap">
+                  <Link  href={`/shop?filter=${item._id}`} className="btn-primary w-fit whitespace-nowrap">
                     Shop Now
                   </Link>
                 </div>

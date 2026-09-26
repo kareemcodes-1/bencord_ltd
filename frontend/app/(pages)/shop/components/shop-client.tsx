@@ -54,7 +54,10 @@ export default function ShopClient({
   const [sort, setSort] = useState<SortValue>("default");
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
 
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
+    const categoryId = searchParams.get("filter");
+    return categoryId ? [categoryId] : [];
+  });
   const [selectedAvailability, setSelectedAvailability] = useState<
     AvailabilityFilter[]
   >([]);
@@ -80,7 +83,10 @@ export default function ShopClient({
     maxPrice,
   ]);
 
-  const [draftCategories, setDraftCategories] = useState<string[]>([]);
+  const [draftCategories, setDraftCategories] = useState<string[]>(() => {
+    const categoryId = searchParams.get("filter");
+    return categoryId ? [categoryId] : [];
+  });
   const [draftPriceRange, setDraftPriceRange] = useState<[number, number]>([
     minPrice,
     maxPrice,

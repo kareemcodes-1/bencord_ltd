@@ -30,19 +30,54 @@ const Register = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [password, setPassword] = useState("");
+
+  const passwordRequirements = [
+    {
+      label: "At least 8 characters",
+      valid: password.length >= 8,
+    },
+    {
+      label: "One uppercase letter",
+      valid: /[A-Z]/.test(password),
+    },
+    {
+      label: "One lowercase letter",
+      valid: /[a-z]/.test(password),
+    },
+    {
+      label: "One number",
+      valid: /\d/.test(password),
+    },
+    {
+      label: "One special character",
+      valid: /[^A-Za-z\d]/.test(password),
+    },
+  ];
+
+  const isStrongPassword = passwordRequirements.every(
+    (requirement) => requirement.valid
+  );
 
   const formAction = async (formData: FormData) => {
     const name = formData.get("name") as string;
     const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    const passwordValue = formData.get("password") as string;
     const confirmPassword = formData.get("confirmPassword") as string;
 
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !email || !passwordValue || !confirmPassword) {
       toast.error("Please fill in all fields.");
       return;
     }
 
-    if (password !== confirmPassword) {
+    if (!isStrongPassword) {
+      toast.error(
+        "Please create a stronger password that meets all the requirements."
+      );
+      return;
+    }
+
+    if (passwordValue !== confirmPassword) {
       toast.error("Passwords do not match.");
       return;
     }
@@ -56,7 +91,7 @@ const Register = () => {
         body: JSON.stringify({
           name,
           email,
-          password,
+          password: passwordValue,
         }),
       });
 
