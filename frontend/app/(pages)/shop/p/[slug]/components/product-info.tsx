@@ -16,11 +16,6 @@ import { useCartStore } from "@/store/cart";
 import { useCurrencyStore } from "@/store/currency";
 import { priceFormatter } from "@/lib/priceFormatter";
 import { getProductPricing } from "@/lib/product-pricing";
-import {
-  getStockLabel,
-  getStockStatus,
-  isAddToCartDisabled,
-} from "@/lib/product-stock";
 
 type ProductInfoProps = {
   product: Product;
@@ -33,13 +28,8 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
 
   const [quantity, setQuantity] = useState(1);
 
-  const stockStatus = getStockStatus(product);
-  const stockLabel = getStockLabel(product);
-  const disabled = isAddToCartDisabled(product);
-
-  const maxQuantity = product.trackInventory
-    ? Math.max(1, product.stock)
-    : Infinity;
+  const disabled = !product.inStock;
+  const stockLabel = product.inStock ? "In stock" : "Out of stock";
 
   const categorySlug = product.categoryId?.name
     ?.toLowerCase()
@@ -62,20 +52,13 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
     router.push("/checkout");
   };
 
-  // Stock badge styles
-  const stockBadgeClass =
-    stockStatus === "out-of-stock"
-      ? "border-red-200 bg-red-100 text-red-700"
-      : stockStatus === "low-stock"
-        ? "border-amber-200 bg-amber-100 text-amber-800"
-        : "border-emerald-200 bg-emerald-100 text-emerald-700";
+  const stockBadgeClass = product.inStock
+    ? "border-emerald-200 bg-emerald-100 text-emerald-700"
+    : "border-red-200 bg-red-100 text-red-700";
 
-  const statusDotClass =
-    stockStatus === "out-of-stock"
-      ? "bg-red-500"
-      : stockStatus === "low-stock"
-        ? "bg-amber-400"
-        : "bg-emerald-500";
+  const statusDotClass = product.inStock
+    ? "bg-emerald-500"
+    : "bg-red-500";
 
   return (
     <div className="flex w-full flex-col lg:w-1/2 lg:self-start lg:sticky lg:top-[5.5rem]">
@@ -85,18 +68,22 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
           <Link href="/" className="transition-colors hover:text-black">
             Home
           </Link>
+
           <span>/</span>
+
           {product.categoryId && (
             <>
               <Link
-                href={`/categories/${categorySlug}`}
+                href={`/shop?categories=${product._id}`}
                 className="transition-colors hover:text-black"
               >
                 {product.categoryId.name}
               </Link>
+
               <span>/</span>
             </>
           )}
+
           <span className="max-w-[12rem] truncate text-black/70 sm:max-w-none">
             {product.name}
           </span>
@@ -116,10 +103,12 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                 <span
                   className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-40 ${statusDotClass}`}
                 />
+
                 <span
                   className={`relative inline-flex h-2 w-2 rounded-full ${statusDotClass}`}
                 />
               </span>
+
               <span className="text-[0.65rem] font-medium uppercase tracking-[0.08em]">
                 {stockLabel}
               </span>
@@ -141,6 +130,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                   />
                 ))}
               </div>
+
               <span className="text-[0.75rem] font-medium text-black/50">
                 {averageRating.toFixed(1)} · {reviewCount}{" "}
                 {reviewCount === 1 ? "review" : "reviews"}
@@ -161,6 +151,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
                 <p className="text-[1.1rem] text-black/40 line-through sm:text-[1.25rem]">
                   {priceFormatter(originalPrice)}
                 </p>
+
                 {discountLabel && (
                   <span className="rounded-full bg-[#ee0a0a] px-2.5 py-1 text-[0.7rem] font-semibold uppercase tracking-wide text-white">
                     {discountLabel}
@@ -177,19 +168,21 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
             <button
               type="button"
               disabled={disabled}
-              onClick={() => setQuantity(Math.max(1, quantity - 1))}
+              onClick={() =>
+                setQuantity((current) => Math.max(1, current - 1))
+              }
               className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-30"
               aria-label="Decrease quantity"
             >
               <Minus size={14} />
             </button>
+
             <span className="text-[1rem]">{quantity}</span>
+
             <button
               type="button"
               disabled={disabled}
-              onClick={() =>
-                setQuantity(Math.min(maxQuantity, quantity + 1))
-              }
+              onClick={() => setQuantity((current) => current + 1)}
               className="cursor-pointer disabled:cursor-not-allowed disabled:opacity-30"
               aria-label="Increase quantity"
             >
@@ -224,6 +217,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
             <AccordionTrigger className="py-3 text-left font-geist text-[0.8rem] font-medium uppercase transition-colors hover:text-[#ee0a0a] sm:py-4 sm:text-[15px] md:text-[1rem]">
               Description
             </AccordionTrigger>
+
             <AccordionContent className="pr-2 pb-3 font-geist text-[0.875rem] leading-6 text-black/70 sm:pr-6 sm:pb-4 sm:text-[0.925rem] sm:leading-7">
               {product.description}
             </AccordionContent>

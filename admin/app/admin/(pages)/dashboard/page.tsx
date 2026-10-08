@@ -1,74 +1,69 @@
-import { getOrderChart } from "@/actions/admin/order-chart.actions";
+import { getRevenueChart } from "@/actions/admin/revenue-chart.actions";
 import {
   getOrders,
   getTotalRevenue,
 } from "@/actions/admin/order.actions";
-import { getProducts } from "@/actions/admin/product.actions";
-import { getReviews } from "@/actions/admin/review.actions";
-import { getUsers } from "@/actions/admin/user.actions";
 
-import { RecentReviews } from "@/app/components/dashboard/recent-reviews";
-import { RecentUsers } from "@/app/components/dashboard/recent-users";
 import { SectionCards } from "@/app/components/dashboard/section-cards";
 import { ChartAreaInteractive } from "@/components/chart-area-interactive";
+import { getTrafficSources } from "@/actions/admin/traffic-source.actions";
+import { TrafficSources } from "@/app/components/dashboard/traffic-sources";
+import { getTopCountries } from "@/actions/admin/top-countries.actions";
+import { TopCountries } from "@/app/components/dashboard/top-countries";
+import { getTopProducts } from "@/actions/admin/top-products.actions";
+import { TopSellingProducts } from "@/app/components/dashboard/top-selling-products";
 
 const DashboardPage = async () => {
-  const [
-    productsResult,
-    ordersResult,
-    usersResult,
-    totalRevenue,
-    orderChart,
-    reviewsResult,
-  ] = await Promise.all([
-    // Total products
-    getProducts({
-      page: 1,
-      limit: 1,
-    }),
+const [
+  ordersResult,
+  totalRevenue,
+  revenueChart,
+  trafficSources,
+  topCountries,
+  topProducts,
+] = await Promise.all([
 
-    // Total orders
-    getOrders({ page: 1, limit: 1 }),
+  getOrders({
+    page: 1,
+    limit: 1,
+  }),
 
-    // Total users + recent users
-    getUsers({ page: 1, limit: 5 }),
+  getTotalRevenue(),
 
-    // Total revenue
-    getTotalRevenue(),
+  getRevenueChart("today"),
 
-    // Orders chart
-    getOrderChart("3months"),
+  getTrafficSources(),
 
-    // Recent reviews
-    getReviews({ page: 1, limit: 2 }),
-  ]);
+  getTopCountries(),
 
-  const totalProducts = productsResult.pagination.total;
+  getTopProducts(),
+]);
+
   const totalOrders = ordersResult.pagination.total;
-  const totalUsers = usersResult.pagination.total;
 
   return (
     <main className="flex flex-1 flex-col">
       <div className="@container/main flex flex-1 flex-col gap-4 md:gap-6">
         {/* Dashboard Overview */}
         <SectionCards
-          totalProducts={totalProducts}
           totalOrders={totalOrders}
-          totalUsers={totalUsers}
           revenue={totalRevenue}
         />
 
-        {/* Orders Chart */}
+        {/* Revenue Chart */}
         <div className="">
-          <ChartAreaInteractive initialData={orderChart} />
+          <ChartAreaInteractive initialData={revenueChart} />
         </div>
 
-        {/* Recent Users + Reviews */}
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <RecentUsers users={usersResult.users} />
+          <TrafficSources initialData={trafficSources} />
 
-          <RecentReviews reviews={reviewsResult.reviews} />
+            <TopCountries initialData={topCountries} />
         </div>
+
+        <div className="">
+  <TopSellingProducts initialData={topProducts} />
+</div>
       </div>
     </main>
   );

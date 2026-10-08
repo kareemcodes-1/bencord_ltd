@@ -96,7 +96,7 @@ function ResetPasswordForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="h-[2.75rem] rounded-full border-black/15 px-4 pr-12 sm:h-[3rem] sm:px-5"
+            className="h-[2.75rem] rounded-[0.75rem] border-black/15 px-4 pr-12 sm:h-[3rem] sm:px-5"
           />
           <button
             type="button"
@@ -122,7 +122,7 @@ function ResetPasswordForm() {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
-          className="h-[2.75rem] rounded-full border-black/15 px-4 sm:h-[3rem] sm:px-5"
+          className="h-[2.75rem] rounded-[0.75rem] border-black/15 px-4 sm:h-[3rem] sm:px-5"
         />
       </div>
 

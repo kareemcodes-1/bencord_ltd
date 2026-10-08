@@ -132,10 +132,11 @@ const paymentInfoSchema = new Schema(
 );
 
 export type OrderStatus =
-  | "processing"
+  | "pending"
   | "confirmed"
   | "shipped"
   | "ready_for_pickup"
+  | "out_for_delivery"
   | "delivered"
   | "cancelled";
 
@@ -179,7 +180,7 @@ export interface IOrderDocument extends Document {
   orderStatus: OrderStatus;
   shippingMethod: ShippingMethod;
   trackingNumber: string | null;
-
+  adminNote: string | null;
   subtotal: number;
   shippingFee: number;
   tax: number;
@@ -220,14 +221,15 @@ const orderSchema = new Schema<IOrderDocument>(
     orderStatus: {
       type: String,
       enum: [
-        "processing",
+        "pending",
         "confirmed",
         "shipped",
+        "out_for_delivery",
         "ready_for_pickup",
         "delivered",
         "cancelled",
       ],
-      default: "processing",
+      default: "pending",
       index: true,
     },
 
@@ -238,6 +240,12 @@ const orderSchema = new Schema<IOrderDocument>(
     },
 
     trackingNumber: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+
+    adminNote: {
       type: String,
       default: null,
       trim: true,

@@ -44,11 +44,6 @@ const orderItemSchema = new Schema(
       required: true,
       min: 1,
     },
-    size: {
-      type: String,
-      default: null,
-      trim: true,
-    },
   },
   {
     _id: true,
@@ -137,10 +132,11 @@ const paymentInfoSchema = new Schema(
 );
 
 export type OrderStatus =
-  | "processing"
+  | "pending"
   | "confirmed"
   | "shipped"
   | "ready_for_pickup"
+  | "out_for_delivery"
   | "delivered"
   | "cancelled";
 
@@ -158,9 +154,14 @@ export interface IOrderDocument extends Document {
       url: string;
       type: "image" | "video";
     }[];
-    price: number;
+    price: number;          // paid per unit
+  originalPrice: number;  // full price per unit
+  discount: {
+    title: string | null;
+    discountType: "percentage" | "fixed";
+    discountValue: number;
+  } | null;
     quantity: number;
-    size?: string | null;
   }[];
 
   shippingAddress: {
@@ -185,7 +186,7 @@ export interface IOrderDocument extends Document {
   orderStatus: OrderStatus;
   shippingMethod: ShippingMethod;
   trackingNumber: string | null;
-
+   adminNote: string | null;
   subtotal: number;
   shippingFee: number;
   tax: number;
@@ -223,17 +224,24 @@ const orderSchema = new Schema<IOrderDocument>(
       required: true,
     },
 
+    adminNote: {
+      type: String,
+      default: null,
+      trim: true,
+    },
+
     orderStatus: {
       type: String,
       enum: [
-        "processing",
+        "pending",
         "confirmed",
         "shipped",
+        "out_for_delivery",
         "ready_for_pickup",
         "delivered",
         "cancelled",
       ],
-      default: "processing",
+      default: "pending",
       index: true,
     },
 

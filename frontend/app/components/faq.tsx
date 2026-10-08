@@ -15,14 +15,14 @@ const faqs = [
       "Every product page lists the compatible printer models. If you’re still unsure, just message us with your printer model and we’ll recommend the correct cartridge before you order.",
   },
   {
-  question: "How long does it take for my order to be confirmed?",
-  answer:
-    "Orders are usually confirmed within 24 to 48 hours. Once confirmed, we’ll notify you and begin preparing your items for delivery or pickup.",
-},
+    question: "How long does it take for my order to be confirmed?",
+    answer:
+      "Orders are usually confirmed within 24 to 48 hours. Once confirmed, we’ll notify you and begin preparing your items for delivery or pickup.",
+  },
   {
     question: "What payment methods do you accept?",
     answer:
-      "We accept secure online payments including mobile money and card payments. All orders are paid for before processing to ensure fast and reliable dispatch.",
+      "Yes, we accept online payments via Paystack, including bank transfers, mobile money, and cards.",
   },
   {
     question: "Do you deliver across Ghana?",

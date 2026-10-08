@@ -1,6 +1,13 @@
+import { Link, Section, Text } from "@react-email/components";
+import type { ReactNode } from "react";
 
-import { Heading, Section, Text } from "@react-email/components";
-import EmailLayout from "./email-layout";
+import EmailLayout, {
+  EmailButton,
+  EmailCard,
+  EmailEyebrow,
+  EmailHeading,
+  EmailText,
+} from "./email-layout";
 
 type Props = {
   name: string;
@@ -9,65 +16,81 @@ type Props = {
   message: string;
 };
 
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <>
+      <Text className="m-0 text-[11px] font-medium uppercase tracking-[0.12em] text-black/40">
+        {label}
+      </Text>
+
+      <Text
+        className="m-0 mb-4 mt-1 text-[15px] font-medium leading-[1.5] text-black"
+        style={{ wordBreak: "break-word" }}
+      >
+        {children}
+      </Text>
+    </>
+  );
+}
+
 export default function ContactEnquiryEmail({
   name,
   email,
   subject,
   message,
 }: Props) {
+  const replyHref = `mailto:${email}?subject=${encodeURIComponent(
+    `Re: ${subject}`
+  )}`;
+
   return (
     <EmailLayout preview={`New enquiry from ${name}: ${subject}`}>
-      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#FD3F92]">
-        Contact form
-      </Text>
+      <EmailEyebrow>Contact form</EmailEyebrow>
 
-      <Heading className="mt-3 mb-0 text-center text-[26px] font-medium leading-tight text-black">
-        New enquiry
-      </Heading>
+      <EmailHeading>New enquiry</EmailHeading>
 
-      <Text className="mt-4 mb-0 text-center text-[15px] leading-relaxed text-black/60">
-        You received a new message from the LoisBanks Beauty website.
-      </Text>
+      <EmailText center>
+        You received a new message from the website.
+      </EmailText>
 
-      <Section className="mt-8 rounded-2xl bg-[#fafafa] px-5 py-4">
-        {/* Sender */}
-        <Text className="m-0 text-[11px] font-medium uppercase tracking-[0.14em] text-black/40">
-          From
-        </Text>
+      <EmailCard>
+        <Field label="From">{name}</Field>
 
-        <Text className="mt-1 mb-0 text-[15px] font-medium text-black">
-          {name}
-        </Text>
+        <Field label="Email">
+          <Link
+            href={`mailto:${email}`}
+            className="text-[#ee0a0a] no-underline"
+          >
+            {email}
+          </Link>
+        </Field>
 
-        <Text className="mt-1 mb-0 text-[14px] text-[#FD3F92]">
-          {email}
-        </Text>
+        <Field label="Subject">{subject}</Field>
 
-        {/* Subject */}
-        <Text className="mt-5 mb-0 text-[11px] font-medium uppercase tracking-[0.14em] text-black/40">
-          Subject
-        </Text>
-
-        <Text className="mt-1 mb-0 text-[15px] font-medium text-black">
-          {subject}
-        </Text>
-
-        {/* Message */}
-        <Text className="mt-5 mb-0 text-[11px] font-medium uppercase tracking-[0.14em] text-black/40">
+        <Text className="m-0 text-[11px] font-medium uppercase tracking-[0.12em] text-black/40">
           Message
         </Text>
 
-        <Section className="mt-2 rounded-xl bg-white px-4 py-3">
-          <Text className="m-0 whitespace-pre-wrap text-[15px] leading-relaxed text-black/70">
+        <Section className="mt-2 rounded-lg bg-white px-4 py-3">
+          <Text
+            className="m-0 text-[15px] leading-[1.7] text-black/70"
+            style={{
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+            }}
+          >
             {message}
           </Text>
         </Section>
-      </Section>
+      </EmailCard>
 
-      <Text className="mt-6 mb-0 text-center text-[13px] leading-relaxed text-black/45">
-        Reply directly to this email to respond to {name}.
-      </Text>
+      <EmailButton href={replyHref}>Reply to {name}</EmailButton>
     </EmailLayout>
   );
 }
-

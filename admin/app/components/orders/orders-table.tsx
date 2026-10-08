@@ -103,31 +103,42 @@ function formatDate(date: string | Date) {
 
 function getStatusBadge(status: string) {
   const map: Record<string, { label: string; className: string }> = {
-    processing: {
-      label: "Processing",
+    pending: {
+      label: "Pending",
       className:
-        "border-amber-200 bg-amber-100 text-amber-700 hover:bg-amber-100",
+        "border-orange-200 bg-orange-100 text-orange-700 hover:bg-orange-100",
     },
+
     confirmed: {
       label: "Confirmed",
       className:
         "border-green-200 bg-green-50 text-green-700 hover:bg-green-50",
     },
+
     shipped: {
       label: "Shipped",
       className:
         "border-blue-200 bg-blue-100 text-blue-700 hover:bg-blue-100",
     },
+
+    out_for_delivery: {
+      label: "Out for delivery",
+      className:
+        "border-purple-200 bg-purple-100 text-purple-700 hover:bg-purple-100",
+    },
+
     ready_for_pickup: {
       label: "Ready for pickup",
       className:
         "border-green-200 bg-green-100 text-green-700 hover:bg-green-100",
     },
+
     delivered: {
       label: "Delivered",
       className:
         "border-green-200 bg-green-50 text-green-700 hover:bg-green-50",
     },
+
     cancelled: {
       label: "Cancelled",
       className:
@@ -318,14 +329,51 @@ export function OrdersTable({ onEdit }: OrdersTableProps) {
           },
         }),
 
-        columnHelper.accessor("totalAmount", {
-          header: "Total",
-          cell: ({ row }) => (
-            <span className="font-medium tabular-nums">
-              {priceFormatter(row.original.totalAmount)}
-            </span>
-          ),
-        }),
+    columnHelper.accessor("totalAmount", {
+  header: "Total",
+  cell: ({ row }) => {
+    const order = row.original;
+
+    const discountTitles = Array.from(
+      new Set(
+        (order.items || [])
+          .filter(
+            (item) =>
+              item.discount &&
+              typeof item.originalPrice === "number" &&
+              item.originalPrice > item.price
+          )
+          .map((item) => item.discount?.title)
+          .filter((title): title is string => Boolean(title))
+      )
+    );
+
+    const hasDiscount = discountTitles.length > 0 ||
+      order.items?.some(
+        (item) =>
+          item.discount &&
+          typeof item.originalPrice === "number" &&
+          item.originalPrice > item.price
+      );
+
+    return (
+      <div className="flex flex-col gap-0.5">
+        <span className="font-medium tabular-nums">
+          {priceFormatter(order.totalAmount)}
+        </span>
+
+        {hasDiscount && (
+          <span className="max-w-[140px] truncate text-[11px] font-medium text-[#FD3F92]">
+            Discount applied
+            {discountTitles.length > 0
+              ? ` · ${discountTitles.join(", ")}`
+              : ""}
+          </span>
+        )}
+      </div>
+    );
+  },
+}),
 
         columnHelper.accessor("orderStatus", {
           header: "Status",
@@ -448,14 +496,39 @@ export function OrdersTable({ onEdit }: OrdersTableProps) {
             <SelectTrigger className="w-full sm:w-[180px]">
               <SelectValue placeholder="Status" />
             </SelectTrigger>
+
             <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="processing">Processing</SelectItem>
-              <SelectItem value="confirmed">Confirmed</SelectItem>
-              <SelectItem value="shipped">Shipped</SelectItem>
-              <SelectItem value="ready_for_pickup">Ready for pickup</SelectItem>
-              <SelectItem value="delivered">Delivered</SelectItem>
-              <SelectItem value="cancelled">Cancelled</SelectItem>
+              <SelectItem value="all">
+                All orders
+              </SelectItem>
+
+              <SelectItem value="pending">
+                Pending
+              </SelectItem>
+
+              <SelectItem value="confirmed">
+                Confirmed
+              </SelectItem>
+
+              <SelectItem value="shipped">
+                Shipped
+              </SelectItem>
+
+              <SelectItem value="out_for_delivery">
+                Out for delivery
+              </SelectItem>
+
+              <SelectItem value="ready_for_pickup">
+                Ready for pickup
+              </SelectItem>
+
+              <SelectItem value="delivered">
+                Delivered
+              </SelectItem>
+
+              <SelectItem value="cancelled">
+                Cancelled
+              </SelectItem>
             </SelectContent>
           </Select>
 

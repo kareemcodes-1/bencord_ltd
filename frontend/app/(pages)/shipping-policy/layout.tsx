@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Shipping Policy | Lois Banks Beauty",
+  title: "Shipping Policy",
   description:
     "Everything you need to know about shipping times, delivery areas, and tracking your order.",
 };

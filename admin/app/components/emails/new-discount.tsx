@@ -1,60 +1,97 @@
-import { Button, Heading, Section, Text } from "@react-email/components";
-import EmailLayout from "./email-layout";
+import { Link, Text } from "@react-email/components";
+
+import EmailLayout, {
+  EmailButton,
+  EmailCard,
+  EmailEyebrow,
+  EmailHeading,
+  EmailText,
+} from "./email-layout";
 
 type Props = {
   title: string;
-  description: string;
+  description?: string;
   discountLabel: string; // e.g. "20% OFF" or "₦5,000 OFF"
   expiresAt?: string; // formatted date
+  productCount?: number;
+  unsubscribeUrl: string;
 };
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://loisbanksbeauty.com";
+const FRONTEND_URL =
+  process.env.NEXT_PUBLIC_FRONTEND_URL || "https://bencordltd.com.ng";
+
 
 export default function NewDiscountEmail({
   title,
   description,
   discountLabel,
   expiresAt,
+  productCount,
+  unsubscribeUrl,
 }: Props) {
+  const details = [
+    typeof productCount === "number" && productCount > 0
+      ? `${productCount} product${productCount === 1 ? "" : "s"}`
+      : null,
+    expiresAt ? `Ends ${expiresAt}` : null,
+  ].filter(Boolean);
+
   return (
-    <EmailLayout preview={`${discountLabel} — ${title}`}>
-      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#ee0a0a]">
-        Special offer
-      </Text>
+    <EmailLayout preview={`${discountLabel}: ${title}`}>
+      <EmailEyebrow>Special offer</EmailEyebrow>
 
-      <Heading className="mt-3 mb-0 text-center text-[26px] font-medium leading-tight text-black">
-        {title}
-      </Heading>
+      <EmailHeading>A new discount is available</EmailHeading>
 
-      <Text className="mt-4 mb-0 text-center text-[15px] leading-relaxed text-black/60">
-        {description}
-      </Text>
+      <EmailText center>
+        We just added a new offer at Bencord Ltd.
+      </EmailText>
 
-      {/* Discount badge */}
-      <Section className="mt-8 text-center">
-        <Text className="m-0 inline-block rounded-full bg-[#ee0a0a] px-6 py-3 text-[18px] font-medium tracking-wide text-white">
+      {/* Offer card */}
+      <EmailCard>
+        <Text
+          className="m-0 text-center text-[36px] font-normal leading-[1.1] tracking-[-0.02em] text-[#ee0a0a] sm:text-[44px]"
+        >
           {discountLabel}
         </Text>
-      </Section>
 
-      {expiresAt && (
-        <Text className="mt-5 mb-0 text-center text-[13px] text-black/45">
-          Offer ends {expiresAt}
-        </Text>
-      )}
-
-      <Text className="mt-6 mb-0 text-center text-[15px] leading-relaxed text-black/60">
-        Shop selected products and enjoy this exclusive deal while it lasts.
-      </Text>
-
-      <Section className="mt-8 text-center">
-        <Button
-          href={`${APP_URL}/shop`}
-          className="rounded-full bg-[#ee0a0a] px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.08em] text-white no-underline"
+        <Text
+          className="m-0 mt-3 text-center text-[17px] font-medium leading-[1.4] text-black"
+          style={{ wordBreak: "break-word" }}
         >
-          Shop the offer
-        </Button>
-      </Section>
+          {title}
+        </Text>
+
+        {description ? (
+          <Text
+            className="m-0 mt-2 text-center text-[14px] leading-[1.6] text-black/60"
+            style={{ wordBreak: "break-word" }}
+          >
+            {description}
+          </Text>
+        ) : null}
+
+        {details.length > 0 ? (
+          <Text className="m-0 mt-4 text-center text-[12px] uppercase tracking-[0.08em] text-black/45">
+            {details.join("  ·  ")}
+          </Text>
+        ) : null}
+      </EmailCard>
+
+      <EmailButton href={`${FRONTEND_URL}/shop`}>
+        Shop the offer
+      </EmailButton>
+
+      <Text className="m-0 mt-6 text-center text-[11px] leading-[1.6] text-black/40">
+        You&apos;re receiving this because you subscribed to Bencord Ltd
+        updates.
+        <br />
+        <Link
+          href={unsubscribeUrl}
+          className="text-black/50 underline"
+        >
+          Unsubscribe
+        </Link>
+      </Text>
     </EmailLayout>
   );
 }

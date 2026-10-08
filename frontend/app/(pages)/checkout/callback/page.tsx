@@ -77,7 +77,7 @@ export default async function CheckoutCallbackPage({ searchParams }: Props) {
     channel: payment_type || null,
     paidAt: created_at ? new Date(created_at) : new Date(),
   };
-  order.orderStatus = "processing";
+  order.orderStatus = "pending";
   await order.save();
 
   // 4. Save address to user if it was a new address

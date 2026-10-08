@@ -13,18 +13,20 @@ type Props = {
 };
 
 const statusStyles: Record<string, string> = {
-  processing: "bg-orange-100 text-orange-700 border-orange-200",
+  pending: "bg-orange-100 text-orange-700 border-orange-200",
   confirmed: "bg-green-50 text-green-700 border-green-200",
   shipped: "bg-blue-100 text-blue-700 border-blue-200",
+  out_for_delivery: "bg-orange-50 text-orange-700 border-orange-200",
   ready_for_pickup: "bg-green-100 text-green-700 border-green-200",
   delivered: "bg-green-100 text-green-700 border-green-200",
   cancelled: "bg-red-100 text-red-700 border-red-200",
 };
 
 const statusLabels: Record<string, string> = {
-  processing: "Processing",
+  pending: "Pending",
   confirmed: "Confirmed",
   shipped: "Shipped",
+  out_for_delivery: "Out for delivery",
   ready_for_pickup: "Ready for pickup",
   delivered: "Delivered",
   cancelled: "Cancelled",

@@ -63,10 +63,7 @@ export interface Product {
 
   featured: boolean;
 
-  trackInventory: boolean;
-  stock: number;
-  lowStockThreshold: number;
-  isActive: boolean;
+  inStock: boolean;
 
   averageRating: number;
   reviewCount: number;
@@ -107,8 +104,13 @@ export interface OrderItem {
   name: string;
   media: OrderMedia[];
   price: number;
+  originalPrice: number;
+  discount: {
+    title: string | null;
+    discountType: "percentage" | "fixed";
+    discountValue: number;
+  } | null;
   quantity: number;
-  size?: string | null;
 }
 
 export interface ShippingAddress {
@@ -136,10 +138,11 @@ export interface PaymentInfo {
 }
 
 export type OrderStatus =
-  | "processing"
+  | "pending"
   | "confirmed"
   | "shipped"
   | "ready_for_pickup"
+  | "out_for_delivery"
   | "delivered"
   | "cancelled";
 
@@ -157,6 +160,7 @@ export interface Order {
   subtotal: number;
   shippingFee: number;
   tax: number;
+   adminNote: string | null;
   totalAmount: number;
   createdAt: string;
   updatedAt: string;

@@ -42,8 +42,8 @@ function formatDateTime(date: string | Date) {
 
 function getStatusBadge(status: string) {
   const map: Record<string, { label: string; className: string }> = {
-    processing: {
-      label: "Processing",
+    pending: {
+      label: "Pending",
       className:
         "border-orange-200 bg-orange-100 text-orange-700 hover:bg-orange-100",
     },
@@ -56,6 +56,11 @@ function getStatusBadge(status: string) {
       label: "Shipped",
       className:
         "border-blue-200 bg-blue-100 text-blue-700 hover:bg-blue-100",
+    },
+    out_for_delivery: {
+      label: "Out for delivery",
+      className:
+        "border-purple-200 bg-purple-100 text-purple-700 hover:bg-purple-100",
     },
     ready_for_pickup: {
       label: "Ready for pickup",

@@ -6,6 +6,7 @@ import ToastProvider from "@/providers/toast-provider";
 import AuthProvider from "@/providers/session-provider";
 import WebsiteSchema from "./components/seo/website-schema";
 import OrganizationSchema from "./components/seo/organization-schema";
+import Script from "next/script";
 
 const geist = Geist({
   subsets: ["latin"],
@@ -106,6 +107,22 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={geist.variable}>
+    <head>
+            <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+              strategy="afterInteractive"
+            />
+    
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+    
+                gtag('config', 'G-5XHLTRH74B');
+              `}
+            </Script>
+          </head>
       <body className="bg-white text-black antialiased">
         <ToastProvider />
         <WebsiteSchema />

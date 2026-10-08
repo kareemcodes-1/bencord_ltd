@@ -8,42 +8,53 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
 
-    const range = searchParams.get("range") || "3months";
+    const range = searchParams.get("range") || "today";
 
     const now = new Date();
     const startDate = new Date(now);
 
-    if (range === "7days") {
+    if (range === "today") {
+      startDate.setHours(0, 0, 0, 0);
+    } else if (range === "7days") {
       startDate.setDate(now.getDate() - 6);
+      startDate.setHours(0, 0, 0, 0);
     } else if (range === "30days") {
       startDate.setDate(now.getDate() - 29);
-    } else {
-      startDate.setMonth(now.getMonth() - 2);
-      startDate.setDate(1);
+      startDate.setHours(0, 0, 0, 0);
     }
 
-    startDate.setHours(0, 0, 0, 0);
-
-    const orders = await Order.aggregate([
+    const revenue = await Order.aggregate([
       {
         $match: {
           createdAt: {
             $gte: startDate,
             $lte: now,
           },
+          "paymentInfo.paymentStatus": "paid",
         },
       },
 
       {
         $group: {
-          _id: {
-            $dateToString: {
-              format: "%Y-%m-%d",
-              date: "$createdAt",
-            },
-          },
-          orders: {
-            $sum: 1,
+          _id:
+            range === "today"
+              ? {
+                  $dateToString: {
+                    format: "%Y-%m-%d-%H",
+                    date: "$createdAt",
+                    timezone: "Africa/Lagos",
+                  },
+                }
+              : {
+                  $dateToString: {
+                    format: "%Y-%m-%d",
+                    date: "$createdAt",
+                    timezone: "Africa/Lagos",
+                  },
+                },
+
+          revenue: {
+            $sum: "$totalAmount",
           },
         },
       },
@@ -55,35 +66,73 @@ export async function GET(request: Request) {
       },
     ]);
 
-    const orderMap = new Map(
-      orders.map((item) => [
+    const revenueMap = new Map(
+      revenue.map((item) => [
         item._id,
-        item.orders,
+        item.revenue,
       ])
     );
 
     const result = [];
 
-    const currentDate = new Date(startDate);
+    if (range === "today") {
+      const currentHour = new Date(startDate);
 
-    while (currentDate <= now) {
-      const date = currentDate.toISOString().split("T")[0];
+      while (currentHour <= now) {
+        const year = currentHour.getFullYear();
+        const month = String(
+          currentHour.getMonth() + 1
+        ).padStart(2, "0");
+        const day = String(
+          currentHour.getDate()
+        ).padStart(2, "0");
+        const hour = String(
+          currentHour.getHours()
+        ).padStart(2, "0");
 
-      result.push({
-        date,
-        orders: orderMap.get(date) ?? 0,
-      });
+        const key = `${year}-${month}-${day}-${hour}`;
 
-      currentDate.setDate(currentDate.getDate() + 1);
+        result.push({
+          date: key,
+          revenue: revenueMap.get(key) ?? 0,
+        });
+
+        currentHour.setHours(
+          currentHour.getHours() + 1
+        );
+      }
+    } else {
+      const currentDate = new Date(startDate);
+
+      while (currentDate <= now) {
+        const date = [
+          currentDate.getFullYear(),
+          String(
+            currentDate.getMonth() + 1
+          ).padStart(2, "0"),
+          String(
+            currentDate.getDate()
+          ).padStart(2, "0"),
+        ].join("-");
+
+        result.push({
+          date,
+          revenue: revenueMap.get(date) ?? 0,
+        });
+
+        currentDate.setDate(
+          currentDate.getDate() + 1
+        );
+      }
     }
 
     return NextResponse.json(result);
   } catch (error) {
-    console.error("Order chart error:", error);
+    console.error("Revenue chart error:", error);
 
     return NextResponse.json(
       {
-        message: "Failed to fetch order chart data",
+        message: "Failed to fetch revenue chart data",
       },
       {
         status: 500,

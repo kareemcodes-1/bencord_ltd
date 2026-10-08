@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowUpDown, Check, ShoppingBag } from "lucide-react";
 
@@ -32,74 +32,83 @@ interface PaginationMeta {
   totalPages: number;
 }
 
+interface PriceRange {
+  minPrice: number;
+  maxPrice: number;
+}
+
 type Props = {
   initialProducts: Product[];
   categories: Category[];
   pagination: PaginationMeta;
+  priceRange: PriceRange;
 };
-
-function isProductInStock(product: Product) {
-  if (!product.trackInventory) return true;
-  return product.stock > 0;
-}
 
 export default function ShopClient({
   initialProducts,
   categories,
   pagination,
+  priceRange,
 }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [sort, setSort] = useState<SortValue>("default");
+  const [sort, setSort] = useState<SortValue>(
+    (searchParams.get("sort") as SortValue) || "default",
+  );
+
   const [filterSheetOpen, setFilterSheetOpen] = useState(false);
 
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(() => {
-    const categoryId = searchParams.get("filter");
-    return categoryId ? [categoryId] : [];
-  });
-  const [selectedAvailability, setSelectedAvailability] = useState<
-    AvailabilityFilter[]
-  >([]);
+  const selectedCategories = searchParams.get("categories")
+    ? searchParams.get("categories")!.split(",").filter(Boolean)
+    : [];
+
+  const selectedAvailability = searchParams.get("availability")
+    ? (searchParams
+        .get("availability")!
+        .split(",")
+        .filter(Boolean) as AvailabilityFilter[])
+    : [];
+
+  const minPrice = priceRange.minPrice;
+  const maxPrice = priceRange.maxPrice;
+
+  const urlMinPrice = searchParams.get("minPrice");
+  const urlMaxPrice = searchParams.get("maxPrice");
+
+  const parsedMinPrice =
+    urlMinPrice !== null && Number.isFinite(Number(urlMinPrice))
+      ? Number(urlMinPrice)
+      : minPrice;
+
+  const parsedMaxPrice =
+    urlMaxPrice !== null && Number.isFinite(Number(urlMaxPrice))
+      ? Number(urlMaxPrice)
+      : maxPrice;
+
+  const priceRangeValue: [number, number] = [
+    parsedMinPrice,
+    parsedMaxPrice,
+  ];
+
+  const [draftCategories, setDraftCategories] =
+    useState<string[]>(selectedCategories);
+
   const [draftAvailability, setDraftAvailability] = useState<
     AvailabilityFilter[]
-  >([]);
+  >(selectedAvailability);
 
-  const { minPrice, maxPrice } = useMemo(() => {
-    if (initialProducts.length === 0) {
-      return { minPrice: 0, maxPrice: 0 };
-    }
-
-    const prices = initialProducts.map((product) => product.price);
-
-    return {
-      minPrice: Math.floor(Math.min(...prices)),
-      maxPrice: Math.ceil(Math.max(...prices)),
-    };
-  }, [initialProducts]);
-
-  const [priceRange, setPriceRange] = useState<[number, number]>([
-    minPrice,
-    maxPrice,
-  ]);
-
-  const [draftCategories, setDraftCategories] = useState<string[]>(() => {
-    const categoryId = searchParams.get("filter");
-    return categoryId ? [categoryId] : [];
-  });
-  const [draftPriceRange, setDraftPriceRange] = useState<[number, number]>([
-    minPrice,
-    maxPrice,
-  ]);
+  const [draftPriceRange, setDraftPriceRange] = useState<
+    [number, number]
+  >(priceRangeValue);
 
   useEffect(() => {
-    if (filterSheetOpen) {
-      setDraftCategories(selectedCategories);
-      setDraftPriceRange(priceRange);
-      setDraftAvailability(selectedAvailability);
-    }
+    setDraftCategories(selectedCategories);
+    setDraftAvailability(selectedAvailability);
+    setDraftPriceRange(priceRangeValue);
+    setSort((searchParams.get("sort") as SortValue) || "default");
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterSheetOpen]);
+  }, [searchParams]);
 
   const handleToggleAvailability = (value: AvailabilityFilter) => {
     setDraftAvailability((prev) =>
@@ -107,19 +116,6 @@ export default function ShopClient({
         ? prev.filter((v) => v !== value)
         : [...prev, value],
     );
-  };
-
-  const handleClearFilters = () => {
-    setDraftCategories([]);
-    setDraftPriceRange([minPrice, maxPrice]);
-    setDraftAvailability([]);
-  };
-
-  const handleApplyFilters = () => {
-    setSelectedCategories(draftCategories);
-    setPriceRange(draftPriceRange);
-    setSelectedAvailability(draftAvailability);
-    setFilterSheetOpen(false);
   };
 
   const handleToggleCategory = (categoryId: string) => {
@@ -130,46 +126,84 @@ export default function ShopClient({
     );
   };
 
+  const handleClearFilters = () => {
+    setDraftCategories([]);
+    setDraftAvailability([]);
+    setDraftPriceRange([minPrice, maxPrice]);
+  };
+
+  const handleApplyFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (draftCategories.length > 0) {
+      params.set("categories", draftCategories.join(","));
+    } else {
+      params.delete("categories");
+    }
+
+    if (draftAvailability.length > 0) {
+      params.set("availability", draftAvailability.join(","));
+    } else {
+      params.delete("availability");
+    }
+
+    if (
+      draftPriceRange[0] !== minPrice ||
+      draftPriceRange[1] !== maxPrice
+    ) {
+      params.set("minPrice", String(draftPriceRange[0]));
+      params.set("maxPrice", String(draftPriceRange[1]));
+    } else {
+      params.delete("minPrice");
+      params.delete("maxPrice");
+    }
+
+    // Any filter change starts from page 1
+    params.set("page", "1");
+
+    setFilterSheetOpen(false);
+
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
+  const handleSortChange = (value: SortValue) => {
+    setSort(value);
+
+    const params = new URLSearchParams(searchParams.toString());
+
+    if (value === "default") {
+      params.delete("sort");
+    } else {
+      params.set("sort", value);
+    }
+
+    // Sorting starts from page 1
+    params.set("page", "1");
+
+    router.push(`?${params.toString()}`, { scroll: false });
+  };
+
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
+
     params.set("page", String(page));
+
     router.push(`?${params.toString()}`, { scroll: false });
   };
 
   const activeFilterCount =
     selectedCategories.length +
     selectedAvailability.length +
-    (priceRange[0] !== minPrice || priceRange[1] !== maxPrice ? 1 : 0);
-
-  const filteredProducts = initialProducts.filter((product) => {
-    const matchesCategory =
-      selectedCategories.length === 0 ||
-      (product.categoryId?._id &&
-        selectedCategories.includes(product.categoryId._id));
-
-    const matchesPrice =
-      product.price >= priceRange[0] && product.price <= priceRange[1];
-
-    const inStock = isProductInStock(product);
-    const matchesAvailability =
-      selectedAvailability.length === 0 ||
-      (selectedAvailability.includes("in-stock") && inStock) ||
-      (selectedAvailability.includes("out-of-stock") && !inStock);
-
-    return matchesCategory && matchesPrice && matchesAvailability;
-  });
-
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sort === "price-asc") return a.price - b.price;
-    if (sort === "price-desc") return b.price - a.price;
-    return 0;
-  });
+    (priceRangeValue[0] !== minPrice ||
+    priceRangeValue[1] !== maxPrice
+      ? 1
+      : 0);
 
   const activeSortLabel =
     SORT_OPTIONS.find((option) => option.value === sort)?.label ?? "Default";
 
   return (
-    <section className="w-full px-[1.5rem] sm:px-8 lg:px-[3rem] pb-[4rem] pt-[9rem]">
+    <section className="w-full px-[1.5rem] pb-[4rem] pt-[9rem] sm:px-8 lg:px-[3rem]">
       <div className="mx-auto w-full">
         <div className="mx-auto flex max-w-[min(50rem,100%)] flex-col items-center gap-[1rem] text-center">
           <span className="subtitle">Shop</span>
@@ -187,7 +221,8 @@ export default function ShopClient({
           />
 
           <p className="mx-auto max-w-[min(32rem,100%)] text-[0.875rem] leading-relaxed text-black/50 sm:text-[0.9rem] lg:text-[1rem]">
-             Reliable printing solutions, office equipment, and essentials to keep your business productive.
+            Reliable printing solutions, office equipment, and essentials to
+            keep your business productive.
           </p>
         </div>
 
@@ -200,6 +235,7 @@ export default function ShopClient({
           >
             <span className="text-base leading-none">+</span>
             Filters
+
             {activeFilterCount > 0 && (
               <span className="ml-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-[#ee0a0a] px-1 text-[0.6rem] font-semibold text-white">
                 {activeFilterCount}
@@ -217,7 +253,10 @@ export default function ShopClient({
                   size={14}
                   className="text-black/50 transition-colors group-hover:text-[#ee0a0a]"
                 />
-                <span className="max-w-[10rem] truncate">{activeSortLabel}</span>
+
+                <span className="max-w-[10rem] truncate">
+                  {activeSortLabel}
+                </span>
               </button>
             </DropdownMenuTrigger>
 
@@ -229,7 +268,7 @@ export default function ShopClient({
               {SORT_OPTIONS.map((option) => (
                 <DropdownMenuItem
                   key={option.value}
-                  onClick={() => setSort(option.value)}
+                  onClick={() => handleSortChange(option.value)}
                   className={`cursor-pointer gap-2 rounded-xl px-3 py-2.5 text-[0.8rem] font-medium ${
                     sort === option.value
                       ? "bg-[#ee0a0a]/10 text-[#ee0a0a]"
@@ -237,6 +276,7 @@ export default function ShopClient({
                   }`}
                 >
                   <span className="flex-1">{option.label}</span>
+
                   {sort === option.value && (
                     <Check size={14} strokeWidth={2} />
                   )}
@@ -248,14 +288,15 @@ export default function ShopClient({
 
         <div className="py-4 sm:py-6">
           <p className="text-[0.7rem] uppercase tracking-[0.05em] text-black/35">
-            {sortedProducts.length}{" "}
-            {sortedProducts.length === 1 ? "Product" : "Products"}
+            {pagination.total === 0
+    ? "No products"
+    : `Showing ${initialProducts.length} of ${pagination.total} products`}
           </p>
         </div>
 
-        {sortedProducts.length > 0 ? (
+        {initialProducts.length > 0 ? (
           <div className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2 sm:gap-x-5 sm:gap-y-10 lg:grid-cols-3">
-            {sortedProducts.map((product) => (
+            {initialProducts.map((product) => (
               <ProductCard key={product._id} item={product} />
             ))}
           </div>

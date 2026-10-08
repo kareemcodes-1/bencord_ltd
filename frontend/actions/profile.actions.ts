@@ -1,9 +1,13 @@
 "use server";
 
 import { getServerSession } from "next-auth";
+
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+
 import connectDB from "@/lib/mongodb";
+
 import User from "@/models/User";
+import Subscriber from "@/models/Subscriber";
 
 export type ProfileAddress = {
   _id: string;
@@ -24,11 +28,15 @@ export type ProfileUser = {
   email: string;
   phone: string;
   addresses: ProfileAddress[];
+  emailUpdates: boolean;
 };
 
 export async function getProfile(): Promise<ProfileUser | null> {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) return null;
+
+  if (!session?.user?.id) {
+    return null;
+  }
 
   await connectDB();
 
@@ -36,13 +44,28 @@ export async function getProfile(): Promise<ProfileUser | null> {
     .select("name email phone addresses")
     .lean();
 
-  if (!user) return null;
+  if (!user) {
+    return null;
+  }
+
+  // Check whether this user's email is subscribed
+  // to LoisBanks Beauty email updates.
+  const subscriber = await Subscriber.findOne({
+    email: user.email,
+  })
+    .select("isActive")
+    .lean();
+
+  const emailUpdates = subscriber?.isActive ?? false;
 
   return {
     _id: String(user._id),
     name: user.name,
     email: user.email,
     phone: user.phone ?? "",
+
+    emailUpdates,
+
     addresses: (user.addresses ?? []).map((a) => ({
       _id: String(a._id),
       firstName: a.firstName,
@@ -57,3 +80,4 @@ export async function getProfile(): Promise<ProfileUser | null> {
     })),
   };
 }
+

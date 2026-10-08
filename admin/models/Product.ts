@@ -19,8 +19,6 @@ const productMediaSchema = new Schema(
   }
 );
 
-
-
 export interface IProductDocument extends Document {
   name: string;
   slug: string;
@@ -36,10 +34,7 @@ export interface IProductDocument extends Document {
 
   featured: boolean;
 
-  trackInventory: boolean;
-  stock: number;
-  lowStockThreshold: number;
-  isActive: boolean;
+  inStock: boolean;
 
   averageRating: number;
   reviewCount: number;
@@ -92,28 +87,10 @@ const productSchema = new Schema<IProductDocument>(
       default: false,
     },
 
-    trackInventory: {
+    inStock: {
       type: Boolean,
       default: true,
     },
-
-    stock: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
-
-    lowStockThreshold: {
-      type: Number,
-      default: 5,
-      min: 0,
-    },
-
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
-
 
     averageRating: {
       type: Number,
@@ -127,31 +104,11 @@ const productSchema = new Schema<IProductDocument>(
       default: 0,
       min: 0,
     },
-
   },
   {
     timestamps: true,
   }
 );
-
-productSchema.virtual("inStock").get(function () {
-  if (!this.trackInventory) return this.isActive;
-
-  return this.isActive && this.stock > 0;
-});
-
-productSchema.virtual("isLowStock").get(function () {
-  if (!this.trackInventory) return false;
-
-  return this.stock > 0 && this.stock <= this.lowStockThreshold;
-});
-
-productSchema.virtual("isOutOfStock").get(function () {
-  if (!this.trackInventory) return false;
-
-  return this.stock <= 0;
-});
-
 
 const Product: Model<IProductDocument> =
   mongoose.models.Product ||

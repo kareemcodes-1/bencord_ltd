@@ -1,5 +1,21 @@
-import { Heading, Section, Text } from "@react-email/components";
-import EmailLayout from "./email-layout";
+import {
+  Column,
+  Hr,
+  Link,
+  Row,
+  Section,
+  Text,
+} from "@react-email/components";
+import type { ReactNode } from "react";
+
+import EmailLayout, {
+  EmailButton,
+  EmailCard,
+  EmailEyebrow,
+  EmailHeading,
+  EmailText,
+} from "./email-layout";
+
 import { priceFormatter } from "@/lib/priceFormatter";
 
 type OrderItem = {
@@ -16,10 +32,27 @@ type Props = {
   items: OrderItem[];
   totalAmount: number;
   shippingMethod: "pickup" | "delivery";
+  dashboardUrl?: string;
 };
 
-const formatPrice = (amount: number) =>
-  `₦${amount.toLocaleString("en-NG")}`;
+function Label({ children }: { children: ReactNode }) {
+  return (
+    <Text className="m-0 text-[11px] font-medium uppercase tracking-[0.12em] text-black/40">
+      {children}
+    </Text>
+  );
+}
+
+function Value({ children }: { children: ReactNode }) {
+  return (
+    <Text
+      className="m-0 mb-4 mt-1 text-[15px] font-medium leading-[1.5] text-black"
+      style={{ wordBreak: "break-word" }}
+    >
+      {children}
+    </Text>
+  );
+}
 
 export default function NewOrderEmail({
   orderId,
@@ -28,94 +61,110 @@ export default function NewOrderEmail({
   items,
   totalAmount,
   shippingMethod,
+  dashboardUrl,
 }: Props) {
   return (
-    <EmailLayout preview={`New order #${orderId} received`}>
-      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#FD3F92]">
-        New order
-      </Text>
+    <EmailLayout
+      preview={`New order #${orderId} from ${customerName}`}
+    >
+      <EmailEyebrow>New order</EmailEyebrow>
 
-      <Heading className="mt-3 mb-0 text-center text-[26px] font-medium leading-tight text-black">
-        New order received
-      </Heading>
+      <EmailHeading>You have a new order</EmailHeading>
 
-      <Text className="mt-4 mb-0 text-center text-[15px] leading-relaxed text-black/60">
-        A new order has been successfully placed on the
-        LoisBanks Beauty website.
-      </Text>
+      <EmailText center>
+        {customerName} just placed an order on the Bencord Ltd website.
+      </EmailText>
 
-      {/* Order */}
-      <Section className="mt-8 rounded-2xl bg-[#fafafa] px-5 py-4">
-        <Text className="m-0 text-[11px] font-medium uppercase tracking-[0.14em] text-black/40">
-          Order
-        </Text>
+      {/* Order details */}
+      <EmailCard>
+        <Label>Order</Label>
+        <Value>#{orderId}</Value>
 
-        <Text className="mt-1 mb-0 text-[15px] font-medium text-black">
-          #{orderId}
-        </Text>
-      </Section>
-
-      {/* Customer */}
-      <Section className="mt-5 rounded-2xl bg-[#fafafa] px-5 py-4">
-        <Text className="m-0 text-[11px] font-medium uppercase tracking-[0.14em] text-black/40">
-          Customer
-        </Text>
-
-        <Text className="mt-1 mb-0 text-[15px] font-medium text-black">
+        <Label>Customer</Label>
+        <Value>
           {customerName}
-        </Text>
+          <br />
+          <Link
+            href={`mailto:${customerEmail}`}
+            className="text-[14px] font-normal text-[#ee0a0a] no-underline"
+          >
+            {customerEmail}
+          </Link>
+        </Value>
 
-        <Text className="mt-1 mb-0 text-[14px] text-[#FD3F92]">
-          {customerEmail}
+        <Label>Fulfilment</Label>
+
+        <Text className="m-0 mt-1 text-[15px] font-medium text-black">
+          {shippingMethod === "pickup"
+            ? "Store pickup"
+            : "Delivery"}
         </Text>
-      </Section>
+      </EmailCard>
 
       {/* Items */}
-      <Section className="mt-5 rounded-2xl bg-[#fafafa] px-5 py-4">
-        <Text className="m-0 text-[11px] font-medium uppercase tracking-[0.14em] text-black/40">
-          Items ordered
-        </Text>
+      <Section className="my-6">
+        <Label>Items ordered</Label>
 
         {items.map((item, index) => (
-          <Section
-            key={`${item.name}-${index}`}
-            className="mt-4 border-b border-black/5 pb-4"
-          >
-            <Text className="m-0 text-[15px] font-medium text-black">
-              {item.name}
-            </Text>
+          <Section key={`${item.name}-${index}`}>
+            <Row className="mt-3">
+              <Column className="align-top">
+                <Text
+                  className="m-0 text-[15px] font-medium leading-[1.4] text-black"
+                  style={{ wordBreak: "break-word" }}
+                >
+                  {item.name}
+                </Text>
 
-            <Text className="mt-1 mb-0 text-[13px] text-black/50">
-              Quantity: {item.quantity}
-              {item.size ? ` · Size: ${item.size}` : ""}
-            </Text>
+                <Text className="m-0 mt-1 text-[13px] text-black/50">
+                  Qty {item.quantity}
+                  {item.size ? ` · Size ${item.size}` : ""}
+                </Text>
+              </Column>
 
-            <Text className="mt-1 mb-0 text-[14px] font-medium text-black">
-              {priceFormatter(item.price * item.quantity)}
-            </Text>
+              <Column
+                className="whitespace-nowrap pl-3 text-right align-top"
+                style={{ width: "1%" }}
+              >
+                <Text className="m-0 text-[15px] font-medium text-black">
+                  {priceFormatter(item.price * item.quantity)}
+                </Text>
+              </Column>
+            </Row>
+
+            <Hr className="mx-0 mb-0 mt-3 border-0 border-t border-solid border-black/10" />
           </Section>
         ))}
 
-        <Text className="mt-5 mb-0 text-[15px] font-medium text-black">
-          Total: {formatPrice(totalAmount)}
-        </Text>
+        {/* Total */}
+        <Row className="mt-4">
+          <Column className="align-middle">
+            <Text className="m-0 text-[13px] font-medium uppercase tracking-[0.08em] text-black/60">
+              Total
+            </Text>
+          </Column>
+
+          <Column
+            className="whitespace-nowrap pl-3 text-right align-middle"
+            style={{ width: "1%" }}
+          >
+            <Text className="m-0 text-[20px] font-semibold text-black">
+              {priceFormatter(totalAmount)}
+            </Text>
+          </Column>
+        </Row>
       </Section>
 
-      {/* Fulfillment */}
-      <Section className="mt-5 rounded-2xl bg-[#fafafa] px-5 py-4">
-        <Text className="m-0 text-[11px] font-medium uppercase tracking-[0.14em] text-black/40">
-          Shipping Method
+      {/* Dashboard action */}
+      {dashboardUrl ? (
+        <EmailButton href={dashboardUrl}>
+          View order
+        </EmailButton>
+      ) : (
+        <Text className="m-0 text-center text-[13px] leading-[1.6] text-black/50">
+          Open the admin dashboard to review and confirm this order.
         </Text>
-
-        <Text className="mt-1 mb-0 text-[15px] font-medium text-black">
-          {shippingMethod === "pickup" ? "Store pickup" : "Delivery"}
-        </Text>
-      </Section>
-
-      <Text className="mt-6 mb-0 text-center text-[13px] leading-relaxed text-black/45">
-        Check the admin dashboard for more details and to confirm the
-        order.
-      </Text>
+      )}
     </EmailLayout>
   );
 }

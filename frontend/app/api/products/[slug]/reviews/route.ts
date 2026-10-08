@@ -15,7 +15,7 @@ type RouteContext = {
 
 export async function POST(
   request: NextRequest,
-  context: RouteContext,
+  context: RouteContext
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -23,7 +23,7 @@ export async function POST(
     if (!session?.user?.id) {
       return NextResponse.json(
         { message: "You must be signed in to leave a review." },
-        { status: 401 },
+        { status: 401 }
       );
     }
 
@@ -33,7 +33,7 @@ export async function POST(
     if (!slug) {
       return NextResponse.json(
         { message: "Product slug is required." },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -46,52 +46,54 @@ export async function POST(
     if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
       return NextResponse.json(
         { message: "Rating must be a whole number between 1 and 5." },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     if (!comment || comment.length < 10) {
       return NextResponse.json(
         { message: "Please write at least 10 characters in your review." },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     if (comment.length > 2000) {
       return NextResponse.json(
         { message: "Review is too long (max 2000 characters)." },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     if (title.length > 150) {
       return NextResponse.json(
         { message: "Title is too long (max 150 characters)." },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     await connectDB();
 
     const productQuery = Types.ObjectId.isValid(slug)
-      ? { _id: slug, isActive: true }
-      : { slug, isActive: true };
+      ? { _id: slug }
+      : { slug };
 
-    const product = await Product.findOne(productQuery).select("_id").lean();
+    const product = await Product.findOne(productQuery)
+      .select("_id")
+      .lean();
 
     if (!product) {
       return NextResponse.json(
         { message: "Product not found." },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
     // Must have purchased this product
-const hasPurchased = await Order.exists({
-  userId: new Types.ObjectId(userId),
-  orderStatus: "delivered", // ✅ not status
-  "items.productId": product._id,
-});
+    const hasPurchased = await Order.exists({
+      userId: new Types.ObjectId(userId),
+      orderStatus: "delivered",
+      "items.productId": product._id,
+    });
 
     if (!hasPurchased) {
       return NextResponse.json(
@@ -99,7 +101,7 @@ const hasPurchased = await Order.exists({
           message:
             "Only customers who purchased this product can leave a review.",
         },
-        { status: 403 },
+        { status: 403 }
       );
     }
 
@@ -112,7 +114,7 @@ const hasPurchased = await Order.exists({
     if (existing) {
       return NextResponse.json(
         { message: "You have already reviewed this product." },
-        { status: 409 },
+        { status: 409 }
       );
     }
 
@@ -123,13 +125,12 @@ const hasPurchased = await Order.exists({
       title,
       comment,
       isVerifiedPurchase: true,
-      isApproved: false, // public only after admin approval
+      isApproved: false,
     });
 
     return NextResponse.json(
       {
-        message:
-          "Thank you! Your review was submitted",
+        message: "Thank you! Your review was submitted",
         review: {
           _id: review._id,
           rating: review.rating,
@@ -140,7 +141,7 @@ const hasPurchased = await Order.exists({
           createdAt: review.createdAt,
         },
       },
-      { status: 201 },
+      { status: 201 }
     );
   } catch (error: unknown) {
     // Duplicate key from unique index
@@ -152,21 +153,22 @@ const hasPurchased = await Order.exists({
     ) {
       return NextResponse.json(
         { message: "You have already reviewed this product." },
-        { status: 409 },
+        { status: 409 }
       );
     }
 
     console.error("POST /api/products/[slug]/reviews error:", error);
+
     return NextResponse.json(
       { message: "Failed to submit review." },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }
 
 export async function GET(
   _request: NextRequest,
-  context: RouteContext,
+  context: RouteContext
 ) {
   try {
     await connectDB();
@@ -176,21 +178,23 @@ export async function GET(
     if (!slug) {
       return NextResponse.json(
         { message: "Product slug is required" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
     // Support both slug and ObjectId in the same param
     const productQuery = Types.ObjectId.isValid(slug)
-      ? { _id: slug, isActive: true }
-      : { slug, isActive: true };
+      ? { _id: slug }
+      : { slug };
 
-    const product = await Product.findOne(productQuery).select("_id").lean();
+    const product = await Product.findOne(productQuery)
+      .select("_id")
+      .lean();
 
     if (!product) {
       return NextResponse.json(
         { message: "Product not found" },
-        { status: 404 },
+        { status: 404 }
       );
     }
 
@@ -208,6 +212,7 @@ export async function GET(
 
     for (const review of reviews) {
       const rating = review.rating as 1 | 2 | 3 | 4 | 5;
+
       if (rating >= 1 && rating <= 5) {
         breakdownMap[rating] += 1;
         ratingSum += rating;
@@ -246,13 +251,14 @@ export async function GET(
         ],
         reviews: formattedReviews,
       },
-      { status: 200 },
+      { status: 200 }
     );
   } catch (error) {
     console.error("GET /api/products/[slug]/reviews error:", error);
+
     return NextResponse.json(
       { message: "Failed to fetch reviews" },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

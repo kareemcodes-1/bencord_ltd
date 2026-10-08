@@ -1,15 +1,17 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { X, Search } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { Search, X } from "lucide-react";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetClose,
+} from "@/components/ui/sheet";
 
 import { searchProducts } from "@/actions/product.actions";
 import type { Product } from "@/types";
@@ -20,210 +22,342 @@ type SearchModalProps = {
   setOpenSearchModal: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-function SearchModal({ openSearchModal, setOpenSearchModal }: SearchModalProps) {
+function SearchModal({
+  openSearchModal,
+  setOpenSearchModal,
+}: SearchModalProps) {
   const inputRef = useRef<HTMLInputElement | null>(null);
+
   const [query, setQuery] = useState("");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
+
   const router = useRouter();
 
-  // Load suggestions when modal opens
+  // Load suggested products when the sheet opens.
   useEffect(() => {
     if (!openSearchModal) return;
 
     let cancelled = false;
 
-    (async () => {
+    const loadSuggestions = async () => {
       setLoading(true);
+
       try {
         const data = await searchProducts("", 8);
-        if (!cancelled) setProducts(data.products ?? []);
+
+        if (!cancelled) {
+          setProducts(data.products ?? []);
+        }
       } catch (error) {
-        console.error(error);
+        console.error("Failed to load search suggestions:", error);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-    })();
+    };
+
+    loadSuggestions();
 
     return () => {
       cancelled = true;
     };
   }, [openSearchModal]);
 
-  // Debounced search while typing
+  // Debounced search while typing.
   useEffect(() => {
     if (!openSearchModal) return;
 
+    let cancelled = false;
+
     const timer = setTimeout(async () => {
       setLoading(true);
+
       try {
-        const data = await searchProducts(query, query.trim() ? 20 : 8);
-        setProducts(data.products ?? []);
-        setSelectedIndex(-1);
+        const trimmedQuery = query.trim();
+
+        const data = await searchProducts(
+          trimmedQuery,
+          trimmedQuery ? 20 : 8,
+        );
+
+        if (!cancelled) {
+          setProducts(data.products ?? []);
+          setSelectedIndex(-1);
+        }
       } catch (error) {
-        console.error(error);
+        if (!cancelled) {
+          console.error("Product search failed:", error);
+          setProducts([]);
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }, 300);
 
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [query, openSearchModal]);
 
+  // Focus input when opening and reset search when closing.
   useEffect(() => {
     if (openSearchModal) {
-      const t = setTimeout(() => inputRef.current?.focus(), 50);
-      return () => clearTimeout(t);
-    } else {
-      setQuery("");
-      setSelectedIndex(-1);
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+
+      return () => clearTimeout(timer);
     }
+
+    setQuery("");
+    setProducts([]);
+    setSelectedIndex(-1);
   }, [openSearchModal]);
+
+  const handleClose = () => {
+    setOpenSearchModal(false);
+  };
 
   const handleSelect = (product: Product) => {
     const slug =
       product.slug ?? product.name.replace(/\s+/g, "-").toLowerCase();
-    router.push(`/shop/p/${slug}`);
+
     setOpenSearchModal(false);
     setQuery("");
+
+    router.push(`/shop/p/${slug}`);
   };
 
+  // Keyboard navigation.
   useEffect(() => {
     if (!openSearchModal) return;
 
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setSelectedIndex((prev) =>
-          Math.min(prev + 1, products.length - 1)
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+
+        setSelectedIndex((previous) =>
+          products.length === 0
+            ? -1
+            : Math.min(previous + 1, products.length - 1),
         );
       }
-      if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedIndex((prev) => Math.max(prev - 1, -1));
+
+      if (event.key === "ArrowUp") {
+        event.preventDefault();
+
+        setSelectedIndex((previous) =>
+          Math.max(previous - 1, -1),
+        );
       }
-      if (e.key === "Enter" && selectedIndex >= 0 && products[selectedIndex]) {
+
+      if (
+        event.key === "Enter" &&
+        selectedIndex >= 0 &&
+        products[selectedIndex]
+      ) {
+        event.preventDefault();
+
         handleSelect(products[selectedIndex]);
+      }
+
+      if (event.key === "Escape") {
+        event.preventDefault();
+        handleClose();
       }
     };
 
     document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
+
+    return () =>
+      document.removeEventListener("keydown", handleKeyDown);
   }, [openSearchModal, selectedIndex, products]);
 
   return (
-    <Dialog open={openSearchModal} onOpenChange={setOpenSearchModal}>
-      <DialogContent
+    <Sheet open={openSearchModal} onOpenChange={setOpenSearchModal}>
+      <SheetContent
+        side="right"
         showCloseButton={false}
-        className="top-[6%] z-[350] flex max-h-[min(36rem,88dvh)] w-[calc(100%-1.5rem)] max-w-[calc(100%-1.5rem)] translate-y-0 flex-col gap-0 overflow-hidden rounded-2xl border border-black/10 p-0 shadow-2xl sm:top-[10%] sm:max-h-[min(36rem,80vh)] sm:w-full sm:max-w-[42rem] [&>button]:hidden"
+        className="z-[350] flex h-full w-full max-w-full flex-col gap-0 overflow-hidden border-l border-black/10 bg-white p-0 sm:max-w-[28rem] lg:max-w-[32rem] [&>button]:hidden"
       >
-        <DialogTitle className="sr-only">Search products</DialogTitle>
+        {/* Header */}
+        <SheetHeader className="shrink-0 space-y-0 border-b border px-5 py-4 sm:px-6 sm:py-5 lg:px-8">
+          <div className="flex items-center justify-between gap-4">
+            <SheetTitle className="heading-3 text-left">
+              Search
+            </SheetTitle>
 
-        <div className="flex shrink-0 items-center gap-2.5 border-b border-black/10 px-4 py-3.5 sm:gap-3 sm:px-5 sm:py-4">
-          <Search
-            size={18}
-            strokeWidth={1.8}
-            className="shrink-0 text-black/40"
-          />
-          <input
-            ref={inputRef}
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search products..."
-            className="min-w-0 flex-1 bg-transparent text-[0.9rem] font-medium text-black outline-none placeholder:font-normal placeholder:text-black/35 sm:text-[0.95rem]"
-          />
-          <button
-            type="button"
-            onClick={() => (query ? setQuery("") : setOpenSearchModal(false))}
-            aria-label={query ? "Clear search" : "Close search"}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-black/40 transition-colors hover:bg-black/5 hover:text-black"
-          >
-            <X size={16} strokeWidth={1.8} />
-          </button>
-        </div>
+            <SheetClose asChild>
+              <button
+                type="button"
+                aria-label="Close search"
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition-colors duration-300 hover:bg-red-500 hover:text-white sm:h-10 sm:w-10"
+              >
+                <X size={18} strokeWidth={1.5} />
+              </button>
+            </SheetClose>
+          </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          {/* Search input */}
+          <div className="mt-4 flex h-11 items-center gap-3 rounded-xl border border-black/10 bg-neutral-50 px-3.5 transition-colors focus-within:border-black/25 sm:h-12">
+            <Search
+              size={18}
+              strokeWidth={1.7}
+              className="shrink-0 text-black/40"
+            />
+
+            <input
+              ref={inputRef}
+              type="search"
+              value={query}
+              onChange={(event) => setQuery(event.target.value)}
+              placeholder="Search products..."
+              aria-label="Search products"
+              autoComplete="off"
+              className="min-w-0 flex-1 bg-transparent text-sm text-black outline-none placeholder:text-black/40"
+            />
+
+            {query && (
+              <button
+                type="button"
+                onClick={() => {
+                  setQuery("");
+                  inputRef.current?.focus();
+                }}
+                aria-label="Clear search"
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-black/40 transition-colors hover:bg-black/5 hover:text-black"
+              >
+                <X size={15} strokeWidth={1.7} />
+              </button>
+            )}
+          </div>
+        </SheetHeader>
+
+        {/* Search results */}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 sm:px-6 lg:px-8">
           {loading && products.length === 0 ? (
-            <div className="px-5 py-12 text-center text-sm text-black/40">
-              Searching...
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="mb-3 h-6 w-6 animate-spin rounded-full border-2 border-black/10 border-t-red-500" />
+
+              <p className="text-sm text-black/45">
+                Searching products...
+              </p>
             </div>
           ) : products.length > 0 ? (
             <>
-              <p className="sticky top-0 z-10 bg-white px-4 pb-2 pt-3.5 text-[0.65rem] font-medium uppercase tracking-[0.15em] text-black/40 sm:px-5 sm:pt-4">
-                {query
-                  ? `${products.length} result${products.length !== 1 ? "s" : ""}`
-                  : "Suggested"}
-              </p>
+              <div className="sticky top-0 z-10 -mx-5 flex items-center justify-between bg-white px-5 pb-3 pt-5 sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+                <p className="text-[0.65rem] font-medium uppercase tracking-[0.14em] text-black/40">
+                  {query.trim()
+                    ? "Search results"
+                    : "Suggested products"}
+                </p>
 
-              <div className="pb-2">
-                {products.map((product, index) => (
-                  <button
-                    key={product._id ?? index}
-                    type="button"
-                    onClick={() => handleSelect(product)}
-                    className={`group flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-black/[0.03] sm:gap-4 sm:px-5 sm:py-3 ${
-                      selectedIndex === index ? "bg-black/[0.04]" : ""
-                    }`}
-                  >
-                    <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-neutral-100 sm:h-14 sm:w-14">
-                      <Image
-                        src={
-                          product.media.find((m) => m.type === "image")?.url ||
-                          product.media[0]?.url ||
-                          "/placeholder.jpg"
-                        }
-                        alt={product.name}
-                        fill
-                        sizes="56px"
-                        className="object-cover"
-                      />
-                    </div>
+                <span className="text-xs text-black/35">
+                  {products.length}
+                  {query.trim() ? " found" : " items"}
+                </span>
+              </div>
 
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-[0.85rem] font-medium text-black sm:text-[0.9rem]">
-                        {product.name}
-                      </p>
-                    </div>
+              <div className="pb-5">
+                {products.map((product, index) => {
+                  const image =
+                    product.media.find(
+                      (media) => media.type === "image",
+                    )?.url ||
+                    product.media[0]?.url ||
+                    "/placeholder.jpg";
 
-                    <span className="shrink-0 text-[0.8rem] font-medium text-black/70 sm:text-[0.85rem]">
-                      {priceFormatter(product.price)}
-                    </span>
-                  </button>
-                ))}
+                  return (
+                    <button
+                      key={product._id ?? index}
+                      type="button"
+                      onClick={() => handleSelect(product)}
+                      className={`group flex w-full items-center gap-3 border-b border-black/[0.06] py-3.5 text-left transition-colors sm:gap-4 ${
+                        selectedIndex === index
+                          ? "bg-black/[0.04]"
+                          : "hover:bg-black/[0.02]"
+                      }`}
+                    >
+                      {/* Product image */}
+                      <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-neutral-100 sm:h-16 sm:w-16">
+                        <Image
+                          src={image}
+                          alt={product.name}
+                          fill
+                          sizes="64px"
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+
+                      {/* Product information */}
+                      <div className="min-w-0 flex-1">
+                        <p className="line-clamp-2 text-sm font-medium leading-snug text-black">
+                          {product.name}
+                        </p>
+
+                        {!product.inStock && (
+                          <p className="mt-1 text-xs text-red-600">
+                            Out of stock
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Price */}
+                      <span className="shrink-0 text-xs font-medium text-black/65 sm:text-sm">
+                        {priceFormatter(product.price)}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center px-5 py-12 text-center sm:py-16">
-              <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-black/5">
-                <Search size={20} strokeWidth={1.8} className="text-black/30" />
+            <div className="flex min-h-[240px] flex-col items-center justify-center py-12 text-center">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100">
+                <Search
+                  size={20}
+                  strokeWidth={1.6}
+                  className="text-black/35"
+                />
               </div>
-              <p className="text-[0.9rem] font-medium text-black/50">
-                No products found
+
+              <p className="text-sm font-medium text-black/70">
+                {loading
+                  ? "Searching..."
+                  : "No products found"}
               </p>
-              {query && (
-                <p className="mt-1 max-w-full truncate text-[0.8rem] text-black/35">
-                  Nothing matched &quot;{query}&quot;
+
+              {!loading && query.trim() && (
+                <p className="mt-1 max-w-[260px] break-words text-xs leading-relaxed text-black/40">
+                  Nothing matched &quot;{query.trim()}&quot;. Try
+                  another search.
                 </p>
               )}
             </div>
           )}
         </div>
 
-        <div className="hidden shrink-0 items-center gap-4 border-t border-black/10 px-5 py-3 sm:flex">
-          <span className="text-[0.65rem] font-medium uppercase tracking-[0.12em] text-black/30">
-            ↵ Select
-          </span>
-          <span className="text-[0.65rem] font-medium uppercase tracking-[0.12em] text-black/30">
-            ↑↓ Navigate
-          </span>
-          <span className="text-[0.65rem] font-medium uppercase tracking-[0.12em] text-black/30">
+        {/* Keyboard shortcuts — desktop only */}
+        <div className="hidden shrink-0 items-center justify-between border-t border-black/10 px-6 py-3 text-[10px] font-medium uppercase tracking-wider text-black/35 lg:flex">
+          <span>↵ Select</span>
+          <span>↑↓ Navigate</span>
+
+          <button
+            type="button"
+            onClick={handleClose}
+            className="transition-colors hover:text-black"
+          >
             Esc Close
-          </span>
+          </button>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 }
 

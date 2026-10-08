@@ -11,12 +11,15 @@ export async function GET(request: NextRequest) {
 
     const { searchParams } = new URL(request.url);
     const q = (searchParams.get("q") || "").trim();
-    const limit = Math.min(30, Math.max(1, Number(searchParams.get("limit")) || 12));
+    const limit = Math.min(
+      30,
+      Math.max(1, Number(searchParams.get("limit")) || 12)
+    );
 
     const now = new Date();
 
     // Empty query → suggested products
-    const filter: Record<string, unknown> = { isActive: true };
+    const filter: Record<string, unknown> = {};
 
     if (q) {
       const words = q
@@ -42,6 +45,7 @@ export async function GET(request: NextRequest) {
         .sort({ createdAt: -1 })
         .limit(limit)
         .lean(),
+
       Discount.find({
         isActive: true,
         startsAt: { $lte: now },
@@ -61,6 +65,7 @@ export async function GET(request: NextRequest) {
     for (const discount of activeDiscounts) {
       for (const productId of discount.productIds) {
         const id = productId.toString();
+
         if (!discountMap.has(id)) {
           discountMap.set(id, {
             discountType: discount.discountType,
@@ -82,6 +87,7 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error("GET /api/products/search error:", error);
+
     return NextResponse.json(
       { message: "Failed to search products" },
       { status: 500 }

@@ -6,11 +6,10 @@ import Link from "next/link";
 import { priceFormatter } from "@/lib/priceFormatter";
 import { getProductPricing } from "@/lib/product-pricing";
 import type { Product } from "@/types";
-import { useCurrencyStore } from "@/store/currency";
 import FadeContent from "@/components/animations/fade-content";
 
 const ProductCard = ({ item }: { item: Product }) => {
-  const currency = useCurrencyStore((s) => s.currency);
+
   const images = item.media.filter((media) => media.type === "image");
   const firstImage = images[0];
   const secondImage = images[1];
@@ -19,14 +18,26 @@ const ProductCard = ({ item }: { item: Product }) => {
   const fallbackImage = firstImage?.url || "/placeholder.jpg";
   const hoverImage = secondImage?.url || fallbackImage;
 
+  const isOutOfStock = !item.inStock;
+
   const { originalPrice, finalPrice, hasDiscount, discountLabel } =
     getProductPricing(item);
 
   return (
-    <Link href={`/shop/p/${item.slug}`} className="group flex h-full flex-col">
-      <FadeContent key={item._id} blur={true} duration={1000} initialOpacity={0}>
+    <Link
+      href={`/shop/p/${item.slug}`}
+      className={`group flex h-full flex-col transition-opacity duration-300 ${
+        isOutOfStock ? "opacity-50" : ""
+      }`}
+    >
+      <FadeContent
+        key={item._id}
+        blur={true}
+        duration={1000}
+        initialOpacity={0}
+      >
         {/* Image Container */}
-<div className="relative h-[240px] w-full overflow-hidden rounded-xl bg-neutral-50 border border-black/5 sm:h-[260px] lg:h-[300px]">
+        <div className="relative h-[240px] w-full overflow-hidden rounded-xl border border-black/5 bg-neutral-50 sm:h-[260px] lg:h-[300px]">
           <Image
             src={fallbackImage}
             alt={item.name}
@@ -59,8 +70,15 @@ const ProductCard = ({ item }: { item: Product }) => {
             />
           )}
 
+          {/* Out of Stock badge */}
+          {isOutOfStock && (
+            <span className="absolute right-3 top-3 z-10 rounded-full border border-red-200 bg-red-100 px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-red-700 shadow-sm">
+              Out of Stock
+            </span>
+          )}
+
           {/* Discount badge */}
-          {hasDiscount && discountLabel && (
+          {!isOutOfStock && hasDiscount && discountLabel && (
             <span className="absolute left-3 top-3 z-10 rounded-full bg-[#ee0a0a] px-2.5 py-1 text-[0.65rem] font-semibold uppercase tracking-wide text-white shadow-sm">
               {discountLabel}
             </span>
@@ -73,16 +91,16 @@ const ProductCard = ({ item }: { item: Product }) => {
             {typeof item.categoryId === "object" ? item.categoryId.name : ""}
           </span>
 
-          <h4 className="text-[1.15rem] font-medium leading-snug text-black sm:text-[1.25rem] line-clamp-2">
-  {item.name}
-</h4>
+          <h4 className="line-clamp-2 text-[1.15rem] font-medium leading-snug text-black sm:text-[1.25rem]">
+            {item.name}
+          </h4>
 
           <div className="mt-1 flex flex-wrap items-center gap-2">
-        <p className="text-[1.2rem] font-semibold text-black sm:text-[1.5rem]">
-  {priceFormatter(finalPrice)}
-</p>
+            <p className="text-[1.2rem] font-semibold text-black sm:text-[1.5rem]">
+              {priceFormatter(finalPrice)}
+            </p>
 
-            {hasDiscount && (
+            {!isOutOfStock && hasDiscount && (
               <p className="text-sm text-black/40 line-through">
                 {priceFormatter(originalPrice)}
               </p>

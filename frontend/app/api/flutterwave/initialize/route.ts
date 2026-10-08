@@ -71,7 +71,7 @@ export async function POST(request: NextRequest) {
         channel: null,
         paidAt: null,
       },
-      orderStatus: "processing",
+      orderStatus: "pending",
       shippingMethod,
       subtotal,
       shippingFee: shippingMethod === "delivery" ? shippingFee || 0 : 0,

@@ -35,6 +35,7 @@ import {
   type OrderStatus,
   type UpdateOrderPayload,
 } from "@/actions/admin/order.actions";
+
 import toast from "react-hot-toast";
 
 interface OrderStatusDialogProps {
@@ -43,31 +44,34 @@ interface OrderStatusDialogProps {
   order?: Order | null;
 }
 
-const ALL_STATUSES: { value: OrderStatus; label: string }[] = [
-  { value: "processing", label: "Processing" },
+const ALL_STATUSES: {
+  value: OrderStatus;
+  label: string;
+}[] = [
+  { value: "pending", label: "Pending" },
   { value: "confirmed", label: "Confirmed" },
   { value: "shipped", label: "Shipped" },
+  { value: "out_for_delivery", label: "Out for delivery" },
   { value: "ready_for_pickup", label: "Ready for pickup" },
   { value: "delivered", label: "Delivered" },
   { value: "cancelled", label: "Cancelled" },
 ];
 
-function getStatusesForShippingMethod(
-  shippingMethod?: string | null
-) {
+function getStatusesForShippingMethod(shippingMethod?: string | null) {
   if (shippingMethod === "pickup") {
-    // No "shipped" for store pickup
-    return ALL_STATUSES.filter((s) => s.value !== "shipped");
-  }
-
-  if (shippingMethod === "delivery") {
-    // No "ready_for_pickup" for door delivery
     return ALL_STATUSES.filter(
-      (s) => s.value !== "ready_for_pickup"
+      (status) =>
+        status.value !== "shipped" &&
+        status.value !== "out_for_delivery"
     );
   }
 
-  // Fallback if missing on old orders
+  if (shippingMethod === "delivery") {
+    return ALL_STATUSES.filter(
+      (status) => status.value !== "ready_for_pickup"
+    );
+  }
+
   return ALL_STATUSES;
 }
 
@@ -79,8 +83,12 @@ export function OrderStatusDialog({
   const queryClient = useQueryClient();
 
   const [orderStatus, setOrderStatus] =
-    React.useState<OrderStatus>("processing");
-  const [trackingNumber, setTrackingNumber] = React.useState("");
+    React.useState<OrderStatus>("pending");
+
+  const [trackingNumber, setTrackingNumber] =
+    React.useState("");
+
+  const [adminNote, setAdminNote] = React.useState("");
 
   const availableStatuses = React.useMemo(
     () => getStatusesForShippingMethod(order?.shippingMethod),
@@ -90,12 +98,14 @@ export function OrderStatusDialog({
   const updateMutation = useMutation({
     mutationFn: (data: UpdateOrderPayload) =>
       updateOrder(order!._id, data),
+
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] });
       queryClient.invalidateQueries({ queryKey: ["order"] });
       toast.success("Order updated");
       onOpenChange(false);
     },
+
     onError: (error) => {
       toast.error(
         error instanceof Error
@@ -108,31 +118,49 @@ export function OrderStatusDialog({
   React.useEffect(() => {
     if (!open || !order) return;
 
-    const allowed = getStatusesForShippingMethod(
+    const allowedStatuses = getStatusesForShippingMethod(
       order.shippingMethod
-    ).map((s) => s.value);
+    ).map((status) => status.value);
 
-    // If current status isn't valid for this shipping method, fall back
-    const nextStatus = allowed.includes(order.orderStatus)
+    const nextStatus = allowedStatuses.includes(order.orderStatus)
       ? order.orderStatus
-      : "processing";
+      : "pending";
 
     setOrderStatus(nextStatus);
     setTrackingNumber(order.trackingNumber ?? "");
+    setAdminNote(order.adminNote ?? "");
   }, [open, order]);
+
+  // When admin selects Cancelled, pre-fill the underpayment note
+  const handleStatusChange = (value: string) => {
+  const status = value as OrderStatus;
+  setOrderStatus(status);
+
+  if (status === "cancelled" && !adminNote) {
+    setAdminNote("Payment unsuccessful");
+  }
+};
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     if (!order) return;
 
-    updateMutation.mutate({
+    const payload: UpdateOrderPayload = {
       orderStatus,
       trackingNumber: trackingNumber.trim() || null,
-    });
+    };
+
+    // Only send adminNote when cancelling (or if they typed something)
+    if (orderStatus === "cancelled" || adminNote.trim()) {
+      payload.adminNote = adminNote.trim() || null;
+    }
+
+    updateMutation.mutate(payload);
   };
 
   const isBusy = updateMutation.isPending;
   const isDelivery = order?.shippingMethod === "delivery";
+  const showAdminNote = orderStatus === "cancelled";
 
   return (
     <Dialog
@@ -152,17 +180,18 @@ export function OrderStatusDialog({
           onSubmit={handleSubmit}
           className="space-y-5 py-2"
         >
+          {/* Order status */}
           <div className="space-y-2">
             <Label>Order status</Label>
+
             <Select
               value={orderStatus}
-              onValueChange={(value) =>
-                setOrderStatus(value as OrderStatus)
-              }
+              onValueChange={handleStatusChange}
             >
               <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
+
               <SelectContent>
                 {availableStatuses.map((status) => (
                   <SelectItem
@@ -174,14 +203,33 @@ export function OrderStatusDialog({
                 ))}
               </SelectContent>
             </Select>
+
             <p className="text-xs text-muted-foreground">
               {order?.shippingMethod === "pickup"
                 ? "Pickup order — statuses include ready for pickup."
                 : order?.shippingMethod === "delivery"
-                  ? "Delivery order — statuses include shipped."
+                  ? "Delivery order — statuses include shipped and out for delivery."
                   : "Select a status for this order."}
             </p>
           </div>
+
+          {/* Admin note – only when cancelling (underpayment) */}
+          {showAdminNote && (
+            <div className="space-y-2">
+              <Label htmlFor="adminNote">Cancellation reason</Label>
+
+              <Input
+                id="adminNote"
+                value={adminNote}
+                onChange={(e) => setAdminNote(e.target.value)}
+                placeholder="Payment unsuccessful"
+              />
+
+              <p className="text-xs text-muted-foreground">
+                This will be shown to the customer.
+              </p>
+            </div>
+          )}
 
           {/* Tracking mainly for delivery */}
           {isDelivery && (
@@ -189,6 +237,7 @@ export function OrderStatusDialog({
               <Label htmlFor="trackingNumber">
                 Tracking number
               </Label>
+
               <Input
                 id="trackingNumber"
                 value={trackingNumber}
@@ -197,6 +246,7 @@ export function OrderStatusDialog({
                 }
                 placeholder="e.g. TRK-123456789"
               />
+
               <p className="text-xs text-muted-foreground">
                 Optional. Shown to the customer for tracking.
               </p>
@@ -204,10 +254,10 @@ export function OrderStatusDialog({
           )}
         </form>
 
-         <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end p-[1rem] lg:p-[1rem]">
+        <DialogFooter className="flex-col-reverse gap-2 p-[1rem] sm:flex-row sm:justify-end lg:p-[1rem]">
           <Button
             type="button"
-               className="w-full sm:w-auto"
+            className="w-full sm:w-auto"
             variant="outline"
             disabled={isBusy}
             onClick={() => onOpenChange(false)}
@@ -217,7 +267,7 @@ export function OrderStatusDialog({
 
           <Button
             type="submit"
-               className="w-full sm:w-auto"
+            className="w-full sm:w-auto"
             form="order-status-form"
             disabled={isBusy}
           >

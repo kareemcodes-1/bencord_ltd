@@ -14,7 +14,7 @@ export async function GET(
 
     const { slug } = await params;
 
-    const product = await Product.findOne({ slug, isActive: true })
+    const product = await Product.findOne({ slug })
       .populate("categoryId")
       .lean();
 

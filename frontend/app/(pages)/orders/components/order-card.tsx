@@ -13,18 +13,20 @@ type Props = {
 };
 
 const statusStyles: Record<string, string> = {
-processing: "bg-amber-50 text-amber-700 border-amber-200",
+  pending: "bg-orange-100 text-orange-700 border-orange-200",
   confirmed: "bg-green-50 text-green-700 border-green-200",
   shipped: "bg-blue-100 text-blue-700 border-blue-200",
+  out_for_delivery: "bg-orange-50 text-orange-700 border-orange-200",
   ready_for_pickup: "bg-green-100 text-green-700 border-green-200",
   delivered: "bg-green-100 text-green-700 border-green-200",
   cancelled: "bg-red-100 text-red-700 border-red-200",
 };
 
 const statusLabels: Record<string, string> = {
-  processing: "Processing",
+  pending: "Pending",
   confirmed: "Confirmed",
   shipped: "Shipped",
+  out_for_delivery: "Out for delivery",
   ready_for_pickup: "Ready for pickup",
   delivered: "Delivered",
   cancelled: "Cancelled",
@@ -105,19 +107,19 @@ export default function OrderCard({ order }: Props) {
         </p>
 
         <Link
-    href={`/orders/${order._id}`}
-    className="flex items-center justify-center text-[#ee0a0a] transition-opacity hover:opacity-70"
-  >
-    {/* Mobile: arrow button */}
-    <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#ee0a0a]/20 bg-[#ee0a0a]/5 sm:hidden">
-      <ChevronRight size={18} strokeWidth={1.75} />
-    </span>
+  href={`/orders/${order._id}`}
+  className="group/link flex items-center justify-center text-[#ee0a0a] transition-colors duration-300"
+>
+  {/* Mobile: arrow button */}
+  <span className="flex h-9 w-9 items-center justify-center rounded-full border border-[#ee0a0a]/20 bg-[#ee0a0a]/5 transition-colors duration-300 group-hover/link:border-[#ee0a0a] group-hover/link:bg-[#ee0a0a] sm:hidden hover:text-white">
+    <ChevronRight size={18} strokeWidth={1.75} />
+  </span>
 
-    {/* Desktop: text */}
-    <span className="hidden text-[13px] font-medium sm:inline">
-      View details
-    </span>
-  </Link>
+  {/* Desktop: text */}
+<span className="hidden text-[13px] font-medium underline-offset-4 transition-all duration-300 group-hover/link:underline sm:inline">
+  View details
+</span>
+</Link>
       </div>
     </div>
   );

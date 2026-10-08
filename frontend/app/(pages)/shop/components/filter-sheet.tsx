@@ -6,7 +6,6 @@ import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Slider } from "@/components/ui/slider";
 import { priceFormatter } from "@/lib/priceFormatter";
-import { useCurrencyStore } from "@/store/currency";
 import { Category } from "@/types";
 
 export type AvailabilityFilter = "in-stock" | "out-of-stock";
@@ -27,7 +26,10 @@ interface FilterSheetProps {
   onApply: () => void;
 }
 
-const AVAILABILITY_OPTIONS: { value: AvailabilityFilter; label: string }[] = [
+const AVAILABILITY_OPTIONS: {
+  value: AvailabilityFilter;
+  label: string;
+}[] = [
   { value: "in-stock", label: "In Stock" },
   { value: "out-of-stock", label: "Out of Stock" },
 ];
@@ -47,8 +49,6 @@ const FilterSheet = ({
   onClear,
   onApply,
 }: FilterSheetProps) => {
-  const currency = useCurrencyStore((s) => s.currency);
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
@@ -85,9 +85,12 @@ const FilterSheet = ({
                 >
                   <Checkbox
                     checked={selectedCategories.includes(category._id)}
-                    onCheckedChange={() => onToggleCategory(category._id)}
+                    onCheckedChange={() =>
+                      onToggleCategory(category._id)
+                    }
                     className="border-black/25 data-[state=checked]:border-[#ee0a0a] data-[state=checked]:bg-[#ee0a0a]"
                   />
+
                   <span className="text-sm font-medium text-black/70">
                     {category.name}
                   </span>
@@ -116,9 +119,12 @@ const FilterSheet = ({
                 >
                   <Checkbox
                     checked={selectedAvailability.includes(option.value)}
-                    onCheckedChange={() => onToggleAvailability(option.value)}
+                    onCheckedChange={() =>
+                      onToggleAvailability(option.value)
+                    }
                     className="border-black/25 data-[state=checked]:border-[#ee0a0a] data-[state=checked]:bg-[#ee0a0a]"
                   />
+
                   <span className="text-sm font-medium text-black/70">
                     {option.label}
                   </span>
@@ -149,6 +155,7 @@ const FilterSheet = ({
                 <span className="truncate">
                   {priceFormatter(priceRange[0])}
                 </span>
+
                 <span className="truncate">
                   {priceFormatter(priceRange[1])}
                 </span>
@@ -158,16 +165,20 @@ const FilterSheet = ({
         </div>
 
         {/* Footer */}
-        <div className="flex shrink-0 w-full items-center gap-2.5 border-t border-black/10 px-5 py-4 sm:gap-3 sm:px-6 sm:py-5 lg:px-8">
+        <div className="flex w-full shrink-0 items-center gap-2.5 border-t border-black/10 px-5 py-4 sm:gap-3 sm:px-6 sm:py-5 lg:px-8">
+          <button
+  type="button"
+  onClick={onClear}
+  className="w-full rounded-full border border-black/15 bg-transparent py-3 text-[0.7rem] font-medium uppercase text-black transition-colors duration-300 hover:border-black hover:bg-black hover:text-white"
+>
+  Clear All
+</button>
+
           <button
             type="button"
-            onClick={onClear}
-            className="w-full rounded-full border border-black/15 py-3 text-[0.7rem] font-medium uppercase text-black transition-colors duration-300 hover:border-black"
+            onClick={onApply}
+            className="btn-primary w-full"
           >
-            Clear All
-          </button>
-
-          <button type="button" onClick={onApply} className="btn-primary w-full">
             Apply
           </button>
         </div>

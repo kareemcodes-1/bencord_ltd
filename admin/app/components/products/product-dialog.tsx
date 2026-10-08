@@ -82,6 +82,7 @@ async function uploadToImageKit(
 
   // 1. Get authentication parameters from your backend
   const authRes = await fetch("/api/imagekit-auth");
+
   if (!authRes.ok) {
     throw new Error("Failed to get ImageKit authentication");
   }
@@ -90,6 +91,7 @@ async function uploadToImageKit(
 
   // 2. Upload the file
   const formData = new FormData();
+
   formData.append("file", file);
   formData.append("fileName", file.name);
   formData.append("publicKey", IMAGEKIT_PUBLIC_KEY);
@@ -146,13 +148,9 @@ export function ProductDialog({
   const [price, setPrice] = React.useState("");
   const [categoryId, setCategoryId] = React.useState("");
 
-  const [trackInventory, setTrackInventory] = React.useState(true);
-
-  const [stock, setStock] = React.useState("0");
-  const [lowStockThreshold, setLowStockThreshold] = React.useState("5");
+  const [inStock, setInStock] = React.useState(true);
 
   const [featured, setFeatured] = React.useState(false);
-  const [isActive, setIsActive] = React.useState(true);
 
   const [media, setMedia] = React.useState<MediaItem[]>([]);
   const [isUploading, setIsUploading] = React.useState(false);
@@ -171,6 +169,7 @@ export function ProductDialog({
       queryClient.invalidateQueries({
         queryKey: ["products"],
       });
+
       toast.success("Product created");
     },
     onError: (error) => {
@@ -189,6 +188,7 @@ export function ProductDialog({
       queryClient.invalidateQueries({
         queryKey: ["products"],
       });
+
       toast.success("Product updated");
     },
     onError: (error) => {
@@ -215,12 +215,9 @@ export function ProductDialog({
       setPrice(String(product.price));
       setCategoryId(resolveCategoryId(product.categoryId));
 
-      setTrackInventory(product.trackInventory);
-      setStock(String(product.stock));
-      setLowStockThreshold(String(product.lowStockThreshold));
+      setInStock(product.inStock);
 
       setFeatured(product.featured);
-      setIsActive(product.isActive);
 
       setMedia(
         (product.media ?? []).map((item) => ({
@@ -237,12 +234,9 @@ export function ProductDialog({
       setPrice("");
       setCategoryId("");
 
-      setTrackInventory(true);
-      setStock("0");
-      setLowStockThreshold("5");
+      setInStock(true);
 
       setFeatured(false);
-      setIsActive(true);
 
       setMedia([]);
     }
@@ -267,6 +261,7 @@ export function ProductDialog({
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const files = event.target.files;
+
     if (!files || files.length === 0) return;
 
     const newItems: MediaItem[] = Array.from(files).map((file) => ({
@@ -328,12 +323,9 @@ export function ProductDialog({
         price: Number(price),
         categoryId,
 
-        trackInventory,
-        stock: Number(stock),
-        lowStockThreshold: Number(lowStockThreshold),
+        inStock,
 
         featured,
-        isActive,
 
         media: uploadedMedia,
       };
@@ -450,6 +442,7 @@ export function ProductDialog({
 
           <div className="space-y-2">
             <Label htmlFor="name">Product name</Label>
+
             <Input
               id="name"
               value={name}
@@ -461,6 +454,7 @@ export function ProductDialog({
 
           <div className="space-y-2">
             <Label htmlFor="slug">Slug</Label>
+
             <Input
               id="slug"
               value={slug}
@@ -473,7 +467,11 @@ export function ProductDialog({
 
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
-            <Select value={categoryId} onValueChange={setCategoryId}>
+
+            <Select
+              value={categoryId}
+              onValueChange={setCategoryId}
+            >
               <SelectTrigger id="category" className="w-full">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
@@ -503,10 +501,13 @@ export function ProductDialog({
 
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
+
             <Textarea
               id="description"
               value={description}
-              onChange={(event) => setDescription(event.target.value)}
+              onChange={(event) =>
+                setDescription(event.target.value)
+              }
               placeholder="Describe your product..."
               className="min-h-28 resize-none"
               required
@@ -515,6 +516,7 @@ export function ProductDialog({
 
           <div className="space-y-2">
             <Label htmlFor="price">Price</Label>
+
             <div className="relative">
               <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
                 GHS
@@ -526,7 +528,9 @@ export function ProductDialog({
                 min="0"
                 step="0.01"
                 value={price}
-                onChange={(event) => setPrice(event.target.value)}
+                onChange={(event) =>
+                  setPrice(event.target.value)
+                }
                 placeholder="0.00"
                 required
                 className="pl-12"
@@ -535,53 +539,32 @@ export function ProductDialog({
           </div>
 
           <div className="flex items-center justify-between rounded-xl border bg-muted/30 p-4">
-            <Label>Track inventory</Label>
+            <div className="space-y-0.5">
+              <Label>In stock</Label>
+              <p className="text-xs text-muted-foreground">
+                {inStock
+                  ? "Customers can purchase this product."
+                  : "Customers cannot purchase this product."}
+              </p>
+            </div>
+
             <Switch
-              checked={trackInventory}
-              onCheckedChange={setTrackInventory}
+              checked={inStock}
+              onCheckedChange={setInStock}
             />
           </div>
 
-          {trackInventory && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="stock">Stock</Label>
-                <Input
-                  id="stock"
-                  type="number"
-                  min="0"
-                  value={stock}
-                  onChange={(event) => setStock(event.target.value)}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="threshold">Low stock threshold</Label>
-                <Input
-                  id="threshold"
-                  type="number"
-                  min="0"
-                  value={lowStockThreshold}
-                  onChange={(event) =>
-                    setLowStockThreshold(event.target.value)
-                  }
-                />
-              </div>
-            </>
-          )}
-
           <div className="flex items-center justify-between rounded-xl border bg-muted/30 p-4">
             <Label>Featured product</Label>
-            <Switch checked={featured} onCheckedChange={setFeatured} />
-          </div>
 
-          <div className="flex items-center justify-between rounded-xl border bg-muted/30 p-4">
-            <Label>Active</Label>
-            <Switch checked={isActive} onCheckedChange={setIsActive} />
+            <Switch
+              checked={featured}
+              onCheckedChange={setFeatured}
+            />
           </div>
         </form>
 
-        <DialogFooter className="flex-col-reverse gap-2 sm:flex-row sm:justify-end p-[1rem] lg:p-[1rem]">
+        <DialogFooter className="flex-col-reverse gap-2 p-[1rem] sm:flex-row sm:justify-end lg:p-[1rem]">
           <Button
             type="button"
             variant="outline"

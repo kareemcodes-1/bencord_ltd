@@ -19,7 +19,7 @@ import ShippingMethodSection from "./shipping-method";
 import PaymentSection from "./payment-section";
 import OrderSummary from "./order-summary";
 import EmptyState from "@/app/components/empty-state";
-import { ShoppingBag } from "lucide-react";
+import { Loader2, ShoppingBag } from "lucide-react";
 
 type UserData = {
   email: string;
@@ -277,7 +277,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             disabled={isSubmitting}
             className="btn-primary w-full disabled:opacity-50"
           >
-            {isSubmitting ? "Processing..." : "Pay now"}
+            {isSubmitting ? <Loader2 /> : "Pay now"}
           </button>
         </div>
 

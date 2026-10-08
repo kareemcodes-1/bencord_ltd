@@ -25,6 +25,7 @@ import {
   UsersIcon,
   StarIcon,
   Percent,
+  MailIcon,
 } from "lucide-react";
 
 const navMain = [
@@ -63,6 +64,12 @@ const navMain = [
     url: "/admin/reviews",
     icon: <StarIcon />,
   },
+
+    {
+  title: "Subscribers",
+  url: "/admin/subscribers",
+  icon: <MailIcon />,
+},
 
 ];
 

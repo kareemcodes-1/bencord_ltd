@@ -7,20 +7,63 @@ export interface PaginationMeta {
   totalPages: number;
 }
 
+export interface PriceRange {
+  minPrice: number;
+  maxPrice: number;
+}
+
 export interface GetProductsResult {
   products: Product[];
   pagination: PaginationMeta;
+  priceRange: PriceRange;
+}
+
+interface GetProductsParams {
+  page?: number;
+  limit?: number;
+  categories?: string;
+  availability?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  sort?: string;
 }
 
 export async function getProducts({
   page = 1,
   limit = 12,
-}: {
-  page?: number;
-  limit?: number;
-} = {}): Promise<GetProductsResult> {
+  categories,
+  availability,
+  minPrice,
+  maxPrice,
+  sort,
+}: GetProductsParams = {}): Promise<GetProductsResult> {
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+
+  if (categories) {
+    params.set("categories", categories);
+  }
+
+  if (availability) {
+    params.set("availability", availability);
+  }
+
+  if (minPrice !== undefined) {
+    params.set("minPrice", String(minPrice));
+  }
+
+  if (maxPrice !== undefined) {
+    params.set("maxPrice", String(maxPrice));
+  }
+
+  if (sort) {
+    params.set("sort", sort);
+  }
+
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/products?page=${page}&limit=${limit}`,
+    `${process.env.NEXT_PUBLIC_API_URL}/api/products?${params.toString()}`,
     {
       method: "GET",
       cache: "no-store",
@@ -34,14 +77,13 @@ export async function getProducts({
   return response.json();
 }
 
-
 export async function getFeaturedProducts(): Promise<GetProductsResult> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/products/featured`,
     {
       method: "GET",
       cache: "no-store",
-    }
+    },
   );
 
   if (!response.ok) {
@@ -53,7 +95,7 @@ export async function getFeaturedProducts(): Promise<GetProductsResult> {
 
 export async function searchProducts(
   q: string,
-  limit = 12
+  limit = 12,
 ): Promise<{ products: Product[] }> {
   const params = new URLSearchParams({
     limit: String(limit),
@@ -68,7 +110,7 @@ export async function searchProducts(
     {
       method: "GET",
       cache: "no-store",
-    }
+    },
   );
 
   if (!response.ok) {
@@ -78,7 +120,9 @@ export async function searchProducts(
   return response.json();
 }
 
-export async function getProductBySlug(slug: string): Promise<Product | null> {
+export async function getProductBySlug(
+  slug: string,
+): Promise<Product | null> {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/products/${slug}`,
     {

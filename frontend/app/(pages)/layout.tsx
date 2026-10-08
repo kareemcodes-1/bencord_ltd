@@ -6,6 +6,7 @@ import ToastProvider from "@/providers/toast-provider";
 import NextTopLoader from "nextjs-toploader";
 import PageTransition from "../components/page-transition";
 import WhatsAppBubble from "../components/whatsapp-bubble";
+import NewsletterModal from "../components/modals/newsletter-modal";
 
 export default function PageLayout({
   children,
@@ -36,6 +37,7 @@ export default function PageLayout({
           </PageTransition>
           </main>
 
+            <NewsletterModal />
         <WhatsAppBubble />
       <Footer />
     </>

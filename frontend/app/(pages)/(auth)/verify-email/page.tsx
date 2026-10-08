@@ -6,7 +6,7 @@ import { toast } from "react-hot-toast";
 import { Loader2 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 
 const CODE_LENGTH = 6;
 const RESEND_COOLDOWN_SECONDS = 30;
@@ -14,6 +14,7 @@ const RESEND_COOLDOWN_SECONDS = 30;
 function VerifyEmailForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { update } = useSession();
 
   const email = searchParams.get("email") ?? "";
 
@@ -89,13 +90,18 @@ function VerifyEmailForm() {
       focusInput(index - 1);
     }
 
-    if (event.key === "ArrowRight" && index < CODE_LENGTH - 1) {
+    if (
+      event.key === "ArrowRight" &&
+      index < CODE_LENGTH - 1
+    ) {
       event.preventDefault();
       focusInput(index + 1);
     }
   };
 
-  const handlePaste = (event: React.ClipboardEvent<HTMLDivElement>) => {
+  const handlePaste = (
+    event: React.ClipboardEvent<HTMLDivElement>
+  ) => {
     event.preventDefault();
 
     const pastedCode = event.clipboardData
@@ -131,6 +137,9 @@ function VerifyEmailForm() {
       return;
     }
 
+    const purpose = searchParams.get("purpose");
+    const isEmailChange = purpose === "change";
+
     try {
       setIsVerifying(true);
 
@@ -142,6 +151,7 @@ function VerifyEmailForm() {
         body: JSON.stringify({
           email,
           code: codeValue,
+          purpose: isEmailChange ? "change" : undefined,
         }),
       });
 
@@ -153,8 +163,41 @@ function VerifyEmailForm() {
         return;
       }
 
+      // ==========================================
+      // Email change flow
+      // ==========================================
+
+      if (isEmailChange) {
+        if (!data.email) {
+          toast.error(
+            "Email was updated, but the new email was not returned."
+          );
+          hasAutoSubmitted.current = false;
+          return;
+        }
+
+        // The user is already logged in.
+        // Update the existing NextAuth session instead
+        // of signing in again.
+        await update({
+          email: data.email,
+        });
+
+        toast.success("Email updated successfully.");
+
+        router.push("/profile");
+
+        return;
+      }
+
+      // ==========================================
+      // Normal signup verification flow
+      // ==========================================
+
       if (!data.loginToken) {
-        toast.error("Verification succeeded, but login failed.");
+        toast.error(
+          "Verification succeeded, but login failed."
+        );
         hasAutoSubmitted.current = false;
         return;
       }
@@ -166,7 +209,9 @@ function VerifyEmailForm() {
       });
 
       if (!loginResult?.ok) {
-        toast.error("Email verified, but automatic login failed.");
+        toast.error(
+          "Email verified, but automatic login failed."
+        );
         hasAutoSubmitted.current = false;
         return;
       }
@@ -185,7 +230,10 @@ function VerifyEmailForm() {
 
   // Auto-submit when all 6 digits are entered
   useEffect(() => {
-    if (codeValue.length === CODE_LENGTH && !hasAutoSubmitted.current) {
+    if (
+      codeValue.length === CODE_LENGTH &&
+      !hasAutoSubmitted.current
+    ) {
       hasAutoSubmitted.current = true;
       verifyEmail();
     }
@@ -198,7 +246,9 @@ function VerifyEmailForm() {
     if (resendCooldown <= 0) return;
 
     const timer = setInterval(() => {
-      setResendCooldown((seconds) => Math.max(0, seconds - 1));
+      setResendCooldown((seconds) =>
+        Math.max(0, seconds - 1)
+      );
     }, 1000);
 
     return () => clearInterval(timer);
@@ -215,32 +265,48 @@ function VerifyEmailForm() {
     try {
       setIsResending(true);
 
-      const res = await fetch("/api/auth/send-verification", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
+      const res = await fetch(
+        "/api/auth/send-verification",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok) {
         toast.error(
-          data.message || "Failed to resend verification code."
+          data.message ||
+            "Failed to resend verification code."
         );
         return;
       }
 
       setCode(Array(CODE_LENGTH).fill(""));
       hasAutoSubmitted.current = false;
-      focusInput(0);
-      setResendCooldown(RESEND_COOLDOWN_SECONDS);
 
-      toast.success("A new verification code has been sent.");
+      focusInput(0);
+
+      setResendCooldown(
+        RESEND_COOLDOWN_SECONDS
+      );
+
+      toast.success(
+        "A new verification code has been sent."
+      );
     } catch (error) {
-      console.error("Resend verification error:", error);
-      toast.error("Failed to resend verification code.");
+      console.error(
+        "Resend verification error:",
+        error
+      );
+
+      toast.error(
+        "Failed to resend verification code."
+      );
     } finally {
       setIsResending(false);
     }
@@ -284,12 +350,17 @@ function VerifyEmailForm() {
                     type="text"
                     inputMode="numeric"
                     autoComplete={
-                      index === 0 ? "one-time-code" : "off"
+                      index === 0
+                        ? "one-time-code"
+                        : "off"
                     }
                     maxLength={CODE_LENGTH}
                     value={digit}
                     onChange={(event) =>
-                      handleChange(index, event.target.value)
+                      handleChange(
+                        index,
+                        event.target.value
+                      )
                     }
                     onKeyDown={(event) =>
                       handleKeyDown(index, event)
@@ -341,7 +412,8 @@ function VerifyEmailForm() {
                 type="button"
                 onClick={resendCode}
                 disabled={
-                  isResending || resendCooldown > 0
+                  isResending ||
+                  resendCooldown > 0
                 }
                 className="
                   w-full

@@ -18,7 +18,7 @@ export async function generateMetadata({
 
   if (!product) {
     return {
-      title: "Product Not Found | Lois Banks Beauty",
+      title: "Product Not Found",
       description: "This product could not be found.",
     };
   }
@@ -26,7 +26,7 @@ export async function generateMetadata({
   const image = product.media.find((item) => item.type === "image")?.url;
 
   return {
-    title: `${product.name} | Lois Banks Beauty`,
+    title: `${product.name}`,
     description: product.description,
     openGraph: {
       title: product.name,

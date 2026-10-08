@@ -1,4 +1,3 @@
-
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 const addressSchema = new Schema(
@@ -8,42 +7,50 @@ const addressSchema = new Schema(
       required: true,
       trim: true,
     },
+
     lastName: {
       type: String,
       required: true,
       trim: true,
     },
+
     address: {
       type: String,
       required: true,
       trim: true,
     },
+
     apartment: {
       type: String,
       trim: true,
       default: "",
     },
+
     city: {
       type: String,
       required: true,
       trim: true,
     },
+
     state: {
       type: String,
       required: true,
       trim: true,
     },
+
     postalCode: {
       type: String,
       required: true,
       trim: true,
     },
+
     country: {
       type: String,
       required: true,
       trim: true,
       uppercase: true,
     },
+
     isDefault: {
       type: Boolean,
       default: false,
@@ -61,6 +68,9 @@ export interface IUserDocument extends Document {
   phone?: string;
   role: "user" | "admin";
 
+  // Email preferences
+  emailUpdates: boolean;
+
   // Email verification
   emailVerified: boolean;
   emailVerificationCode?: string;
@@ -72,6 +82,11 @@ export interface IUserDocument extends Document {
   emailVerificationLoginToken?: string;
   emailVerificationLoginTokenExpires?: Date;
 
+  // Email change
+  pendingEmail?: string;
+  pendingEmailUpdates?: boolean;
+
+  // Addresses
   addresses: {
     _id?: mongoose.Types.ObjectId;
     firstName: string;
@@ -85,6 +100,7 @@ export interface IUserDocument extends Document {
     isDefault: boolean;
   }[];
 
+  // Password reset
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
 
@@ -119,6 +135,19 @@ const userSchema = new Schema<IUserDocument>(
       trim: true,
     },
 
+    // =========================
+    // Email Preferences
+    // =========================
+
+    emailUpdates: {
+      type: Boolean,
+      default: false,
+    },
+
+    // =========================
+    // Role
+    // =========================
+
     role: {
       type: String,
       enum: ["user", "admin"],
@@ -132,6 +161,19 @@ const userSchema = new Schema<IUserDocument>(
     emailVerified: {
       type: Boolean,
       default: false,
+    },
+
+    pendingEmail: {
+      type: String,
+      lowercase: true,
+      trim: true,
+      select: false,
+    },
+
+    pendingEmailUpdates: {
+      type: Boolean,
+      default: false,
+      select: false,
     },
 
     emailVerificationCode: {
@@ -150,8 +192,10 @@ const userSchema = new Schema<IUserDocument>(
       select: false,
     },
 
-    // Temporary login token
-    // Created only after the correct verification code is entered.
+    // =========================
+    // Temporary Login Token
+    // =========================
+
     emailVerificationLoginToken: {
       type: String,
       select: false,
@@ -195,4 +239,3 @@ const User: Model<IUserDocument> =
   mongoose.model<IUserDocument>("User", userSchema);
 
 export default User;
-

@@ -29,34 +29,34 @@ import {
 } from "@/components/ui/toggle-group";
 
 import {
-  type OrderChartData,
-  type OrderChartRange,
-} from "@/actions/admin/order-chart.actions";
+  type RevenueChartData,
+  type RevenueChartRange,
+} from "@/actions/admin/revenue-chart.actions";
 
 const chartConfig = {
-  orders: {
-    label: "Orders",
+  revenue: {
+    label: "Revenue",
     color: "var(--primary)",
   },
 } satisfies ChartConfig;
 
 interface ChartAreaInteractiveProps {
-  initialData: OrderChartData[];
+  initialData: RevenueChartData[];
 }
 
 export function ChartAreaInteractive({
   initialData,
 }: ChartAreaInteractiveProps) {
   const [range, setRange] =
-    React.useState<OrderChartRange>("3months");
+    React.useState<RevenueChartRange>("today");
 
   const [data, setData] =
-    React.useState<OrderChartData[]>(initialData);
+    React.useState<RevenueChartData[]>(initialData);
 
   const [loading, setLoading] = React.useState(false);
 
   const handleRangeChange = async (
-    value: OrderChartRange
+    value: RevenueChartRange
   ) => {
     if (!value || value === range) return;
 
@@ -74,17 +74,17 @@ export function ChartAreaInteractive({
 
       if (!response.ok) {
         throw new Error(
-          "Failed to fetch order chart data"
+          "Failed to fetch revenue chart data"
         );
       }
 
-      const result: OrderChartData[] =
+      const result: RevenueChartData[] =
         await response.json();
 
       setData(result);
     } catch (error) {
       console.error(
-        "Failed to load order chart:",
+        "Failed to load revenue chart:",
         error
       );
     } finally {
@@ -96,10 +96,10 @@ export function ChartAreaInteractive({
     <Card className="@container/card">
       <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <CardTitle>Total Orders</CardTitle>
+          <CardTitle>Revenue</CardTitle>
 
           <CardDescription>
-            Order activity over time
+            Revenue generated over time
           </CardDescription>
         </div>
 
@@ -108,22 +108,22 @@ export function ChartAreaInteractive({
           value={range}
           onValueChange={(value) =>
             handleRangeChange(
-              value as OrderChartRange
+              value as RevenueChartRange
             )
           }
           variant="outline"
           className="w-fit"
         >
-          <ToggleGroupItem value="3months">
-            Last 3 months
-          </ToggleGroupItem>
-
-          <ToggleGroupItem value="30days">
-            Last 30 days
+          <ToggleGroupItem value="today">
+            Today
           </ToggleGroupItem>
 
           <ToggleGroupItem value="7days">
             Last 7 days
+          </ToggleGroupItem>
+
+          <ToggleGroupItem value="30days">
+            Last 30 days
           </ToggleGroupItem>
         </ToggleGroup>
       </CardHeader>
@@ -153,6 +153,25 @@ export function ChartAreaInteractive({
               tickMargin={8}
               minTickGap={32}
               tickFormatter={(value) => {
+                if (range === "today") {
+                  const [year, month, day, hour] =
+                    value.split("-");
+
+                  const date = new Date(
+                    Number(year),
+                    Number(month) - 1,
+                    Number(day),
+                    Number(hour)
+                  );
+
+                  return date.toLocaleTimeString(
+                    "en-US",
+                    {
+                      hour: "numeric",
+                    }
+                  );
+                }
+
                 const date = new Date(
                   `${value}T00:00:00`
                 );
@@ -172,28 +191,43 @@ export function ChartAreaInteractive({
               content={
                 <ChartTooltipContent
                   labelFormatter={(value) => {
-                    return new Date(
-                      `${value}T00:00:00`
-                    ).toLocaleDateString(
-                      "en-US",
-                      {
+                    if (range === "today") {
+                      const [year, month, day, hour] =
+                        value.split("-");
+
+                      const date = new Date(
+                        Number(year),
+                        Number(month) - 1,
+                        Number(day),
+                        Number(hour)
+                      );
+
+                      return date.toLocaleString("en-US", {
                         month: "long",
                         day: "numeric",
                         year: "numeric",
-                      }
-                    );
+                        hour: "numeric",
+                      });
+                    }
+
+                    return new Date(
+                      `${value}T00:00:00`
+                    ).toLocaleDateString("en-US", {
+                      month: "long",
+                      day: "numeric",
+                      year: "numeric",
+                    });
                   }}
-                  indicator="dot"
                 />
               }
             />
 
             <Area
-              dataKey="orders"
+              dataKey="revenue"
               type="natural"
-              fill="var(--color-orders)"
+              fill="var(--primary)"
               fillOpacity={0.4}
-              stroke="var(--color-orders)"
+              stroke="var(--primary)"
               strokeWidth={2}
             />
           </AreaChart>

@@ -15,13 +15,10 @@ export interface ProductPayload {
     description: string;
     price: number;
     categoryId: string;
- 
-    trackInventory: boolean;
-    stock: number;
-    lowStockThreshold: number;
+
  
     featured: boolean;
-    isActive: boolean;
+    inStock: boolean;
  
     media: { url: string; type: "image" | "video" }[];
 }

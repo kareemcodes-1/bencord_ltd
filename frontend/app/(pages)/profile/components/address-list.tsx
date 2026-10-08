@@ -41,6 +41,11 @@ export default function AddressList({ addresses: initial }: Props) {
     setSheetOpen(true);
   };
 
+  const handleEdit = (address: ProfileAddress) => {
+    setEditing(address);
+    setSheetOpen(true);
+  }
+
   const handleDelete = async () => {
     if (!addressToDelete) return;
 
@@ -100,6 +105,10 @@ export default function AddressList({ addresses: initial }: Props) {
           <h2 className="text-[1.1rem] font-medium sm:text-[1.2rem]">
             Shipping addresses
           </h2>
+
+          <h3 className="mt-1 text-sm font-bold font-black text-2xl  font-medium">
+            {addresses.length} address
+          </h3>
         </div>
         <button
           type="button"

@@ -1,83 +1,125 @@
-import { Button, Heading, Img, Section, Text } from "@react-email/components";
-import EmailLayout from "./email-layout";
+import { Img, Link, Section, Text } from "@react-email/components";
+
+import EmailLayout, {
+  EmailButton,
+  EmailEyebrow,
+  EmailHeading,
+  EmailText,
+} from "./email-layout";
 
 type Props = {
   productName: string;
   productImage?: string;
   productSlug: string;
-  price: string; // already formatted
+  price: string; // formatted current price
+  originalPrice?: string; // formatted original price if discounted
+  discountLabel?: string; // e.g. "20% OFF"
+  description?: string;
+  unsubscribeUrl: string;
 };
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://loisbanksbeauty.com";
+const FRONTEND_URL =
+  process.env.NEXT_PUBLIC_FRONTEND_URL || "https://bencordltd.com.ng";
+
 
 export default function NewProductEmail({
   productName,
   productImage,
   productSlug,
   price,
+  originalPrice,
+  discountLabel,
+  description,
+  unsubscribeUrl,
 }: Props) {
+  const productUrl = `${FRONTEND_URL}/shop/p/${productSlug}`;
+
   return (
     <EmailLayout preview={`New drop: ${productName}`}>
-      {/* Eyebrow */}
-      <Text className="m-0 text-center text-[11px] font-medium uppercase tracking-[0.2em] text-[#ee0a0a]">
-        Just dropped
-      </Text>
+      <EmailEyebrow>Just dropped</EmailEyebrow>
 
-      {/* Title */}
-      <Heading className="mt-3 mb-0 text-center text-[26px] font-medium leading-tight text-black">
-        {productName}
-      </Heading>
+      <EmailHeading>A new product is here</EmailHeading>
 
-      <Text className="mt-3 mb-0 text-center text-[15px] leading-relaxed text-black/55">
-        A new piece just landed in the collection.
-      </Text>
+      <EmailText center>
+        Something new just landed at Bencord Ltd.
+      </EmailText>
 
-      {/* Product image card */}
+      {/* Product image */}
       {productImage ? (
-        <Section className="mt-8 overflow-hidden rounded-2xl bg-[#f5f5f5]">
-          <Img
-            src={productImage}
-            alt={productName}
-            width="100%"
-            className="block w-full object-cover"
-            style={{ maxHeight: "360px" }}
-          />
+        <Section className="my-6 overflow-hidden rounded-lg bg-[#f5f5f5]">
+          <Link href={productUrl}>
+            <Img
+              src={productImage}
+              alt={productName}
+              width={480}
+              className="block h-auto w-full max-w-full"
+              style={{
+                width: "100%",
+                height: "auto",
+              }}
+            />
+          </Link>
         </Section>
       ) : null}
 
-      {/* Price + message */}
-      <Section className="mt-8 text-center">
-        <Text className="m-0 text-[13px] font-medium uppercase tracking-[0.12em] text-black/40">
-          Available now
-        </Text>
-        <Text className="mt-2 mb-0 text-[28px] font-medium leading-none text-black">
-          {price}
-        </Text>
-        <Text className="mt-4 mb-0 text-[15px] leading-relaxed text-black/60">
-          Soft textures, refined finish — made to stand out. Shop it before it’s
-          gone.
-        </Text>
-      </Section>
-
-      {/* CTA */}
-      <Section className="mt-8 text-center">
-        <Button
-          href={`${APP_URL}/shop/p/${productSlug}`}
-          className="rounded-full bg-[#ee0a0a] px-8 py-3.5 text-[13px] font-medium uppercase tracking-[0.08em] text-white no-underline"
+      {/* Product details */}
+      <Section className="text-center">
+        <Text
+          className="m-0 text-[20px] font-medium leading-[1.3] tracking-[-0.01em] text-[#171717]"
+          style={{
+            wordBreak: "break-word",
+          }}
         >
-          Shop now
-        </Button>
+          {productName}
+        </Text>
+
+        {discountLabel ? (
+          <Text className="m-0 mt-3 text-[12px] font-medium uppercase tracking-[0.12em] text-[#ee0a0a]">
+            {discountLabel}
+          </Text>
+        ) : null}
+
+        <Text className="m-0 mt-2 text-[24px] font-medium leading-none text-black">
+          {price}
+
+          {originalPrice ? (
+            <span className="ml-2 text-[14px] font-normal text-black/40 line-through">
+              {originalPrice}
+            </span>
+          ) : null}
+        </Text>
+
+        <Text
+          className="m-0 mt-4 text-[14px] leading-[1.7] text-black/60"
+          style={{ wordBreak: "break-word" }}
+        >
+          {description ??
+            "Made to stand out. Shop it while it&apos;s available."}
+        </Text>
       </Section>
 
-      {/* Secondary link */}
-      <Text className="mt-6 mb-0 text-center text-[13px] text-black/40">
+      <EmailButton href={productUrl}>Shop now</EmailButton>
+
+      <Text className="m-0 text-center text-[13px] text-black/50">
         Or{" "}
-        <a
-          href={`${APP_URL}/shop`}
+        <Link
+          href={`${FRONTEND_URL}/shop`}
           className="font-medium text-black underline"
         >
           browse the full collection
-        </a>
+        </Link>
+      </Text>
+
+      <Text className="m-0 mt-8 text-center text-[11px] leading-[1.6] text-black/40">
+        You&apos;re receiving this because you subscribed to Bencord Ltd
+        updates.
+        <br />
+        <Link
+          href={unsubscribeUrl}
+          className="text-black/50 underline"
+        >
+          Unsubscribe
+        </Link>
       </Text>
     </EmailLayout>
   );

@@ -12,10 +12,11 @@ export async function GET() {
     const now = new Date();
 
     const [products, activeDiscounts] = await Promise.all([
-      Product.find({ isActive: true, featured: true })
+      Product.find({ featured: true })
         .populate("categoryId")
         .sort({ createdAt: -1 })
         .lean(),
+
       Discount.find({
         isActive: true,
         startsAt: { $lte: now },
@@ -35,6 +36,7 @@ export async function GET() {
     for (const discount of activeDiscounts) {
       for (const productId of discount.productIds) {
         const id = productId.toString();
+
         if (!discountMap.has(id)) {
           discountMap.set(id, {
             discountType: discount.discountType,
@@ -64,6 +66,7 @@ export async function GET() {
     );
   } catch (error) {
     console.error("GET /api/products/featured error:", error);
+
     return NextResponse.json(
       { message: "Failed to fetch featured products" },
       { status: 500 }
