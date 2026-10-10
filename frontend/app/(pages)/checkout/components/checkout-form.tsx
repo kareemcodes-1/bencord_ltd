@@ -1,4 +1,3 @@
-// components/checkout/checkout-form.tsx
 "use client";
 
 import { useState, useEffect } from "react";
@@ -18,6 +17,7 @@ import DeliverySection, {
 import ShippingMethodSection from "./shipping-method";
 import PaymentSection from "./payment-section";
 import OrderSummary from "./order-summary";
+
 import EmptyState from "@/app/components/empty-state";
 import { Loader2, ShoppingBag } from "lucide-react";
 
@@ -43,16 +43,16 @@ export default function CheckoutForm({ user }: Props) {
     phone: user.phone || "",
   });
 
- const [delivery, setDelivery] = useState<DeliveryData>({
-  firstName: "",
-  lastName: "",
-  address: "",
-  apartment: "",
-  city: "",
-  state: "",
-  postalCode: "",
-  country: "GH", // ← always Ghana
-});
+  const [delivery, setDelivery] = useState<DeliveryData>({
+    firstName: "",
+    lastName: "",
+    address: "",
+    apartment: "",
+    city: "",
+    state: "",
+    postalCode: "",
+    country: "GH",
+  });
 
   const [selectedAddressId, setSelectedAddressId] = useState<string | "new">(
     "new"
@@ -64,23 +64,26 @@ export default function CheckoutForm({ user }: Props) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Auto-select default address
   useEffect(() => {
     if (user.addresses.length === 0) {
       setSelectedAddressId("new");
+
       setDelivery((prev) => ({
         ...prev,
         firstName: user.name?.split(" ")[0] || "",
         lastName: user.name?.split(" ").slice(1).join(" ") || "",
         country: "GH",
       }));
+
       return;
     }
 
     const defaultAddr =
-      user.addresses.find((a) => a.isDefault) || user.addresses[0];
+      user.addresses.find((address) => address.isDefault) ||
+      user.addresses[0];
 
     setSelectedAddressId(defaultAddr._id);
+
     setDelivery({
       firstName: defaultAddr.firstName,
       lastName: defaultAddr.lastName,
@@ -89,7 +92,7 @@ export default function CheckoutForm({ user }: Props) {
       city: defaultAddr.city,
       state: defaultAddr.state,
       postalCode: defaultAddr.postalCode,
-      country: defaultAddr.country,
+      country: defaultAddr.country || "GH",
     });
   }, [user.addresses, user.name]);
 
@@ -97,127 +100,142 @@ export default function CheckoutForm({ user }: Props) {
     setSelectedAddressId(id);
 
     if (id === "new") {
-  setDelivery({
-    firstName: user.name?.split(" ")[0] || "",
-    lastName: user.name?.split(" ").slice(1).join(" ") || "",
-    address: "",
-    apartment: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "GH", // ← always Ghana
-  });
-  return;
-}
+      setDelivery({
+        firstName: user.name?.split(" ")[0] || "",
+        lastName: user.name?.split(" ").slice(1).join(" ") || "",
+        address: "",
+        apartment: "",
+        city: "",
+        state: "",
+        postalCode: "",
+        country: "GH",
+      });
 
-    const addr = user.addresses.find((a) => a._id === id);
-    if (!addr) return;
+      return;
+    }
+
+    const address = user.addresses.find((item) => item._id === id);
+
+    if (!address) return;
 
     setDelivery({
-      firstName: addr.firstName,
-      lastName: addr.lastName,
-      address: addr.address,
-      apartment: addr.apartment || "",
-      city: addr.city,
-      state: addr.state,
-      postalCode: addr.postalCode,
-      country: addr.country,
+      firstName: address.firstName,
+      lastName: address.lastName,
+      address: address.address,
+      apartment: address.apartment || "",
+      city: address.city,
+      state: address.state,
+      postalCode: address.postalCode,
+      country: address.country || "GH",
     });
   };
 
-  const shippingFee = shippingMethod === "delivery" ? DOOR_DELIVERY_FEE : 0;
+  const shippingFee =
+    shippingMethod === "delivery" ? DOOR_DELIVERY_FEE : 0;
 
   const handleContactChange = (
     field: keyof typeof contact,
     value: string
   ) => {
-    setContact((prev) => ({ ...prev, [field]: value }));
+    setContact((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
   const handleDeliveryChange = (
     field: keyof DeliveryData,
     value: string
   ) => {
-    setDelivery((prev) => ({ ...prev, [field]: value }));
+    setDelivery((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
   };
 
-  
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
+    if (isSubmitting) return;
 
-  if (items.length === 0) {
-    toast.error("Your cart is empty.");
-    return;
-  }
-
-  if (!contact.email || !contact.phone) {
-    toast.error("Please fill in your contact details.");
-    return;
-  }
-
-  if (
-    !delivery.firstName ||
-    !delivery.lastName ||
-    !delivery.address ||
-    !delivery.city ||
-    !delivery.country ||
-    !delivery.postalCode
-  ) {
-    toast.error("Please complete your delivery address.");
-    return;
-  }
-
-  setIsSubmitting(true);
-
-  try {
-    // Base amounts (what is stored in the cart)
-    const subtotalBase = items.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
-    const shippingFeeBase = shippingMethod === "delivery" ? DOOR_DELIVERY_FEE : 0;
-    const totalAmountBase = subtotalBase + shippingFeeBase;
-
-    const res = await fetch("/api/flutterwave/initialize", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contact,
-        delivery,
-        shippingMethod,
-        shippingFee: shippingFeeBase,
-        selectedAddressId,
-        items,
-        subtotal: subtotalBase,
-        totalAmount: totalAmountBase,   // still base currency
-        currency,                       // ← important: current selected currency
-      }),
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      toast.error(data.message || "Failed to initialize payment");
+    if (items.length === 0) {
+      toast.error("Your cart is empty.");
       return;
     }
 
-    window.location.href = data.authorization_url;
-  } catch (error) {
-    console.error(error);
-    toast.error("Something went wrong. Please try again.");
-  } finally {
-    setIsSubmitting(false);
-  }
-};
+    if (!contact.email.trim() || !contact.phone.trim()) {
+      toast.error("Please fill in your contact details.");
+      return;
+    }
 
-  // 1. Wait for cart to rehydrate
+    if (
+      !delivery.firstName.trim() ||
+      !delivery.lastName.trim() ||
+      !delivery.address.trim() ||
+      !delivery.city.trim() ||
+      !delivery.state.trim() ||
+      !delivery.country ||
+      !delivery.postalCode.trim()
+    ) {
+      toast.error("Please complete your delivery address.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const subtotalBase = items.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      );
+
+      const totalAmountBase = subtotalBase + shippingFee;
+
+      const res = await fetch("/api/orders", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contact,
+          delivery,
+          shippingMethod,
+          shippingFee,
+          selectedAddressId,
+          items,
+          subtotal: subtotalBase,
+          totalAmount: totalAmountBase,
+          currency,
+          paymentMethod: "bank_transfer",
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.message || "Failed to place your order.");
+        return;
+      }
+
+      if (!data.orderId) {
+        toast.error("Order was created but no order ID was returned.");
+        return;
+      }
+
+      window.location.href = `/checkout/payment?orderId=${encodeURIComponent(
+        data.orderId
+      )}`;
+    } catch (error) {
+      console.error("Failed to place order:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (!_hasHydrated) {
     return (
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:gap-12">
-        {/* Left side skeletons */}
         <div className="space-y-5 sm:space-y-6">
           <Skeleton className="h-48 w-full rounded-2xl" />
           <Skeleton className="h-72 w-full rounded-2xl" />
@@ -226,7 +244,6 @@ const handleSubmit = async (e: React.FormEvent) => {
           <Skeleton className="h-12 w-full rounded-xl" />
         </div>
 
-        {/* Right side skeleton */}
         <div>
           <Skeleton className="h-96 w-full rounded-2xl" />
         </div>
@@ -234,26 +251,27 @@ const handleSubmit = async (e: React.FormEvent) => {
     );
   }
 
-  // 2. Only show empty state after hydration is complete
- if (items.length === 0) {
-  return (
-    <div className="flex min-h-[50vh] items-center justify-center py-20">
-      <EmptyState
-        icon={ShoppingBag}
-        message="No items in your cart"
-        buttonText="Back to Home"
-        buttonHref="/"
-      />
-    </div>
-  );
-}
+  if (items.length === 0) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center py-20">
+        <EmptyState
+          icon={ShoppingBag}
+          message="No items in your cart"
+          buttonText="Back to Home"
+          buttonHref="/"
+        />
+      </div>
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:gap-12">
-        {/* Left side */}
         <div className="space-y-5 sm:space-y-6">
-          <ContactSection data={contact} onChange={handleContactChange} />
+          <ContactSection
+            data={contact}
+            onChange={handleContactChange}
+          />
 
           <DeliverySection
             data={delivery}
@@ -277,11 +295,16 @@ const handleSubmit = async (e: React.FormEvent) => {
             disabled={isSubmitting}
             className="btn-primary w-full disabled:opacity-50"
           >
-            {isSubmitting ? <Loader2 /> : "Pay now"}
+            {isSubmitting ? (
+              <>
+                <Loader2 className="mr-2 inline-block size-4 animate-spin" />
+              </>
+            ) : (
+              "Pay now"
+            )}
           </button>
         </div>
 
-        {/* Right side */}
         <div>
           <OrderSummary shippingFee={shippingFee} />
         </div>

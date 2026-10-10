@@ -41,6 +41,7 @@ import {
   type ProductPayload,
 } from "@/actions/admin/product.actions";
 import toast from "react-hot-toast";
+import { generateSlug } from "@/lib/slug-generator";
 
 interface ProductDialogProps {
   open: boolean;
@@ -443,10 +444,14 @@ export function ProductDialog({
           <div className="space-y-2">
             <Label htmlFor="name">Product name</Label>
 
-            <Input
+             <Input
               id="name"
               value={name}
-              onChange={(event) => setName(event.target.value)}
+              onChange={(event) => {
+  const value = event.target.value;
+  setName(value);
+  setSlug(generateSlug(value));
+}}
               placeholder="Enter product name"
               required
             />

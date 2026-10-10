@@ -1,5 +1,90 @@
+export interface Category{
+  _id: string;
+  name: string;
+  slug: string;
+  image: string;
+  featured: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
 
-export interface Category {
+
+export interface Address {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  address: string;
+  apartment?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  phone?: string;
+  isDefault: boolean;
+}
+
+export interface User {
+  _id: string;
+  name: string;
+  email: string;
+  password?: string;
+  phone: string;
+  role: UserRole;
+  addresses: Address[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+
+export interface ProductMedia {
+  _id: string;
+  url: string;
+  type: ProductMediaType;
+}
+
+export interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  categoryId: Category;
+  description: string;
+  price: number;
+
+  discount?: {
+    discountType: "percentage" | "fixed";
+    discountValue: number;
+    title?: string;
+  } | null;
+
+  media: ProductMedia[];
+
+  featured: boolean;
+
+  inStock: boolean;
+
+  averageRating: number;
+  reviewCount: number;
+
+  createdAt: string;
+  updatedAt: string;
+}
+
+
+export interface Discount {
+  _id: string;
+  title: string;
+  description: string;
+  discountType: DiscountType;
+  discountValue: number;
+  productIds: string[] | { _id: string; name: string; slug?: string }[];
+  startsAt: string | Date;
+  expiresAt: string | Date;
+  isActive: boolean;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}
+
+export interface Category{
   _id: string;
   name: string;
   slug: string;
@@ -21,7 +106,7 @@ export interface Address {
   state: string;
   postalCode: string;
   country: string;
-  phone: string;
+  phone?: string;
   isDefault: boolean;
 }
 
@@ -45,12 +130,6 @@ export interface ProductMedia {
   type: ProductMediaType;
 }
 
-export interface ShippingAndReturns {
-  deliveryTime: string;
-  returnsPolicy: string;
-}
-
-
 export interface Product {
   _id: string;
   name: string;
@@ -58,6 +137,12 @@ export interface Product {
   categoryId: Category;
   description: string;
   price: number;
+
+  discount?: {
+    discountType: "percentage" | "fixed";
+    discountValue: number;
+    title?: string;
+  } | null;
 
   media: ProductMedia[];
 
@@ -71,8 +156,6 @@ export interface Product {
   createdAt: string;
   updatedAt: string;
 }
-
-
 
 export type DiscountType = "percentage" | "fixed";
 
@@ -111,6 +194,7 @@ export interface OrderItem {
     discountValue: number;
   } | null;
   quantity: number;
+
 }
 
 export interface ShippingAddress {
@@ -125,17 +209,18 @@ export interface ShippingAddress {
   phone?: string;
 }
 
-export type PaymentGateway = "flutterwave";
+export type PaymentMethod = "bank_transfer";
 
-export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
+export type PaymentStatus = "pending" | "paid";
 
 export interface PaymentInfo {
-  transactionId: string;
-  gateway: PaymentGateway;
+  paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
-  channel: string | null;
+  transactionReference: string | null;
+  customerNotifiedAt: string | null;
   paidAt: string | null;
 }
+
 
 export type OrderStatus =
   | "pending"
@@ -150,17 +235,22 @@ export type ShippingMethod = "pickup" | "delivery";
 
 export interface Order {
   _id: string;
-  userId: string | { _id: string; name?: string; email?: string; phone?: string };
+  userId: string | {
+    _id: string;
+    name?: string;
+    email?: string;
+    phone?: string;
+  };
   items: OrderItem[];
   shippingAddress: ShippingAddress;
   paymentInfo: PaymentInfo;
   orderStatus: OrderStatus;
+  adminNote: string | null;
   shippingMethod: ShippingMethod;
   trackingNumber: string | null;
   subtotal: number;
   shippingFee: number;
   tax: number;
-   adminNote: string | null;
   totalAmount: number;
   createdAt: string;
   updatedAt: string;
@@ -191,4 +281,11 @@ export interface Review {
   updatedAt: string | Date;
 }
 
-
+export interface Subscriber {
+  _id: string;
+  email: string;
+  isActive: boolean;
+  source?: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}

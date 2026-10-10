@@ -30,6 +30,7 @@ import {
   type CategoryPayload,
 } from "@/actions/admin/category.actions";
 import toast from "react-hot-toast";
+import { generateSlug } from "@/lib/slug-generator";
 
 interface CategoryDialogProps {
   open: boolean;
@@ -313,12 +314,16 @@ export function CategoryDialog({
           <div className="space-y-2">
             <Label htmlFor="name">Category name</Label>
             <Input
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Enter category name"
-              required
-            />
+                          id="name"
+                          value={name}
+                          onChange={(event) => {
+              const value = event.target.value;
+              setName(value);
+              setSlug(generateSlug(value));
+            }}
+                          placeholder="Enter category name"
+                          required
+                        />
           </div>
 
           {/* Slug */}

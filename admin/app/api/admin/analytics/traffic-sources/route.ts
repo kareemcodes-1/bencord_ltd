@@ -45,37 +45,41 @@ export async function GET() {
     };
 
     response.rows?.forEach((row) => {
-      const source =
-        row.dimensionValues?.[0]?.value?.toLowerCase() || "";
+  const source =
+    row.dimensionValues?.[0]?.value?.toLowerCase() || "";
 
-      const sessions = Number(
-        row.metricValues?.[0]?.value || 0
-      );
+  const sessions = Number(row.metricValues?.[0]?.value || 0);
 
-      if (
-        source.includes("instagram") ||
-        source.includes("instagram.com")
-      ) {
-        trafficSources.Instagram += sessions;
-      } else if (
-        source === "google" ||
-        source.includes("google.")
-      ) {
-        trafficSources.Google += sessions;
-      } else if (
-        source.includes("tiktok") ||
-        source.includes("tiktok.com")
-      ) {
-        trafficSources.TikTok += sessions;
-      } else if (
-        source.includes("whatsapp") ||
-        source.includes("whatsapp.com")
-      ) {
-        trafficSources.WhatsApp += sessions;
-      } else {
-        trafficSources.Other += sessions;
-      }
-    });
+  if (
+    source.includes("instagram") ||
+    source === "ig"
+  ) {
+    trafficSources.Instagram += sessions;
+  } else if (
+    source === "google" ||
+    source.includes("google.")
+  ) {
+    trafficSources.Google += sessions;
+  } else if (
+    source.includes("tiktok") ||
+    source === "tt"
+  ) {
+    trafficSources.TikTok += sessions;
+  } else if (
+    source.includes("whatsapp") ||
+    source === "wa"
+  ) {
+    trafficSources.WhatsApp += sessions;
+  } else if (
+    source === "(direct)" ||
+    source === "direct"
+  ) {
+    // Optional: you can keep it in Other or create a "Direct" category
+    trafficSources.Other += sessions;
+  } else {
+    trafficSources.Other += sessions;
+  }
+});
 
     return NextResponse.json(
       Object.entries(trafficSources).map(

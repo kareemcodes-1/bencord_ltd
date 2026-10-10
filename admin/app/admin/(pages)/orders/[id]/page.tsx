@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useParams, useRouter } from "next/navigation";
-
 import { useQuery } from "@tanstack/react-query";
 
 import { getOrder } from "@/actions/admin/order.actions";
@@ -29,8 +28,8 @@ import {
   CreditCardIcon,
   TruckIcon,
 } from "lucide-react";
-import { priceFormatter } from "@/lib/priceFormatter";
 
+import { priceFormatter } from "@/lib/priceFormatter";
 
 function formatDate(date: string | Date) {
   return new Intl.DateTimeFormat("en-NG", {
@@ -100,11 +99,6 @@ function getPaymentBadge(status: string) {
       label: "Pending",
       className:
         "border-yellow-200 bg-yellow-100 text-yellow-700 hover:bg-yellow-100",
-    },
-    failed: {
-      label: "Failed",
-      className:
-        "border-red-200 bg-red-100 text-red-700 hover:bg-red-100",
     },
   };
 
@@ -222,7 +216,7 @@ export default function OrderDetailPage() {
           }
         />
 
-        {/* Status */}
+        {/* Order and payment status */}
         <div className="flex flex-wrap items-center gap-3">
           <Badge className={status.className}>
             {status.label}
@@ -242,7 +236,7 @@ export default function OrderDetailPage() {
           )}
         </div>
 
-        {/* Items */}
+        {/* Order items */}
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2 text-base">
@@ -252,11 +246,10 @@ export default function OrderDetailPage() {
           </CardHeader>
 
           <CardContent className="space-y-6">
-            {/* Products */}
             <div className="grid gap-4 sm:grid-cols-2">
               {order.items.map((item) => {
                 const image = item.media?.find(
-                  (m) => m.type === "image"
+                  (media) => media.type === "image"
                 );
 
                 return (
@@ -356,7 +349,7 @@ export default function OrderDetailPage() {
           </CardContent>
         </Card>
 
-        {/* Customer / Payment / Shipping / Tracking */}
+        {/* Customer, Payment, Shipping and Tracking */}
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Customer */}
           <Card>
@@ -395,7 +388,19 @@ export default function OrderDetailPage() {
             </CardHeader>
 
             <CardContent className="space-y-3 text-sm">
-              <div className="flex justify-between">
+              <div className="flex justify-between gap-4">
+                <span className="text-muted-foreground">
+                  Method
+                </span>
+
+                <span className="font-medium">
+                  {order.paymentInfo.paymentMethod === "bank_transfer"
+                    ? "Bank transfer"
+                    : order.paymentInfo.paymentMethod}
+                </span>
+              </div>
+
+              <div className="flex justify-between gap-4">
                 <span className="text-muted-foreground">
                   Status
                 </span>
@@ -405,45 +410,39 @@ export default function OrderDetailPage() {
                 </Badge>
               </div>
 
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">
-                  Gateway
-                </span>
-
-                <span className="capitalize">
-                  {order.paymentInfo.gateway}
-                </span>
-              </div>
-
-              {order.paymentInfo.channel && (
-                <div className="flex justify-between">
+              {order.paymentInfo.customerNotifiedAt && (
+                <div className="flex justify-between gap-4">
                   <span className="text-muted-foreground">
-                    Channel
+                    Customer notified
                   </span>
 
-                  <span className="capitalize">
-                    {order.paymentInfo.channel}
+                  <span className="text-right">
+                    {formatDate(
+                      order.paymentInfo.customerNotifiedAt
+                    )}
                   </span>
                 </div>
               )}
 
-              <div className="flex justify-between gap-4">
-                <span className="text-muted-foreground">
-                  Transaction ID
-                </span>
+              {order.paymentInfo.transactionReference && (
+                <div className="flex justify-between gap-4">
+                  <span className="text-muted-foreground">
+                    Reference
+                  </span>
 
-                <span className="max-w-[200px] truncate font-mono text-xs">
-                  {order.paymentInfo.transactionId}
-                </span>
-              </div>
+                  <span className="max-w-[200px] truncate font-mono text-xs">
+                    {order.paymentInfo.transactionReference}
+                  </span>
+                </div>
+              )}
 
               {order.paymentInfo.paidAt && (
-                <div className="flex justify-between">
+                <div className="flex justify-between gap-4">
                   <span className="text-muted-foreground">
                     Paid at
                   </span>
 
-                  <span>
+                  <span className="text-right">
                     {formatDate(order.paymentInfo.paidAt)}
                   </span>
                 </div>
@@ -451,7 +450,7 @@ export default function OrderDetailPage() {
             </CardContent>
           </Card>
 
-          {/* Shipping Address */}
+          {/* Shipping address */}
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base">

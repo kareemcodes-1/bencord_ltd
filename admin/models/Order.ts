@@ -13,9 +13,7 @@ const orderMediaSchema = new Schema(
       required: true,
     },
   },
-  {
-    _id: true,
-  }
+  { _id: true }
 );
 
 const orderItemSchema = new Schema(
@@ -39,15 +37,32 @@ const orderItemSchema = new Schema(
       required: true,
       min: 0,
     },
+    originalPrice: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    discount: {
+      type: {
+        title: { type: String, default: null },
+        discountType: {
+          type: String,
+          enum: ["percentage", "fixed"],
+        },
+        discountValue: {
+          type: Number,
+          min: 0,
+        },
+      },
+      default: null,
+    },
     quantity: {
       type: Number,
       required: true,
       min: 1,
     },
   },
-  {
-    _id: true,
-  }
+  { _id: true }
 );
 
 const shippingAddressSchema = new Schema(
@@ -94,41 +109,38 @@ const shippingAddressSchema = new Schema(
       uppercase: true,
     },
   },
-  {
-    _id: false,
-  }
+  { _id: false }
 );
 
 const paymentInfoSchema = new Schema(
   {
-    transactionId: {
+    paymentMethod: {
       type: String,
+      enum: ["bank_transfer"],
       required: true,
-      trim: true,
-    },
-    gateway: {
-      type: String,
-      enum: ["flutterwave"],
-      required: true,
+      default: "bank_transfer",
     },
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "failed", "refunded"],
+      enum: ["pending", "paid"],
       required: true,
+      default: "pending",
     },
-    channel: {
+    transactionReference: {
       type: String,
       default: null,
       trim: true,
+    },
+    customerNotifiedAt: {
+      type: Date,
+      default: null,
     },
     paidAt: {
       type: Date,
       default: null,
     },
   },
-  {
-    _id: false,
-  }
+  { _id: false }
 );
 
 export type OrderStatus =
@@ -155,6 +167,12 @@ export interface IOrderDocument extends Document {
       type: "image" | "video";
     }[];
     price: number;
+    originalPrice: number;
+    discount: {
+      title: string | null;
+      discountType: "percentage" | "fixed";
+      discountValue: number;
+    } | null;
     quantity: number;
   }[];
 
@@ -170,10 +188,10 @@ export interface IOrderDocument extends Document {
   };
 
   paymentInfo: {
-    transactionId: string;
-    gateway: "flutterwave";
-    paymentStatus: "pending" | "paid" | "failed" | "refunded";
-    channel: string | null;
+    paymentMethod: "bank_transfer";
+    paymentStatus: "pending" | "paid";
+    transactionReference: string | null;
+    customerNotifiedAt: Date | null;
     paidAt: Date | null;
   };
 
@@ -181,6 +199,7 @@ export interface IOrderDocument extends Document {
   shippingMethod: ShippingMethod;
   trackingNumber: string | null;
   adminNote: string | null;
+
   subtotal: number;
   shippingFee: number;
   tax: number;

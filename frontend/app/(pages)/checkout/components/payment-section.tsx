@@ -7,27 +7,32 @@ export default function PaymentSection() {
         Payment
       </h2>
 
-      <div className="flex items-center gap-3 rounded-xl border border-black/10 bg-neutral-50 p-3.5 sm:p-4">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#f5a623]/10">
-          {/* Flutterwave-style icon */}
-          <svg
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h-2v-2h2v2zm0-4h-2V7h2v6z"
-              fill="#f5a623"
-            />
-          </svg>
-        </div>
-        <div>
-          <p className="text-sm font-medium">Flutterwave</p>
-          <p className="text-xs text-black/50">
-            You will be redirected to Flutterwave to complete payment securely.
-          </p>
+      <div className="rounded-xl border border-black/10 bg-neutral-50 p-4 sm:p-5">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#FD3F92]/10">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.75"
+              className="text-[#ee0a0a]"
+              aria-hidden
+            >
+              <path d="M3 10h18M5 10V19h14V10M12 3l9 7H3l9-7z" />
+            </svg>
+          </div>
+
+          <div>
+            <p className="text-sm font-medium">
+              Bank transfer
+            </p>
+
+            <p className="mt-1 text-xs leading-relaxed text-black/50">
+              After placing your order, you&apos;ll receive the bank transfer details. Your order stays pending until payment is confirmed.
+            </p>
+          </div>
         </div>
       </div>
     </section>

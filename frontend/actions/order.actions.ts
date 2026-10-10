@@ -1,11 +1,10 @@
-
 "use server";
 
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import connectDB from "@/lib/mongodb";
 import Order from "@/models/Order";
-import type { Order as OrderType } from "@/types"; // ← import from types
+import type { Order as OrderType } from "@/types";
 
 const ORDERS_PER_PAGE = 10;
 
@@ -13,19 +12,31 @@ function formatOrder(order: any): OrderType {
   return {
     _id: order._id.toString(),
     userId: order.userId.toString(),
+
     items: order.items.map((item: any) => ({
       _id: item._id ? item._id.toString() : "",
       productId: item.productId.toString(),
       name: item.name,
-      media: (item.media || []).map((m: any) => ({
-        _id: m._id ? m._id.toString() : "",
-        url: m.url,
-        type: m.type,
+
+      media: (item.media || []).map((media: any) => ({
+        _id: media._id ? media._id.toString() : "",
+        url: media.url,
+        type: media.type,
       })),
+
       price: item.price,
+      originalPrice: item.originalPrice ?? item.price,
+      discount: item.discount
+        ? {
+            title: item.discount.title ?? null,
+            discountType: item.discount.discountType,
+            discountValue: item.discount.discountValue,
+          }
+        : null,
+
       quantity: item.quantity,
-      size: item.size ?? null,
     })),
+
     shippingAddress: {
       firstName: order.shippingAddress.firstName,
       lastName: order.shippingAddress.lastName,
@@ -37,23 +48,30 @@ function formatOrder(order: any): OrderType {
       country: order.shippingAddress.country,
       phone: order.shippingAddress.phone || "",
     },
+
     paymentInfo: {
-      transactionId: order.paymentInfo.transactionId,
-      gateway: order.paymentInfo.gateway,
-      paymentStatus: order.paymentInfo.paymentStatus,
-      channel: order.paymentInfo.channel,
-      paidAt: order.paymentInfo.paidAt
+      paymentMethod: order.paymentInfo?.paymentMethod ?? "bank_transfer",
+      paymentStatus: order.paymentInfo?.paymentStatus ?? "pending",
+      transactionReference:
+        order.paymentInfo?.transactionReference ?? null,
+      customerNotifiedAt: order.paymentInfo?.customerNotifiedAt
+        ? new Date(order.paymentInfo.customerNotifiedAt).toISOString()
+        : null,
+      paidAt: order.paymentInfo?.paidAt
         ? new Date(order.paymentInfo.paidAt).toISOString()
         : null,
     },
+
     orderStatus: order.orderStatus,
-    adminNote: order.adminNote ?? null,
-    shippingMethod: order.shippingMethod ?? "delivery", // or "pickup"
+    shippingMethod: order.shippingMethod ?? "delivery",
     trackingNumber: order.trackingNumber ?? null,
+    adminNote: order.adminNote ?? null,
+
     subtotal: order.subtotal,
     shippingFee: order.shippingFee,
     tax: order.tax,
     totalAmount: order.totalAmount,
+
     createdAt: new Date(order.createdAt).toISOString(),
     updatedAt: new Date(order.updatedAt).toISOString(),
   };
@@ -75,7 +93,8 @@ export async function getUserOrders(page: number = 1) {
   try {
     await connectDB();
 
-    const currentPage = Math.max(1, page);
+    const currentPage = Math.max(1, Math.floor(page) || 1);
+
     const totalOrders = await Order.countDocuments({
       userId: session.user.id,
     });
@@ -83,7 +102,9 @@ export async function getUserOrders(page: number = 1) {
     const totalPages = Math.ceil(totalOrders / ORDERS_PER_PAGE) || 1;
     const safePage = Math.min(currentPage, totalPages);
 
-    const orders = await Order.find({ userId: session.user.id })
+    const orders = await Order.find({
+      userId: session.user.id,
+    })
       .sort({ createdAt: -1 })
       .skip((safePage - 1) * ORDERS_PER_PAGE)
       .limit(ORDERS_PER_PAGE)
@@ -98,6 +119,7 @@ export async function getUserOrders(page: number = 1) {
     };
   } catch (error) {
     console.error("getUserOrders error:", error);
+
     return {
       orders: [] as OrderType[],
       totalOrders: 0,
@@ -112,7 +134,10 @@ export async function getOrderById(orderId: string) {
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
-    return { order: null, error: "Unauthorized" as const };
+    return {
+      order: null,
+      error: "Unauthorized" as const,
+    };
   }
 
   try {
@@ -121,11 +146,17 @@ export async function getOrderById(orderId: string) {
     const order = await Order.findById(orderId).lean();
 
     if (!order) {
-      return { order: null, error: "Order not found" as const };
+      return {
+        order: null,
+        error: "Order not found" as const,
+      };
     }
 
     if (order.userId.toString() !== session.user.id) {
-      return { order: null, error: "Unauthorized" as const };
+      return {
+        order: null,
+        error: "Unauthorized" as const,
+      };
     }
 
     return {
@@ -134,6 +165,11 @@ export async function getOrderById(orderId: string) {
     };
   } catch (error) {
     console.error("getOrderById error:", error);
-    return { order: null, error: "Failed to fetch order" as const };
+
+    return {
+      order: null,
+      error: "Failed to fetch order" as const,
+    };
   }
 }
+

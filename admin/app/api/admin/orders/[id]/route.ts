@@ -37,7 +37,7 @@ function isValidObjectId(id: string) {
 
 export async function GET(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: RouteParams,
 ) {
   try {
     await connectDB();
@@ -47,14 +47,14 @@ export async function GET(
     if (!id) {
       return NextResponse.json(
         { message: "Order ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!isValidObjectId(id)) {
       return NextResponse.json(
         { message: "Invalid order ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -66,7 +66,7 @@ export async function GET(
     if (!order) {
       return NextResponse.json(
         { message: "Order not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -76,14 +76,14 @@ export async function GET(
 
     return NextResponse.json(
       { message: "Failed to fetch order" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function PUT(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: RouteParams,
 ) {
   try {
     await connectDB();
@@ -93,14 +93,14 @@ export async function PUT(
     if (!id) {
       return NextResponse.json(
         { message: "Order ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!isValidObjectId(id)) {
       return NextResponse.json(
         { message: "Invalid order ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -110,16 +110,13 @@ export async function PUT(
       orderStatus,
       paymentStatus,
       trackingNumber,
-      transactionId,
+      transactionReference,
       adminNote,
     } = body;
 
     const updateData: Record<string, unknown> = {};
 
-    // ─────────────────────────────────────────────
-    // Get previous order
-    // ─────────────────────────────────────────────
-
+    // Get the previous order status.
     const previousOrder = await Order.findById(id)
       .select("orderStatus")
       .lean();
@@ -127,41 +124,34 @@ export async function PUT(
     if (!previousOrder) {
       return NextResponse.json(
         { message: "Order not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    // ─────────────────────────────────────────────
-    // Order status
-    // ─────────────────────────────────────────────
-
+    // Order status.
     if (orderStatus !== undefined) {
       if (!validOrderStatuses.includes(orderStatus)) {
         return NextResponse.json(
           { message: "Invalid order status" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       updateData.orderStatus = orderStatus;
 
-      // Confirming an order also marks the Flutterwave
-      // payment as paid.
+      // Confirming an order marks its payment as paid.
       if (orderStatus === "confirmed") {
         updateData["paymentInfo.paymentStatus"] = "paid";
         updateData["paymentInfo.paidAt"] = new Date();
       }
     }
 
-    // ─────────────────────────────────────────────
-    // Payment status
-    // ─────────────────────────────────────────────
-
+    // Payment status.
     if (paymentStatus !== undefined) {
       if (!validPaymentStatuses.includes(paymentStatus)) {
         return NextResponse.json(
           { message: "Invalid payment status" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -176,10 +166,7 @@ export async function PUT(
       }
     }
 
-    // ─────────────────────────────────────────────
-    // Admin note
-    // ─────────────────────────────────────────────
-
+    // Admin note.
     if (adminNote !== undefined) {
       updateData.adminNote =
         adminNote === null || adminNote === ""
@@ -187,29 +174,16 @@ export async function PUT(
           : String(adminNote).trim();
     }
 
-    // ─────────────────────────────────────────────
-    // Flutterwave transaction ID
-    // ─────────────────────────────────────────────
-
-    if (transactionId !== undefined) {
-      if (
-        transactionId === null ||
-        String(transactionId).trim() === ""
-      ) {
-        return NextResponse.json(
-          { message: "Transaction ID cannot be empty" },
-          { status: 400 }
-        );
-      }
-
-      updateData["paymentInfo.transactionId"] =
-        String(transactionId).trim();
+    // Bank transfer reference.
+    if (transactionReference !== undefined) {
+      updateData["paymentInfo.transactionReference"] =
+        transactionReference === null ||
+        String(transactionReference).trim() === ""
+          ? null
+          : String(transactionReference).trim();
     }
 
-    // ─────────────────────────────────────────────
-    // Tracking number
-    // ─────────────────────────────────────────────
-
+    // Tracking number.
     if (trackingNumber !== undefined) {
       updateData.trackingNumber =
         trackingNumber === null || trackingNumber === ""
@@ -217,28 +191,21 @@ export async function PUT(
           : String(trackingNumber).trim();
     }
 
-    // ─────────────────────────────────────────────
-    // Nothing to update
-    // ─────────────────────────────────────────────
-
     if (Object.keys(updateData).length === 0) {
       return NextResponse.json(
         { message: "No valid fields provided for update" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // ─────────────────────────────────────────────
-    // Update order
-    // ─────────────────────────────────────────────
-
+    // Update the order.
     const order = await Order.findByIdAndUpdate(
       id,
       { $set: updateData },
       {
         new: true,
         runValidators: true,
-      }
+      },
     )
       .populate("userId", "name email phone")
       .populate("items.productId", "name slug")
@@ -247,14 +214,11 @@ export async function PUT(
     if (!order) {
       return NextResponse.json(
         { message: "Order not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    // ─────────────────────────────────────────────
-    // Send email only when order status changes
-    // ─────────────────────────────────────────────
-
+    // Send email only when the order status actually changes.
     const statusChanged =
       orderStatus !== undefined &&
       previousOrder.orderStatus !== orderStatus;
@@ -267,93 +231,68 @@ export async function PUT(
 
       const email = user?.email;
       const name = user?.name ?? "there";
-
       const orderReference = String(order._id)
         .slice(-8)
         .toUpperCase();
 
       if (email) {
         try {
-          // ─────────────────────────────────────────
-          // Confirmed
-          // ─────────────────────────────────────────
-
           if (orderStatus === "confirmed") {
             await sendOrderConfirmedEmail(email, name, {
               orderReference,
-
               items: order.items.map((item) => ({
                 name: item.name,
                 quantity: item.quantity,
                 price: item.price,
                 image: item.media?.[0]?.url,
               })),
-
               subtotal: order.subtotal,
               shippingFee: order.shippingFee,
               tax: order.tax,
               totalAmount: order.totalAmount,
-
-              paymentMethod: "Flutterwave",
+              paymentMethod: "Bank transfer",
               shippingMethod: order.shippingMethod,
             });
           }
-
-          // ─────────────────────────────────────────
-          // Shipped
-          // ─────────────────────────────────────────
 
           if (orderStatus === "shipped") {
             await sendOrderShippedEmail(
               email,
               name,
               orderReference,
-              order.trackingNumber ?? undefined
+              order.trackingNumber ?? undefined,
             );
           }
-
-          // ─────────────────────────────────────────
-          // Out for delivery
-          // ─────────────────────────────────────────
 
           if (orderStatus === "out_for_delivery") {
             await sendOrderOutForDeliveryEmail(
               email,
               name,
-              orderReference
+              orderReference,
             );
           }
-
-          // ─────────────────────────────────────────
-          // Ready for pickup
-          // ─────────────────────────────────────────
 
           if (orderStatus === "ready_for_pickup") {
             await sendOrderReadyForPickupEmail(
               email,
               name,
-              orderReference
+              orderReference,
             );
           }
-
-          // ─────────────────────────────────────────
-          // Delivered
-          // ─────────────────────────────────────────
 
           if (orderStatus === "delivered") {
             await sendOrderDeliveredEmail(
               email,
               name,
               orderReference,
-              order.shippingMethod
+              order.shippingMethod,
             );
           }
         } catch (emailError) {
-          // Email failure should not prevent the order
-          // status from being updated.
+          // Email failure must not prevent the order update.
           console.error(
             "Order status email failed:",
-            emailError
+            emailError,
           );
         }
       }
@@ -365,14 +304,14 @@ export async function PUT(
 
     return NextResponse.json(
       { message: "Failed to update order" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
 export async function DELETE(
   request: NextRequest,
-  { params }: RouteParams
+  { params }: RouteParams,
 ) {
   try {
     await connectDB();
@@ -382,14 +321,14 @@ export async function DELETE(
     if (!id) {
       return NextResponse.json(
         { message: "Order ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!isValidObjectId(id)) {
       return NextResponse.json(
         { message: "Invalid order ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -398,20 +337,20 @@ export async function DELETE(
     if (!order) {
       return NextResponse.json(
         { message: "Order not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     return NextResponse.json(
       { message: "Order deleted successfully" },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error) {
     console.error("DELETE /api/orders/[id] error:", error);
 
     return NextResponse.json(
       { message: "Failed to delete order" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

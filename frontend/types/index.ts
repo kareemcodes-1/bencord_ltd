@@ -8,6 +8,92 @@ export interface Category{
   updatedAt: string;
 }
 
+
+export interface Address {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  address: string;
+  apartment?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+  phone?: string;
+  isDefault: boolean;
+}
+
+export interface User {
+  _id: string;
+  name: string;
+  email: string;
+  password?: string;
+  phone: string;
+  role: UserRole;
+  addresses: Address[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+
+export interface ProductMedia {
+  _id: string;
+  url: string;
+  type: ProductMediaType;
+}
+
+export interface Product {
+  _id: string;
+  name: string;
+  slug: string;
+  categoryId: Category;
+  description: string;
+  price: number;
+
+  discount?: {
+    discountType: "percentage" | "fixed";
+    discountValue: number;
+    title?: string;
+  } | null;
+
+  media: ProductMedia[];
+
+  featured: boolean;
+
+  inStock: boolean;
+
+  averageRating: number;
+  reviewCount: number;
+
+  createdAt: string;
+  updatedAt: string;
+}
+
+
+export interface Discount {
+  _id: string;
+  title: string;
+  description: string;
+  discountType: DiscountType;
+  discountValue: number;
+  productIds: string[] | { _id: string; name: string; slug?: string }[];
+  startsAt: string | Date;
+  expiresAt: string | Date;
+  isActive: boolean;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}
+
+export interface Category{
+  _id: string;
+  name: string;
+  slug: string;
+  image: string;
+  featured: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type UserRole = "user" | "admin";
 
 export interface Address {
@@ -123,17 +209,18 @@ export interface ShippingAddress {
   phone?: string;
 }
 
-export type PaymentGateway = "flutterwave";
+export type PaymentMethod = "bank_transfer";
 
-export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
+export type PaymentStatus = "pending" | "paid";
 
 export interface PaymentInfo {
-  transactionId: string;
-  gateway: PaymentGateway;
+  paymentMethod: PaymentMethod;
   paymentStatus: PaymentStatus;
-  channel: string | null;
+  transactionReference: string | null;
+  customerNotifiedAt: string | null;
   paidAt: string | null;
 }
+
 
 export type OrderStatus =
   | "pending"
@@ -190,6 +277,15 @@ export interface Review {
   comment: string;
   isVerifiedPurchase: boolean;
   isApproved: boolean;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}
+
+export interface Subscriber {
+  _id: string;
+  email: string;
+  isActive: boolean;
+  source?: string;
   createdAt: string | Date;
   updatedAt: string | Date;
 }
