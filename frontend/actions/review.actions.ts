@@ -54,41 +54,58 @@ export async function getReviewEligibility(
   const session = await getServerSession(authOptions);
 
   if (!session?.user?.id) {
+    console.log("❌ No session");
     return { canReview: false, reason: "unauthenticated" };
   }
 
   await connectDB();
 
   const productQuery = Types.ObjectId.isValid(slugOrId)
-    ? { _id: slugOrId, isActive: true }
-    : { slug: slugOrId, isActive: true };
+    ? { _id: slugOrId }
+    : { slug: slugOrId };
 
   const product = await Product.findOne(productQuery).select("_id").lean();
+
   if (!product) {
+    console.log("❌ Product not found");
     return { canReview: false, reason: "not_purchased" };
   }
 
   const userId = session.user.id;
+  const productId = product._id;
 
+  // Check if already reviewed (handle both string & ObjectId)
   const alreadyReviewed = await Review.exists({
-    productId: product._id,
-    userId,
+    productId,
+    $or: [
+      { userId: userId },
+      { userId: new Types.ObjectId(userId) },
+    ],
   });
+
+  console.log("Already reviewed:", !!alreadyReviewed);
 
   if (alreadyReviewed) {
     return { canReview: false, reason: "already_reviewed" };
   }
 
+  // Check if purchased & delivered (handle both string & ObjectId)
   const hasPurchased = await Order.exists({
-    userId: new Types.ObjectId(userId),
     orderStatus: "delivered",
-    "items.productId": product._id,
+    "items.productId": productId,
+    $or: [
+      { userId: userId },
+      { userId: new Types.ObjectId(userId) },
+    ],
   });
+
+  console.log("Has purchased (delivered):", !!hasPurchased);
 
   if (!hasPurchased) {
     return { canReview: false, reason: "not_purchased" };
   }
 
+  console.log("✅ Can review!");
   return { canReview: true };
 }
 
@@ -156,25 +173,28 @@ export async function getPendingReviews() {
       .lean();
 
     // Map productId → latest delivered order info
-    const productOrderMap = new Map<
-      string,
-      { orderId: string; orderReference: string; deliveredAt: Date }
-    >();
+const productOrderMap = new Map<
+  string,
+  { orderId: string; orderReference: string; deliveredAt: Date }
+>();
 
-    for (const order of deliveredOrders) {
-      for (const item of order.items) {
-        const productId = item.productId.toString();
+for (const order of deliveredOrders) {
+  for (const item of order.items) {
+    const productId = item.productId.toString();
 
-        // Keep the most recent delivery for each product
-        if (!productOrderMap.has(productId)) {
-          productOrderMap.set(productId, {
-            orderId: order._id.toString(),
-            orderReference: order.paymentInfo?.transactionId || order._id.toString(),
-            deliveredAt: order.updatedAt || order.createdAt,
-          });
-        }
-      }
+    // Keep the most recent delivery for each product
+    if (!productOrderMap.has(productId)) {
+      productOrderMap.set(productId, {
+        orderId: order._id.toString(),
+        // Use short order ID as reference (or transactionReference if you prefer)
+        orderReference:
+          order.paymentInfo?.transactionReference ||
+          String(order._id).slice(-8).toUpperCase(),
+        deliveredAt: order.updatedAt || order.createdAt,
+      });
     }
+  }
+}
 
     // Products delivered but not yet reviewed
     const needsReviewProductIds = [...productOrderMap.keys()].filter(
