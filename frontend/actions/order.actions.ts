@@ -47,6 +47,7 @@ function formatOrder(order: any): OrderType {
         : null,
     },
     orderStatus: order.orderStatus,
+    adminNote: order.adminNote ?? null,
     shippingMethod: order.shippingMethod ?? "delivery", // or "pickup"
     trackingNumber: order.trackingNumber ?? null,
     subtotal: order.subtotal,
