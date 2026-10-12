@@ -61,29 +61,22 @@ export default function PendingReviewsList({
     <>
       <div className="space-y-4">
         {items.map((item) => (
-          <div
-            key={
-              item.type === "needs_review"
-                ? `needs-${item.productId}`
-                : `pending-${item.reviewId}`
-            }
-            className="relative"
-          >
-            {item.type === "pending_approval" && (
-              <span className="absolute right-4 top-4 z-10 rounded-full border border-orange-200 bg-orange-50 px-2.5 py-1 text-[0.6rem] font-semibold uppercase tracking-wide text-orange-700 sm:right-5 sm:top-5 sm:text-[0.7rem]">
-                Pending approval
-              </span>
-            )}
-
-            <PendingReviewRow
-              item={item}
-              onRate={
-                item.type === "needs_review"
-                  ? () => handleRateProduct(item)
-                  : undefined
-              }
-            />
-          </div>
+  <div
+  key={
+    item.type === "needs_review"
+      ? `needs-${item.productId}`
+      : `pending-${item.reviewId}`
+  }
+>
+  <PendingReviewRow
+    item={item}
+    onRate={
+      item.type === "needs_review"
+        ? () => handleRateProduct(item)
+        : undefined
+    }
+  />
+</div>
         ))}
       </div>
 
