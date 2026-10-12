@@ -48,8 +48,6 @@ export async function getProfile(): Promise<ProfileUser | null> {
     return null;
   }
 
-  // Check whether this user's email is subscribed
-  // to LoisBanks Beauty email updates.
   const subscriber = await Subscriber.findOne({
     email: user.email,
   })

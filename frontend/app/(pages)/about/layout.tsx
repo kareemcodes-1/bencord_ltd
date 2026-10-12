@@ -3,9 +3,9 @@ import React from "react";
 
 
 export const metadata: Metadata = {
-  title: "About us",
+  title: "About Us",
   description:
-    "Learn about LoisBanks Beauty — our story, values, and commitment to premium hair and beauty products.",
+    "Learn about Bencord Ltd, our commitment to providing quality office supplies, printers, ink cartridges, toner cartridges, and computer accessories to businesses and individuals.",
 };
 
 const AboutLayout = ({

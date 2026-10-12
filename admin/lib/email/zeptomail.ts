@@ -9,7 +9,7 @@ interface SendEmailOptions {
 export async function sendEmail({ to, subject, html }: SendEmailOptions) {
   const apiKey = process.env.ZEPTOMAIL_API_KEY;
   const fromEmail = process.env.ZEPTOMAIL_FROM_EMAIL;
-  const fromName = process.env.ZEPTOMAIL_FROM_NAME ?? "LoisBanks Beauty";
+  const fromName = process.env.ZEPTOMAIL_FROM_NAME ?? "Bencord Ltd";
 
   if (!apiKey || !fromEmail) {
     throw new Error("ZeptoMail is not configured (ZEPTOMAIL_API_KEY / ZEPTOMAIL_FROM_EMAIL)");
