@@ -32,32 +32,29 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [password, setPassword] = useState("");
 
-  const passwordRequirements = [
-    {
-      label: "At least 8 characters",
-      valid: password.length >= 8,
-    },
-    {
-      label: "One uppercase letter",
-      valid: /[A-Z]/.test(password),
-    },
-    {
-      label: "One lowercase letter",
-      valid: /[a-z]/.test(password),
-    },
-    {
-      label: "One number",
-      valid: /\d/.test(password),
-    },
-    {
-      label: "One special character",
-      valid: /[^A-Za-z\d]/.test(password),
-    },
-  ];
+ const passwordRequirements = [
+  {
+    label: "At least 8 characters",
+    valid: password.length >= 8,
+  },
+  {
+    label: "At least one letter",
+    valid: /[A-Za-z]/.test(password),
+  },
+  {
+    label: "At least one number",
+    valid: /\d/.test(password),
+  },
+  {
+    label: "At least one special character",
+    valid: /[^A-Za-z\d\s]/.test(password),
+  },
+];
 
-  const isStrongPassword = passwordRequirements.every(
-    (requirement) => requirement.valid
-  );
+const isStrongPassword = passwordRequirements.every(
+  (requirement) => requirement.valid
+);
+
 
   const formAction = async (formData: FormData) => {
     const name = formData.get("name") as string;
@@ -71,11 +68,11 @@ const Register = () => {
     }
 
     if (!isStrongPassword) {
-      toast.error(
-        "Please create a stronger password that meets all the requirements."
-      );
-      return;
-    }
+  toast.error(
+    "Please create a password with at least 8 characters, one letter, one number, and one special character."
+  );
+  return;
+}
 
     if (passwordValue !== confirmPassword) {
       toast.error("Passwords do not match.");
@@ -176,12 +173,14 @@ const Register = () => {
 
                 <div className="relative">
                   <Input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    id="password"
-                    autoComplete="new-password"
-                    className="h-[2.75rem] rounded-[0.75rem] border-black/15 px-4 pr-[3rem] sm:h-[3rem] sm:px-5 sm:pr-[3.5rem] lg:h-[3.2rem]"
-                  />
+  type={showPassword ? "text" : "password"}
+  name="password"
+  id="password"
+  autoComplete="new-password"
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  className="h-[2.75rem] rounded-[0.75rem] border-black/15 px-4 pr-[3rem] sm:h-[3rem] sm:px-5 sm:pr-[3.5rem] lg:h-[3.2rem]"
+/>
 
                   <button
                     type="button"

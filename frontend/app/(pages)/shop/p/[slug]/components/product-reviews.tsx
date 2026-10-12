@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import EmptyState from "@/app/components/empty-state";
 import ReviewSheet from "./review-sheet";
+import { useRouter } from "next/navigation";
 
 export type ReviewItem = {
   _id: string;
@@ -98,6 +99,7 @@ const ProductReviews = ({
   const { averageRating, reviewCount, breakdown, reviews } = reviewsData;
   const [sort, setSort] = useState<SortValue>("newest");
   const [writeOpen, setWriteOpen] = useState(false);
+  const router = useRouter();
 
   const maxCount = Math.max(...breakdown.map((b) => b.count), 1);
 
@@ -121,6 +123,10 @@ const ProductReviews = ({
   const hasMore = reviews.length > PREVIEW_LIMIT || reviewCount > PREVIEW_LIMIT;
   const activeSortLabel =
     SORT_OPTIONS.find((o) => o.value === sort)?.label ?? "Newest";
+
+    const handleReviewSuccess = () => {
+  router.refresh(); // This re-fetches canReview from the server
+};
 
    return (
     <div className="border-t border-black/10 px-5 py-12 section-spacing">
@@ -299,6 +305,7 @@ const ProductReviews = ({
         onOpenChange={setWriteOpen}
         productSlug={product.slug}
         productName={product.name}
+        onSuccess={handleReviewSuccess}
       />
     </div>
   );

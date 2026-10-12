@@ -1,12 +1,12 @@
-"use client"
-import * as React from 'react';
-import { useRef, useEffect } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-gsap.registerPlugin(ScrollTrigger);
+"use client";
 
-interface FadeContentProps extends React.HTMLAttributes<HTMLDivElement> {
+import * as React from "react";
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+
+interface FadeContentProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   container?: Element | string | null;
   blur?: boolean;
@@ -27,78 +27,158 @@ const FadeContent: React.FC<FadeContentProps> = ({
   container,
   blur = false,
   duration = 1000,
-  ease = 'power2.out',
+  ease = "power2.out",
   delay = 0,
   threshold = 0.1,
   initialOpacity = 0,
   disappearAfter = 0,
   disappearDuration = 0.5,
-  disappearEase = 'power2.in',
+  disappearEase = "power2.in",
   onComplete,
   onDisappearanceComplete,
-  className = '',
+  className = "",
   ...props
 }) => {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
+
     if (!el) return;
 
-    let scrollerTarget: Element | string | null = container || document.getElementById('snap-main-container') || null;
+    let root: Element | null = null;
 
-    if (typeof scrollerTarget === 'string') {
-      scrollerTarget = document.querySelector(scrollerTarget);
+    if (container instanceof Element) {
+      root = container;
+    } else {
+      const selector =
+        typeof container === "string"
+          ? container
+          : "#snap-main-container";
+
+      root = document.querySelector(selector);
     }
 
-    const startPct = (1 - threshold) * 100;
-    const getSeconds = (val: number) => (val > 10 ? val / 1000 : val);
+    // Convert millisecond values to seconds, preserving
+    // the original component's timing behavior.
+    const getSeconds = (value: number) =>
+      value > 10 ? value / 1000 : value;
 
+    let hasAnimated = false;
+    let isDisposed = false;
+    let observer: IntersectionObserver | undefined;
+    let animation: gsap.core.Tween | undefined;
+    let disappearance: gsap.core.Tween | undefined;
+    let disappearanceTimer:
+      | ReturnType<typeof setTimeout>
+      | undefined;
+
+    const safeThreshold = Math.min(
+      1,
+      Math.max(0, threshold)
+    );
+
+    // Start hidden until the element enters the viewport.
     gsap.set(el, {
       autoAlpha: initialOpacity,
-      filter: blur ? 'blur(10px)' : 'blur(0px)',
-      willChange: 'opacity, filter, transform'
+      filter: blur ? "blur(10px)" : "blur(0px)",
+      willChange: "opacity, filter",
     });
 
-    const tl = gsap.timeline({
-      paused: true,
-      delay: getSeconds(delay),
-      onComplete: () => {
-        if (onComplete) onComplete();
-        if (disappearAfter > 0) {
-          gsap.to(el, {
-            autoAlpha: initialOpacity,
-            filter: blur ? 'blur(10px)' : 'blur(0px)',
-            delay: getSeconds(disappearAfter),
-            duration: getSeconds(disappearDuration),
-            ease: disappearEase,
-            onComplete: () => onDisappearanceComplete?.()
-          });
+    const animateIn = () => {
+      if (hasAnimated || isDisposed) return;
+
+      hasAnimated = true;
+
+      animation = gsap.to(el, {
+        autoAlpha: 1,
+        filter: "blur(0px)",
+        duration: getSeconds(duration),
+        delay: getSeconds(delay),
+        ease,
+        overwrite: "auto",
+        onComplete: () => {
+          if (isDisposed) return;
+
+          onComplete?.();
+
+          if (disappearAfter <= 0) {
+            gsap.set(el, { clearProps: "willChange" });
+            return;
+          }
+
+          disappearanceTimer = setTimeout(() => {
+            if (isDisposed) return;
+
+            disappearance = gsap.to(el, {
+              autoAlpha: initialOpacity,
+              filter: blur
+                ? "blur(10px)"
+                : "blur(0px)",
+              duration: getSeconds(disappearDuration),
+              ease: disappearEase,
+              overwrite: "auto",
+              onComplete: () => {
+                if (isDisposed) return;
+
+                gsap.set(el, { clearProps: "willChange" });
+                onDisappearanceComplete?.();
+              },
+            });
+          }, getSeconds(disappearAfter) * 1000);
+        },
+      });
+    };
+
+    if ("IntersectionObserver" in window) {
+      observer = new IntersectionObserver(
+        (entries) => {
+          const entry = entries[0];
+
+          if (entry?.isIntersecting) {
+            observer?.unobserve(el);
+            animateIn();
+          }
+        },
+        {
+          root,
+          threshold: safeThreshold,
         }
-      }
-    });
+      );
 
-    tl.to(el, {
-      autoAlpha: 1,
-      filter: 'blur(0px)',
-      duration: getSeconds(duration),
-      ease: ease
-    });
-
-    const st = ScrollTrigger.create({
-      trigger: el,
-      scroller: scrollerTarget || window,
-      start: `top ${startPct}%`,
-      once: true,
-      onEnter: () => tl.play()
-    });
+      observer.observe(el);
+    } else {
+      // Fallback for browsers without IntersectionObserver.
+      animateIn();
+    }
 
     return () => {
-      st.kill();
-      tl.kill();
+      isDisposed = true;
+
+      observer?.disconnect();
+
+      if (disappearanceTimer !== undefined) {
+        clearTimeout(disappearanceTimer);
+      }
+
+      animation?.kill();
+      disappearance?.kill();
       gsap.killTweensOf(el);
     };
-  }, []);
+  }, [
+    container,
+    blur,
+    duration,
+    ease,
+    delay,
+    threshold,
+    initialOpacity,
+    disappearAfter,
+    disappearDuration,
+    disappearEase,
+    onComplete,
+    onDisappearanceComplete,
+  ]);
 
   return (
     <div ref={ref} className={className} {...props}>
@@ -108,3 +188,4 @@ const FadeContent: React.FC<FadeContentProps> = ({
 };
 
 export default FadeContent;
+

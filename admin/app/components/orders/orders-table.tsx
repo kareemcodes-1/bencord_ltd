@@ -363,7 +363,7 @@ export function OrdersTable({ onEdit }: OrdersTableProps) {
         </span>
 
         {hasDiscount && (
-          <span className="max-w-[140px] truncate text-[11px] font-medium text-[#FD3F92]">
+          <span className="max-w-[140px] truncate text-[11px] font-medium text-green-500">
             Discount applied
             {discountTitles.length > 0
               ? ` · ${discountTitles.join(", ")}`

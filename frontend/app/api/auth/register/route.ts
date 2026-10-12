@@ -6,7 +6,7 @@ import User from "@/models/User";
 import { sendWelcomeEmail } from "@/lib/email/send";
 
 const PASSWORD_REGEX =
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
+  /^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d\s]).{8,}$/;
 
 export async function POST(request: Request) {
   try {
@@ -21,14 +21,14 @@ export async function POST(request: Request) {
     }
 
     if (!PASSWORD_REGEX.test(password)) {
-      return NextResponse.json(
-        {
-          message:
-            "Password must be at least 8 characters and include an uppercase letter, lowercase letter, number, and special character.",
-        },
-        { status: 400 }
-      );
-    }
+  return NextResponse.json(
+    {
+      message:
+        "Password must be at least 8 characters long and include at least one letter, one number, and one special character.",
+    },
+    { status: 400 }
+  );
+}
 
     await connectDB();
 
