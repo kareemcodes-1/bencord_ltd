@@ -76,11 +76,10 @@ export default function DeliverySection({
             <label
               key={addr._id}
               htmlFor={addr._id}
-              className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-colors sm:p-4 ${
-                selectedAddressId === addr._id
+              className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3.5 transition-colors sm:p-4 ${selectedAddressId === addr._id
                   ? "border-[#ee0a0a] bg-[#ee0a0a]/5"
                   : "border-black/10 hover:border-black/20"
-              }`}
+                }`}
             >
               <RadioGroupItem
                 value={addr._id}
@@ -122,11 +121,10 @@ export default function DeliverySection({
           {/* Use a new address */}
           <label
             htmlFor="new-address"
-            className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 transition-colors sm:p-4 ${
-              selectedAddressId === "new"
+            className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3.5 transition-colors sm:p-4 ${selectedAddressId === "new"
                 ? "border-[#ee0a0a] bg-[#ee0a0a]/5"
                 : "border-black/10 hover:border-black/20"
-            }`}
+              }`}
           >
             <RadioGroupItem value="new" id="new-address" />
             <span className="text-sm font-medium">Use a new address</span>
@@ -253,7 +251,7 @@ export default function DeliverySection({
                 </SelectTrigger>
                 <SelectContent className="max-h-60 z-[350]">
                   {states.map((s) => (
-                    <SelectItem key={s.isoCode} value={s.isoCode}>
+                    <SelectItem key={s.isoCode} value={s.name}>
                       {s.name}
                     </SelectItem>
                   ))}

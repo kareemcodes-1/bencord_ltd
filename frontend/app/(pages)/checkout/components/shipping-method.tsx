@@ -7,6 +7,8 @@ type Props = {
   onChange: (method: ShippingMethod) => void;
   shippingFee: number;
   priceFormatter: (amount: number) => string;
+  isDeliveryAvailable: boolean;
+  matchedLocation?: string;
 };
 
 export default function ShippingMethodSection({
@@ -14,6 +16,8 @@ export default function ShippingMethodSection({
   onChange,
   shippingFee,
   priceFormatter,
+  isDeliveryAvailable,
+  matchedLocation,
 }: Props) {
   return (
     <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
@@ -71,12 +75,25 @@ export default function ShippingMethodSection({
             <div>
               <p className="text-sm font-medium">Door delivery</p>
               <p className="text-xs text-black/50">
-                Delivered to your address
+                {matchedLocation
+                  ? `Delivered to ${matchedLocation}`
+                  : "Delivered to your address"}
               </p>
+
+              {method === "delivery" && !matchedLocation && (
+                <p className="mt-1 text-xs text-red-600">
+                  Delivery not available for the selected region
+                </p>
+              )}
             </div>
           </div>
+
           <span className="shrink-0 text-sm font-medium text-black/70">
-            {priceFormatter(shippingFee)}
+            {method === "delivery" && matchedLocation
+              ? priceFormatter(shippingFee)
+              : method === "delivery"
+                ? "—"
+                : "Select region"}
           </span>
         </label>
       </div>

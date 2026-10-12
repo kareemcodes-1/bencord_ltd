@@ -14,6 +14,7 @@ const routeNames: Record<string, string> = {
   "/admin/discounts": "Discounts",
   "/admin/reviews": "Reviews",
   "/admin/subscribers": "Subscribers",
+  "/admin/shipping-rates": "Shipping Rates"
 };
 
 export function SiteHeader() {

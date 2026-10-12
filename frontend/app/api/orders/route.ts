@@ -1,4 +1,3 @@
-
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import mongoose from "mongoose";
@@ -9,17 +8,14 @@ import Product from "@/models/Product";
 import Discount from "@/models/Discount";
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { getShippingFee } from "@/lib/shipping";
+import ShippingRate from "@/models/ShippingRate";
 
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     await connectDB();
@@ -36,7 +32,7 @@ export async function GET() {
 
     return NextResponse.json(
       { message: "Failed to fetch orders." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -46,10 +42,7 @@ export async function POST(request: Request) {
     const session = await getServerSession(authOptions);
 
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { message: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const body = await request.json();
@@ -72,7 +65,7 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json(
         { message: "Contact email and phone number are required." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -80,7 +73,7 @@ export async function POST(request: Request) {
     if (!["pickup", "delivery"].includes(shippingMethod)) {
       return NextResponse.json(
         { message: "Invalid shipping method." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -88,24 +81,23 @@ export async function POST(request: Request) {
     if (paymentMethod !== "bank_transfer") {
       return NextResponse.json(
         {
-          message:
-            "Bank transfer is the only available payment method.",
+          message: "Bank transfer is the only available payment method.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!Array.isArray(items) || items.length === 0) {
       return NextResponse.json(
         { message: "Your cart is empty." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (items.length > 100) {
       return NextResponse.json(
         { message: "Your cart contains too many items." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -125,7 +117,7 @@ export async function POST(request: Request) {
             message:
               "Complete delivery information is required for delivery orders.",
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -148,14 +140,14 @@ export async function POST(request: Request) {
       ) {
         return NextResponse.json(
           { message: "A product in your cart has an invalid ID." },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (!Number.isInteger(quantity) || quantity < 1) {
         return NextResponse.json(
           { message: "A product in your cart has an invalid quantity." },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -169,13 +161,9 @@ export async function POST(request: Request) {
     const quantityByProduct = new Map<string, number>();
 
     for (const item of cartItems) {
-      const currentQuantity =
-        quantityByProduct.get(item.productId) || 0;
+      const currentQuantity = quantityByProduct.get(item.productId) || 0;
 
-      quantityByProduct.set(
-        item.productId,
-        currentQuantity + item.quantity
-      );
+      quantityByProduct.set(item.productId, currentQuantity + item.quantity);
     }
 
     const productIds = [...quantityByProduct.keys()];
@@ -187,10 +175,9 @@ export async function POST(request: Request) {
     if (products.length !== productIds.length) {
       return NextResponse.json(
         {
-          message:
-            "One or more products in your cart are no longer available.",
+          message: "One or more products in your cart are no longer available.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -208,13 +195,13 @@ export async function POST(request: Request) {
 
     for (const [productId, quantity] of quantityByProduct.entries()) {
       const product = products.find(
-        (item) => item._id.toString() === productId
+        (item) => item._id.toString() === productId,
       );
 
       if (!product) {
         return NextResponse.json(
           { message: "A product in your cart could not be found." },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -223,7 +210,7 @@ export async function POST(request: Request) {
           {
             message: `${product.name} is currently out of stock.`,
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -234,16 +221,16 @@ export async function POST(request: Request) {
           {
             message: `The price for ${product.name} is invalid.`,
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       // Find discounts that apply to this product.
       const productDiscounts = activeDiscounts.filter((discount) =>
-  (discount.productIds || []).some(
-    (id) => String(id) === product._id.toString()
-  )
-);
+        (discount.productIds || []).some(
+          (id) => String(id) === product._id.toString(),
+        ),
+      );
 
       let finalPrice = originalPrice;
 
@@ -257,10 +244,7 @@ export async function POST(request: Request) {
       for (const discount of productDiscounts) {
         const discountValue = Number(discount.discountValue);
 
-        if (
-          !Number.isFinite(discountValue) ||
-          discountValue < 0
-        ) {
+        if (!Number.isFinite(discountValue) || discountValue < 0) {
           continue;
         }
 
@@ -304,14 +288,38 @@ export async function POST(request: Request) {
     // Calculate totals on the server, not from client-submitted totals.
     const subtotal = orderItems.reduce(
       (total, item) => total + item.price * item.quantity,
-      0
+      0,
     );
 
+    // ===== Calculate shipping fee from database =====
+    let shippingFee = 0;
 
-    const shippingFee =
-  shippingMethod === "delivery"
-    ? getShippingFee(shippingMethod)
-    : 0;
+    if (shippingMethod === "delivery") {
+      const location = delivery?.state?.trim();
+
+      if (!location) {
+        return NextResponse.json(
+          { message: "Please select a region for door delivery." },
+          { status: 400 },
+        );
+      }
+
+      const rate = await ShippingRate.findOne({
+        location: { $regex: new RegExp(`^${location}$`, "i") },
+        isActive: true,
+      }).lean();
+
+      if (!rate) {
+        return NextResponse.json(
+          {
+            message: `Door delivery is not available for "${location}". Please choose another region or select Pickup.`,
+          },
+          { status: 400 },
+        );
+      }
+
+      shippingFee = rate.fee;
+    }
 
     const tax = 0;
     const totalAmount = subtotal + shippingFee + tax;
@@ -360,14 +368,14 @@ export async function POST(request: Request) {
         message: "Order created successfully.",
         orderId: order._id.toString(),
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     console.error("POST /api/orders error:", error);
 
     return NextResponse.json(
       { message: "Failed to create order." },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

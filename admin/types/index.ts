@@ -289,3 +289,13 @@ export interface Subscriber {
   createdAt: string | Date;
   updatedAt: string | Date;
 }
+
+export interface ShippingRate {
+  _id: string;
+  location: string;
+  fee: number;
+  country?: string;
+  isActive: boolean;
+  createdAt: string | Date;
+  updatedAt: string | Date;
+}

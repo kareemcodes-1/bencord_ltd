@@ -21,6 +21,11 @@ import OrderSummary from "./order-summary";
 import EmptyState from "@/app/components/empty-state";
 import { Loader2, ShoppingBag } from "lucide-react";
 
+import {
+  getPublicShippingRates,
+  type PublicShippingRate,
+} from "@/actions/shipping-rates"; // adjust path if needed
+
 type UserData = {
   email: string;
   phone: string;
@@ -31,8 +36,6 @@ type UserData = {
 type Props = {
   user: UserData;
 };
-
-const DOOR_DELIVERY_FEE = 2000;
 
 export default function CheckoutForm({ user }: Props) {
   const { items, _hasHydrated } = useCartStore();
@@ -64,6 +67,40 @@ export default function CheckoutForm({ user }: Props) {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // ===== Shipping Rates =====
+  const [shippingRates, setShippingRates] = useState<PublicShippingRate[]>([]);
+  const [loadingRates, setLoadingRates] = useState(true);
+
+  useEffect(() => {
+    const loadRates = async () => {
+      try {
+        const rates = await getPublicShippingRates();
+        setShippingRates(rates);
+      } catch (error) {
+        console.error("Failed to load shipping rates:", error);
+        toast.error("Failed to load delivery fees");
+      } finally {
+        setLoadingRates(false);
+      }
+    };
+
+    loadRates();
+  }, []);
+
+  // Match selected region with admin shipping rates
+  const matchedRate = shippingRates.find(
+    (rate) =>
+      rate.location.toLowerCase().trim() ===
+      delivery.state.toLowerCase().trim()
+  );
+
+  const shippingFee =
+    shippingMethod === "delivery" ? matchedRate?.fee ?? 0 : 0;
+
+  const isDeliveryAvailable =
+    shippingMethod === "pickup" || Boolean(matchedRate);
+
+  // ===== Load user addresses =====
   useEffect(() => {
     if (user.addresses.length === 0) {
       setSelectedAddressId("new");
@@ -110,12 +147,10 @@ export default function CheckoutForm({ user }: Props) {
         postalCode: "",
         country: "GH",
       });
-
       return;
     }
 
     const address = user.addresses.find((item) => item._id === id);
-
     if (!address) return;
 
     setDelivery({
@@ -129,9 +164,6 @@ export default function CheckoutForm({ user }: Props) {
       country: address.country || "GH",
     });
   };
-
-  const shippingFee =
-    shippingMethod === "delivery" ? DOOR_DELIVERY_FEE : 0;
 
   const handleContactChange = (
     field: keyof typeof contact,
@@ -178,6 +210,13 @@ export default function CheckoutForm({ user }: Props) {
       !delivery.postalCode.trim()
     ) {
       toast.error("Please complete your delivery address.");
+      return;
+    }
+
+    if (shippingMethod === "delivery" && !matchedRate) {
+      toast.error(
+        "Door delivery is not available for the selected region. Please choose another region or select Pickup."
+      );
       return;
     }
 
@@ -233,7 +272,7 @@ export default function CheckoutForm({ user }: Props) {
     }
   };
 
-  if (!_hasHydrated) {
+  if (!_hasHydrated || loadingRates) {
     return (
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:gap-12">
         <div className="space-y-5 sm:space-y-6">
@@ -284,15 +323,20 @@ export default function CheckoutForm({ user }: Props) {
           <ShippingMethodSection
             method={shippingMethod}
             onChange={setShippingMethod}
-            shippingFee={DOOR_DELIVERY_FEE}
+            shippingFee={shippingFee}
             priceFormatter={priceFormatter}
+            isDeliveryAvailable={isDeliveryAvailable}
+            matchedLocation={matchedRate?.location}
           />
 
           <PaymentSection />
 
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={
+              isSubmitting ||
+              (shippingMethod === "delivery" && !matchedRate)
+            }
             className="btn-primary w-full disabled:opacity-50"
           >
             {isSubmitting ? (

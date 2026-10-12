@@ -15,6 +15,7 @@ import {
   UserCog,
   SlidersHorizontal,
   Lightbulb,
+  MapPin,
   type LucideIcon,
 } from "lucide-react";
 
@@ -27,6 +28,7 @@ const SECTIONS: { id: string; title: string; icon: LucideIcon }[] = [
   { id: "products", title: "Products", icon: Package },
   { id: "categories", title: "Categories", icon: FolderTree },
   { id: "orders", title: "Orders", icon: ShoppingCart },
+  { id: "shipping-rates", title: "Shipping Rates", icon: MapPin },
   { id: "users", title: "Users", icon: Users },
   { id: "discounts", title: "Discounts", icon: Percent },
   { id: "reviews", title: "Reviews", icon: Star },
@@ -133,9 +135,9 @@ export default function DocumentationPage() {
         />
 
         <div className="w-full gap-8 ">
-
           {/* Content */}
           <div className="flex flex-col gap-6 pb-16">
+            {/* ===== Dashboard ===== */}
             <SectionBlock
               id="dashboard"
               title="Dashboard"
@@ -151,34 +153,62 @@ export default function DocumentationPage() {
                   <span className="font-medium text-foreground">
                     Total revenue
                   </span>{" "}
-                  — money made from completed orders
-                </li>
-                <li>
-                  <span className="font-medium text-foreground">
-                    Total products
-                  </span>{" "}
-                  — how many products are in the store
+                  — total revenue generated from completed orders
                 </li>
                 <li>
                   <span className="font-medium text-foreground">
                     Total orders
                   </span>{" "}
-                  — how many orders customers have placed
+                  — the total number of orders placed on the store
                 </li>
                 <li>
                   <span className="font-medium text-foreground">
-                    Total users
+                    Total visitors
                   </span>{" "}
-                  — how many customer accounts exist
+                  — website visitors recorded in the last 30 days
+                </li>
+                <li>
+                  <span className="font-medium text-foreground">
+                    Conversion rate
+                  </span>{" "}
+                  — the percentage of visitors who completed an order
                 </li>
               </ul>
               <p>
-                The chart shows orders over time (for example last 7 days, 30
-                days, or 3 months). Below that you&rsquo;ll see recent
-                customers and recent reviews.
+                Below the overview cards, you&rsquo;ll find your revenue chart,
+                traffic sources, top countries, and top-selling products. These
+                sections help you understand where your visitors are coming from,
+                where they are located, and which products are performing best.
               </p>
+              <ul className="list-disc space-y-1.5 pl-5">
+                <li>
+                  <span className="font-medium text-foreground">
+                    Revenue chart
+                  </span>{" "}
+                  — shows your store&rsquo;s revenue and order activity over time
+                </li>
+                <li>
+                  <span className="font-medium text-foreground">
+                    Traffic sources
+                  </span>{" "}
+                  — shows where visitors are coming from
+                </li>
+                <li>
+                  <span className="font-medium text-foreground">
+                    Top countries
+                  </span>{" "}
+                  — shows the countries generating the most website traffic
+                </li>
+                <li>
+                  <span className="font-medium text-foreground">
+                    Top-selling products
+                  </span>{" "}
+                  — shows the products receiving the most sales
+                </li>
+              </ul>
             </SectionBlock>
 
+            {/* ===== Products ===== */}
             <SectionBlock
               id="products"
               title="Products"
@@ -211,31 +241,25 @@ export default function DocumentationPage() {
                   Photos of the product. Add clear images so customers can
                   see what they are buying.
                 </Term>
-                <Term name="Track inventory">
-                  Turn this on if you want the website to count how many you
-                  have left. Turn it off if you always have stock or
-                  don&rsquo;t want the site to track numbers.
+                <Term name="In Stock">
+                  Controls whether the product is available for purchase. Turn this
+                  off when the product is currently unavailable.
                 </Term>
-                <Term name="Stock">
-                  How many of this product you currently have. When it
-                  reaches 0 (and tracking is on), customers can&rsquo;t buy
-                  it.
+                <Term name="Average Rating">
+                  The product&rsquo;s average customer rating. This is calculated from
+                  the reviews the product receives.
                 </Term>
-                <Term name="Low stock threshold">
-                  A warning level. Example: if you set 5, the product is
-                  marked &ldquo;low stock&rdquo; when 5 or fewer are left.
+                <Term name="Review Count">
+                  The total number of customer reviews the product has received.
                 </Term>
                 <Term name="Featured">
                   Shows the product in special / highlighted areas on the
                   website.
                 </Term>
-                <Term name="Active">
-                  When on, the product is visible in the store. When off, it
-                  is hidden from customers but still saved in admin.
-                </Term>
               </div>
             </SectionBlock>
 
+            {/* ===== Categories ===== */}
             <SectionBlock
               id="categories"
               title="Categories"
@@ -258,6 +282,7 @@ export default function DocumentationPage() {
               </p>
             </SectionBlock>
 
+            {/* ===== Orders ===== */}
             <SectionBlock
               id="orders"
               title="Orders"
@@ -265,44 +290,104 @@ export default function DocumentationPage() {
               register={(el) => (sectionRefs.current.orders = el)}
             >
               <p>
-                Here you see every order customers place. Open an order to
-                see items, address, payment, and total.
+                Here you can view and manage every order customers place. Open an
+                order to see the products purchased, customer details, shipping
+                address, payment information, shipping method, and order total.
               </p>
+
               <p className="text-foreground">
-                You can update the order status as you process it:
+                You can update the order status as you process each order:
               </p>
+
               <div className="flex flex-col gap-2.5 pt-1">
                 <div className="flex items-center gap-3">
-                  <StatusBadge label="Processing" />
-                  <span>new order, still being prepared</span>
+                  <StatusBadge label="Pending" />
+                  <span>new order that has not been confirmed yet</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <StatusBadge label="Confirmed" />
-                  <span>you&rsquo;ve accepted the order</span>
+                  <span>order has been accepted and confirmed</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <StatusBadge label="Shipped" />
-                  <span>order has left the store / is on the way</span>
+                  <span>order has left the store and is being transported</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <StatusBadge label="Out for delivery" />
+                  <span>order is currently on its way to the customer</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <StatusBadge label="Ready for pickup" />
-                  <span>for store pickup orders that are ready</span>
+                  <span>pickup order is ready for the customer to collect</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <StatusBadge label="Delivered" />
-                  <span>customer has received a door delivery</span>
+                  <span>customer has received the order</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <StatusBadge label="Cancelled" />
-                  <span>order was cancelled</span>
+                  <span>order has been cancelled</span>
                 </div>
               </div>
-              <p className="pt-1">
-                You deliver across Ghana. Update the status as the order
-                moves so you can track progress clearly.
+
+              <div className="space-y-3 pt-1">
+                <Term name="Payment method">
+                  Orders currently use bank transfer as the payment method.
+                </Term>
+                <Term name="Shipping fee">
+                  The delivery charge added to the order. Pickup orders can have a
+                  shipping fee of zero.
+                </Term>
+                <Term name="Tracking number">
+                  An optional tracking number you can add when the order is being
+                  shipped or delivered.
+                </Term>
+                <Term name="Admin note">
+                  A private note for internal use. Use this to record useful
+                  information about the order while processing it.
+                </Term>
+              </div>
+            </SectionBlock>
+
+            {/* ===== Shipping Rates (NEW) ===== */}
+            <SectionBlock
+              id="shipping-rates"
+              title="Shipping Rates"
+              icon={MapPin}
+              register={(el) => (sectionRefs.current["shipping-rates"] = el)}
+            >
+              <p>
+                Use this page to manage door delivery fees for different locations
+                in Ghana. Customers will only be able to choose door delivery for
+                locations you have added here.
+              </p>
+
+              <div className="space-y-3 pt-1">
+                <Term name="Location">
+                  The name of the region or area (for example &ldquo;Greater Accra&rdquo;,
+                  &ldquo;Ashanti&rdquo;, &ldquo;Northern&rdquo;). Use the exact name that appears
+                  in the Region dropdown on the checkout page.
+                </Term>
+
+                <Term name="Fee">
+                  The delivery charge in Ghana Cedis (GHS) for that location.
+                </Term>
+
+                <Term name="Active">
+                  When turned on, customers can select this location for door delivery.
+                  When turned off, the location is hidden from customers.
+                </Term>
+              </div>
+
+              <p className="pt-2">
+                <strong className="text-foreground">Important:</strong> The location
+                name must match the Region name exactly (for example &ldquo;Greater Accra&rdquo;).
+                If it does not match, customers will see “Delivery not available for
+                this region”.
               </p>
             </SectionBlock>
 
+            {/* ===== Users ===== */}
             <SectionBlock
               id="users"
               title="Users"
@@ -315,6 +400,7 @@ export default function DocumentationPage() {
               </p>
             </SectionBlock>
 
+            {/* ===== Discounts ===== */}
             <SectionBlock
               id="discounts"
               title="Discounts"
@@ -343,6 +429,7 @@ export default function DocumentationPage() {
               </div>
             </SectionBlock>
 
+            {/* ===== Reviews ===== */}
             <SectionBlock
               id="reviews"
               title="Reviews"
@@ -356,6 +443,7 @@ export default function DocumentationPage() {
               </p>
             </SectionBlock>
 
+            {/* ===== Account ===== */}
             <SectionBlock
               id="account"
               title="Account"
@@ -368,6 +456,7 @@ export default function DocumentationPage() {
               </p>
             </SectionBlock>
 
+            {/* ===== Preferences ===== */}
             <SectionBlock
               id="preferences"
               title="Preferences"
@@ -381,6 +470,7 @@ export default function DocumentationPage() {
               </p>
             </SectionBlock>
 
+            {/* ===== Tips ===== */}
             <SectionBlock
               id="tips"
               title="Quick tips"
@@ -408,6 +498,10 @@ export default function DocumentationPage() {
                 <li>
                   Check Reviews regularly so only suitable reviews appear on
                   the site.
+                </li>
+                <li>
+                  When adding Shipping Rates, use the exact Region name
+                  (e.g. “Greater Accra”) so it matches the checkout form.
                 </li>
               </ul>
             </SectionBlock>
