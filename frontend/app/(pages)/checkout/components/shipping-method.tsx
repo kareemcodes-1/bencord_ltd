@@ -5,20 +5,25 @@ type ShippingMethod = "pickup" | "delivery";
 type Props = {
   method: ShippingMethod;
   onChange: (method: ShippingMethod) => void;
-  shippingFee: number;
+  /** Fee of the matched region, shown regardless of the selected method */
+  deliveryFee?: number;
+  /** Currently selected region from the delivery address */
+  selectedRegion: string;
   priceFormatter: (amount: number) => string;
-  isDeliveryAvailable: boolean;
   matchedLocation?: string;
 };
 
 export default function ShippingMethodSection({
   method,
   onChange,
-  shippingFee,
+  deliveryFee,
+  selectedRegion,
   priceFormatter,
-  isDeliveryAvailable,
   matchedLocation,
 }: Props) {
+  const hasRegion = selectedRegion.trim().length > 0;
+  const hasRate = deliveryFee !== undefined;
+
   return (
     <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm sm:p-6 lg:p-8">
       <h2 className="mb-5 text-[1.1rem] font-medium sm:mb-6 sm:text-[1.2rem]">
@@ -34,7 +39,7 @@ export default function ShippingMethodSection({
               : "border-black/10 hover:border-black/20"
           }`}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <input
               type="radio"
               name="shipping"
@@ -43,7 +48,7 @@ export default function ShippingMethodSection({
               onChange={() => onChange("pickup")}
               className="h-4 w-4 shrink-0 accent-[#ee0a0a]"
             />
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-medium">Pickup at store</p>
               <p className="text-xs text-black/50">
                 Free • Usually ready in 1–2 hours
@@ -63,7 +68,7 @@ export default function ShippingMethodSection({
               : "border-black/10 hover:border-black/20"
           }`}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex min-w-0 items-center gap-3">
             <input
               type="radio"
               name="shipping"
@@ -72,27 +77,33 @@ export default function ShippingMethodSection({
               onChange={() => onChange("delivery")}
               className="h-4 w-4 shrink-0 accent-[#ee0a0a]"
             />
-            <div>
+            <div className="min-w-0">
               <p className="text-sm font-medium">Door delivery</p>
               <p className="text-xs text-black/50">
                 {matchedLocation
-                  ? `Delivered to ${matchedLocation}`
+                  ? `Delivered within ${matchedLocation}`
                   : "Delivered to your address"}
               </p>
 
-              {method === "delivery" && !matchedLocation && (
+              {method === "delivery" && hasRegion && !hasRate && (
                 <p className="mt-1 text-xs text-red-600">
-                  Delivery not available for the selected region
+                  Delivery isn&apos;t available for {selectedRegion}
+                </p>
+              )}
+
+              {method === "delivery" && !hasRegion && (
+                <p className="mt-1 text-xs text-red-600">
+                  Select a region in your delivery address
                 </p>
               )}
             </div>
           </div>
 
-          <span className="shrink-0 text-sm font-medium text-black/70">
-            {method === "delivery" && matchedLocation
-              ? priceFormatter(shippingFee)
-              : method === "delivery"
-                ? "—"
+          <span className="shrink-0 text-right text-sm font-medium text-black/70">
+            {hasRate
+              ? priceFormatter(deliveryFee)
+              : hasRegion
+                ? "Unavailable"
                 : "Select region"}
           </span>
         </label>

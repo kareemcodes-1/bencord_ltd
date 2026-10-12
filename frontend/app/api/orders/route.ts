@@ -304,10 +304,13 @@ export async function POST(request: Request) {
         );
       }
 
-      const rate = await ShippingRate.findOne({
-        location: { $regex: new RegExp(`^${location}$`, "i") },
-        isActive: true,
-      }).lean();
+      const escapeRegex = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const rate = await ShippingRate.findOne({
+  location: { $regex: new RegExp(`^${escapeRegex(location)}$`, "i") },
+  isActive: true,
+}).lean();
 
       if (!rate) {
         return NextResponse.json(

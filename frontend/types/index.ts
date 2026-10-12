@@ -294,8 +294,8 @@ export interface ShippingRate {
   _id: string;
   location: string;
   fee: number;
-  country?: string;
+  country: "GH";
   isActive: boolean;
-  createdAt: string | Date;
-  updatedAt: string | Date;
+  createdAt?: string;
+  updatedAt?: string;
 }

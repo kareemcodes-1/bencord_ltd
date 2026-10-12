@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -11,7 +12,7 @@ import {
 import {
   getShippingRates,
   deleteShippingRate,
-} from "@/actions/admin/shipping-rates.action"
+} from "@/actions/admin/shipping-rates.action";
 
 import {
   columnVisibilityFeature,
@@ -68,7 +69,6 @@ import {
 } from "lucide-react";
 
 import type { ShippingRate } from "@/types";
-import { priceFormatter } from "@/lib/priceFormatter";
 import toast from "react-hot-toast";
 
 interface ShippingRatesTableProps {
@@ -81,8 +81,19 @@ const features = tableFeatures({
 
 const columnHelper = createColumnHelper<typeof features, ShippingRate>();
 
+const ghanaCurrencyFormatter = new Intl.NumberFormat("en-GH", {
+  style: "currency",
+  currency: "GHS",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
+function formatGhanaCedis(amount: number) {
+  return ghanaCurrencyFormatter.format(amount);
+}
+
 function formatDate(date: string | Date) {
-  return new Intl.DateTimeFormat("en-NG", {
+  return new Intl.DateTimeFormat("en-GH", {
     day: "numeric",
     month: "short",
     year: "numeric",
@@ -92,9 +103,7 @@ function formatDate(date: string | Date) {
 function ShippingRatesTableSkeleton() {
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Skeleton className="h-10 w-full sm:max-w-sm" />
-      </div>
+      <Skeleton className="h-10 w-full sm:max-w-sm" />
 
       <Card>
         <CardContent className="p-0">
@@ -102,21 +111,22 @@ function ShippingRatesTableSkeleton() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Location</TableHead>
-                  <TableHead>Fee</TableHead>
+                  <TableHead>Delivery Location</TableHead>
+                  <TableHead>Delivery Fee (GHS)</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Created</TableHead>
                   <TableHead />
                 </TableRow>
               </TableHeader>
+
               <TableBody>
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <TableRow key={i}>
+                {Array.from({ length: 6 }).map((_, index) => (
+                  <TableRow key={index}>
                     <TableCell>
-                      <Skeleton className="h-4 w-32" />
+                      <Skeleton className="h-4 w-40" />
                     </TableCell>
                     <TableCell>
-                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-4 w-20" />
                     </TableCell>
                     <TableCell>
                       <Skeleton className="h-6 w-20 rounded-full" />
@@ -138,7 +148,9 @@ function ShippingRatesTableSkeleton() {
   );
 }
 
-export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
+export function ShippingRatesTable({
+  onEdit,
+}: ShippingRatesTableProps) {
   const queryClient = useQueryClient();
 
   const [search, setSearch] = React.useState("");
@@ -152,9 +164,10 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
 
   React.useEffect(() => {
     const timeout = setTimeout(() => {
-      setDebouncedSearch(search);
+      setDebouncedSearch(search.trim());
       setPage(1);
     }, 400);
+
     return () => clearTimeout(timeout);
   }, [search]);
 
@@ -178,9 +191,18 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => deleteShippingRate(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["shipping-rates"] });
+      queryClient.invalidateQueries({
+        queryKey: ["shipping-rates"],
+      });
       setRateToDelete(null);
-      toast.success("Shipping rate deleted");
+      toast.success("Shipping location deleted");
+    },
+    onError: (error) => {
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to delete shipping location"
+      );
     },
   });
 
@@ -193,20 +215,20 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
     () =>
       columnHelper.columns([
         columnHelper.accessor("location", {
-          header: "Location",
+          header: "Delivery Location",
           cell: ({ row }) => (
             <div className="flex items-center gap-2 font-medium">
-              <MapPinIcon className="size-4 text-muted-foreground" />
-              {row.original.location}
+              <MapPinIcon className="size-4 shrink-0 text-muted-foreground" />
+              <span>{row.original.location}</span>
             </div>
           ),
         }),
 
         columnHelper.accessor("fee", {
-          header: "Delivery Fee",
+          header: "Delivery Fee (GHS)",
           cell: ({ row }) => (
             <span className="font-medium tabular-nums">
-              {priceFormatter(row.original.fee)}
+              {formatGhanaCedis(row.original.fee)}
             </span>
           ),
         }),
@@ -216,6 +238,7 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
           header: "Status",
           cell: ({ row }) => {
             const active = row.original.isActive;
+
             return (
               <Badge
                 className={
@@ -234,7 +257,9 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
           header: "Created",
           cell: ({ row }) => (
             <span className="text-sm text-muted-foreground">
-              {formatDate(row.original.createdAt)}
+              {row.original.createdAt
+                ? formatDate(row.original.createdAt)
+                : "—"}
             </span>
           ),
         }),
@@ -244,20 +269,29 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
           header: "",
           cell: ({ row }) => {
             const rate = row.original;
+
             return (
               <div className="flex justify-end">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="size-8">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="size-8"
+                    >
                       <MoreHorizontalIcon />
-                      <span className="sr-only">Open actions</span>
+                      <span className="sr-only">
+                        Open actions
+                      </span>
                     </Button>
                   </DropdownMenuTrigger>
 
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => onEdit?.(rate)}>
+                    <DropdownMenuItem
+                      onClick={() => onEdit?.(rate)}
+                    >
                       <PencilIcon />
-                      Edit
+                      Edit location
                     </DropdownMenuItem>
 
                     <DropdownMenuSeparator />
@@ -267,7 +301,7 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
                       onClick={() => setRateToDelete(rate)}
                     >
                       <Trash2Icon />
-                      Delete
+                      Delete location
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -285,14 +319,16 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
     columns,
   });
 
-  if (isLoading) return <ShippingRatesTableSkeleton />;
+  if (isLoading) {
+    return <ShippingRatesTableSkeleton />;
+  }
 
   if (isError) {
     return (
       <Card>
         <CardContent className="flex h-32 items-center justify-center p-6">
           <p className="text-sm text-destructive">
-            Failed to load shipping rates.
+            Failed to load Ghana shipping rates. Please try again.
           </p>
         </CardContent>
       </Card>
@@ -303,8 +339,8 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
     return (
       <EmptyState
         icon={<MapPinIcon />}
-        title="No shipping rates yet"
-        description="Add delivery locations and fees so customers can choose door delivery."
+        title="No Ghana delivery locations yet"
+        description="Add Ghana regions and cities with their delivery fees so customers can choose the correct delivery location at checkout."
       />
     );
   }
@@ -314,15 +350,16 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
       {/* Search */}
       <div className="relative w-full sm:max-w-sm">
         <SearchIcon className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+
         <Input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search locations..."
+          onChange={(event) => setSearch(event.target.value)}
+          placeholder="Search Ghana delivery locations..."
           className="pl-9"
         />
       </div>
 
-      {/* Table */}
+      {/* Rates table */}
       <Card>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
@@ -332,9 +369,11 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
                       <TableHead key={header.id}>
-                        {header.isPlaceholder ? null : (
-                          <table.FlexRender header={header} />
-                        )}
+                        {header.isPlaceholder
+                          ? null
+                          : (
+                              <table.FlexRender header={header} />
+                            )}
                       </TableHead>
                     ))}
                   </TableRow>
@@ -346,7 +385,9 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
                   table.getRowModel().rows.map((row) => (
                     <TableRow
                       key={row.id}
-                      className={isFetching ? "opacity-60" : undefined}
+                      className={
+                        isFetching ? "opacity-60" : undefined
+                      }
                     >
                       {row.getVisibleCells().map((cell) => (
                         <TableCell key={cell.id}>
@@ -359,9 +400,9 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
                   <TableRow>
                     <TableCell
                       colSpan={columns.length}
-                      className="h-32 text-center"
+                      className="h-32 text-center text-muted-foreground"
                     >
-                      No locations found.
+                      No matching delivery locations found.
                     </TableCell>
                   </TableRow>
                 )}
@@ -382,10 +423,10 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
                   <span className="font-medium text-foreground">
                     {pagination.total}
                   </span>{" "}
-                  locations
+                  delivery locations
                 </>
               ) : (
-                "No locations"
+                "No delivery locations"
               )}
             </div>
 
@@ -398,8 +439,10 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
               <Button
                 variant="outline"
                 size="sm"
-                disabled={isFetching || !pagination?.hasPreviousPage}
-                onClick={() => setPage((p) => p - 1)}
+                disabled={
+                  isFetching || !pagination?.hasPreviousPage
+                }
+                onClick={() => setPage((current) => current - 1)}
               >
                 <ChevronLeftIcon />
                 Previous
@@ -408,8 +451,10 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
               <Button
                 variant="outline"
                 size="sm"
-                disabled={isFetching || !pagination?.hasNextPage}
-                onClick={() => setPage((p) => p + 1)}
+                disabled={
+                  isFetching || !pagination?.hasNextPage
+                }
+                onClick={() => setPage((current) => current + 1)}
               >
                 Next
                 <ChevronRightIcon />
@@ -423,28 +468,38 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
       <AlertDialog
         open={!!rateToDelete}
         onOpenChange={(open) => {
-          if (!open) setRateToDelete(null);
+          if (!open && !deleteMutation.isPending) {
+            setRateToDelete(null);
+          }
         }}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete location?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Delete delivery location?
+            </AlertDialogTitle>
+
             <AlertDialogDescription>
               This will permanently delete{" "}
               <span className="font-medium text-foreground">
                 {rateToDelete?.location}
               </span>
-              . This action cannot be undone.
+              {" "}and its shipping rate. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteMutation.isPending}>
+            <AlertDialogCancel
+              disabled={deleteMutation.isPending}
+            >
               Cancel
             </AlertDialogCancel>
 
             <AlertDialogAction
-              onClick={handleConfirmDelete}
+              onClick={(event) => {
+                event.preventDefault();
+                handleConfirmDelete();
+              }}
               disabled={deleteMutation.isPending}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
@@ -454,7 +509,7 @@ export function ShippingRatesTable({ onEdit }: ShippingRatesTableProps) {
                   Deleting...
                 </>
               ) : (
-                "Delete"
+                "Delete location"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

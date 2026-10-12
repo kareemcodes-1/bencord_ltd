@@ -1,4 +1,5 @@
-import type { ShippingRate } from "@/types"; 
+
+import type { ShippingRate } from "@/types";
 
 export interface PaginationMeta {
   page: number;
@@ -12,7 +13,6 @@ export interface PaginationMeta {
 export interface ShippingRatePayload {
   location: string;
   fee: number;
-  country?: string;
   isActive?: boolean;
 }
 
@@ -29,6 +29,16 @@ interface GetShippingRatesParams {
   sortOrder?: "asc" | "desc";
 }
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "";
+
+async function getErrorMessage(
+  response: Response,
+  fallback: string
+): Promise<string> {
+  const error = await response.json().catch(() => null);
+  return error?.message ?? fallback;
+}
+
 export async function getShippingRates({
   page = 1,
   limit = 10,
@@ -41,6 +51,7 @@ export async function getShippingRates({
     limit: String(limit),
     sortBy,
     sortOrder,
+    country: "GH",
   });
 
   if (search.trim()) {
@@ -48,7 +59,7 @@ export async function getShippingRates({
   }
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/admin/shipping-rates?${params.toString()}`,
+    `${API_URL}/api/admin/shipping-rates?${params.toString()}`,
     {
       method: "GET",
       cache: "no-store",
@@ -56,25 +67,42 @@ export async function getShippingRates({
   );
 
   if (!response.ok) {
-    throw new Error("Failed to fetch shipping rates");
+    throw new Error(
+      await getErrorMessage(
+        response,
+        "Failed to fetch Ghana shipping rates"
+      )
+    );
   }
 
   return response.json();
 }
 
-export async function createShippingRate(data: ShippingRatePayload) {
+export async function createShippingRate(
+  data: ShippingRatePayload
+): Promise<ShippingRate> {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/admin/shipping-rates`,
+    `${API_URL}/api/admin/shipping-rates`,
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        location: data.location.trim(),
+        fee: data.fee,
+        isActive: data.isActive ?? true,
+      }),
     }
   );
 
   if (!response.ok) {
-    const error = await response.json().catch(() => null);
-    throw new Error(error?.message ?? "Failed to create shipping rate");
+    throw new Error(
+      await getErrorMessage(
+        response,
+        "Failed to create Ghana shipping rate"
+      )
+    );
   }
 
   return response.json();
@@ -83,39 +111,51 @@ export async function createShippingRate(data: ShippingRatePayload) {
 export async function updateShippingRate(
   id: string,
   data: ShippingRatePayload
-) {
+): Promise<ShippingRate> {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/admin/shipping-rates/${id}`,
+    `${API_URL}/api/admin/shipping-rates/${id}`,
     {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        location: data.location.trim(),
+        fee: data.fee,
+        isActive: data.isActive,
+      }),
     }
   );
 
   if (!response.ok) {
-    const error = await response.json().catch(() => null);
-    throw new Error(error?.message ?? "Failed to update shipping rate");
+    throw new Error(
+      await getErrorMessage(
+        response,
+        "Failed to update Ghana shipping rate"
+      )
+    );
   }
 
   return response.json();
 }
 
-export async function deleteShippingRate(id: string) {
+export async function deleteShippingRate(
+  id: string
+): Promise<{ message: string }> {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/admin/shipping-rates/${id}`,
+    `${API_URL}/api/admin/shipping-rates/${id}`,
     {
       method: "DELETE",
     }
   );
 
   if (!response.ok) {
-    const error = await response.json().catch(() => null);
-    throw new Error(error?.message ?? "Failed to delete shipping rate");
-  }
-
-  if (response.status === 204) {
-    return { success: true };
+    throw new Error(
+      await getErrorMessage(
+        response,
+        "Failed to delete Ghana shipping rate"
+      )
+    );
   }
 
   return response.json();

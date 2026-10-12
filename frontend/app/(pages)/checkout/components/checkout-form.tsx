@@ -24,7 +24,7 @@ import { Loader2, ShoppingBag } from "lucide-react";
 import {
   getPublicShippingRates,
   type PublicShippingRate,
-} from "@/actions/shipping-rates"; // adjust path if needed
+} from "@/actions/shipping-rates.actions"; // adjust path if needed
 
 type UserData = {
   email: string;
@@ -94,11 +94,10 @@ export default function CheckoutForm({ user }: Props) {
       delivery.state.toLowerCase().trim()
   );
 
+  // Only added to the order total once the customer picks door delivery.
+  // The matched rate's fee is still shown in the shipping section beforehand.
   const shippingFee =
     shippingMethod === "delivery" ? matchedRate?.fee ?? 0 : 0;
-
-  const isDeliveryAvailable =
-    shippingMethod === "pickup" || Boolean(matchedRate);
 
   // ===== Load user addresses =====
   useEffect(() => {
@@ -306,7 +305,7 @@ export default function CheckoutForm({ user }: Props) {
   return (
     <form onSubmit={handleSubmit}>
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_380px] lg:gap-12">
-        <div className="space-y-5 sm:space-y-6">
+        <div className="min-w-0 space-y-5 sm:space-y-6">
           <ContactSection
             data={contact}
             onChange={handleContactChange}
@@ -323,9 +322,9 @@ export default function CheckoutForm({ user }: Props) {
           <ShippingMethodSection
             method={shippingMethod}
             onChange={setShippingMethod}
-            shippingFee={shippingFee}
+            deliveryFee={matchedRate?.fee}
+            selectedRegion={delivery.state}
             priceFormatter={priceFormatter}
-            isDeliveryAvailable={isDeliveryAvailable}
             matchedLocation={matchedRate?.location}
           />
 
@@ -340,16 +339,14 @@ export default function CheckoutForm({ user }: Props) {
             className="btn-primary w-full disabled:opacity-50"
           >
             {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 inline-block size-4 animate-spin" />
-              </>
+              <Loader2 className="inline-block size-4 animate-spin" />
             ) : (
               "Pay now"
             )}
           </button>
         </div>
 
-        <div>
+        <div className="min-w-0">
           <OrderSummary shippingFee={shippingFee} />
         </div>
       </div>

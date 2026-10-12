@@ -1,9 +1,14 @@
+
 import { NextRequest, NextResponse } from "next/server";
+import mongoose from "mongoose";
+
 import connectDB from "@/lib/mongodb";
 import ShippingRate from "@/models/ShippingRate";
 
+const GHANA_CODE = "GH";
+
 export async function GET(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -11,11 +16,21 @@ export async function GET(
 
     const { id } = await params;
 
-    const rate = await ShippingRate.findById(id).lean();
+    if (!mongoose.isValidObjectId(id)) {
+      return NextResponse.json(
+        { message: "Invalid shipping rate ID" },
+        { status: 400 }
+      );
+    }
+
+    const rate = await ShippingRate.findOne({
+      _id: id,
+      country: GHANA_CODE,
+    }).lean();
 
     if (!rate) {
       return NextResponse.json(
-        { message: "Shipping rate not found" },
+        { message: "Ghana shipping rate not found" },
         { status: 404 }
       );
     }
@@ -23,6 +38,7 @@ export async function GET(
     return NextResponse.json(rate, { status: 200 });
   } catch (error) {
     console.error("GET /api/admin/shipping-rates/[id] error:", error);
+
     return NextResponse.json(
       { message: "Failed to fetch shipping rate" },
       { status: 500 }
@@ -38,59 +54,128 @@ export async function PUT(
     await connectDB();
 
     const { id } = await params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return NextResponse.json(
+        { message: "Invalid shipping rate ID" },
+        { status: 400 }
+      );
+    }
+
     const body = await request.json();
-    const { location, fee, country, isActive } = body;
 
-    if (location !== undefined && !location.trim()) {
-      return NextResponse.json(
-        { message: "Location cannot be empty" },
-        { status: 400 }
-      );
-    }
+    const { location, fee, isActive } = body;
 
-    if (fee !== undefined && fee < 0) {
-      return NextResponse.json(
-        { message: "Fee cannot be negative" },
-        { status: 400 }
-      );
-    }
+    const updates: {
+      location?: string;
+      fee?: number;
+      country?: string;
+      isActive?: boolean;
+    } = {};
 
-    // Prevent duplicate location names
-    if (location) {
-      const exists = await ShippingRate.findOne({
-        location: location.trim(),
-        _id: { $ne: id },
-      });
-
-      if (exists) {
+    if (location !== undefined) {
+      if (
+        typeof location !== "string" ||
+        !location.trim()
+      ) {
         return NextResponse.json(
-          { message: "This location already exists" },
+          { message: "Please provide a valid delivery location" },
           { status: 400 }
         );
       }
+
+      updates.location = location.trim();
     }
 
-    const updatedRate = await ShippingRate.findByIdAndUpdate(
-      id,
-      {
-        ...(location && { location: location.trim() }),
-        ...(fee !== undefined && { fee }),
-        ...(country && { country }),
-        ...(isActive !== undefined && { isActive }),
-      },
-      { new: true, runValidators: true }
-    );
+    if (fee !== undefined) {
+      if (
+        typeof fee !== "number" ||
+        !Number.isFinite(fee) ||
+        fee < 0
+      ) {
+        return NextResponse.json(
+          { message: "Please provide a valid non-negative delivery fee" },
+          { status: 400 }
+        );
+      }
 
-    if (!updatedRate) {
+      updates.fee = fee;
+    }
+
+    if (isActive !== undefined) {
+      if (typeof isActive !== "boolean") {
+        return NextResponse.json(
+          { message: "isActive must be a boolean" },
+          { status: 400 }
+        );
+      }
+
+      updates.isActive = isActive;
+    }
+
+    // Never allow this Ghana-only rate to be changed to another country.
+    updates.country = GHANA_CODE;
+
+    const currentRate = await ShippingRate.findOne({
+      _id: id,
+      country: GHANA_CODE,
+    });
+
+    if (!currentRate) {
       return NextResponse.json(
-        { message: "Shipping rate not found" },
+        { message: "Ghana shipping rate not found" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json(updatedRate, { status: 200 });
+    // Prevent duplicate Ghana delivery locations.
+    if (updates.location) {
+      const existingRate = await ShippingRate.findOne({
+        country: GHANA_CODE,
+        location: {
+          $regex: new RegExp(
+            `^${updates.location.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+            "i"
+          ),
+        },
+        _id: { $ne: id },
+      });
+
+      if (existingRate) {
+        return NextResponse.json(
+          { message: "This Ghana delivery location already exists" },
+          { status: 409 }
+        );
+      }
+    }
+
+    Object.assign(currentRate, updates);
+
+    await currentRate.save();
+
+    return NextResponse.json(currentRate, { status: 200 });
   } catch (error) {
+    if (
+      error instanceof mongoose.Error.ValidationError
+    ) {
+      return NextResponse.json(
+        { message: error.message },
+        { status: 400 }
+      );
+    }
+
+    if (
+      error instanceof mongoose.mongo.MongoServerError &&
+      error.code === 11000
+    ) {
+      return NextResponse.json(
+        { message: "This Ghana delivery location already exists" },
+        { status: 409 }
+      );
+    }
+
     console.error("PUT /api/admin/shipping-rates/[id] error:", error);
+
     return NextResponse.json(
       { message: "Failed to update shipping rate" },
       { status: 500 }
@@ -99,7 +184,7 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -107,21 +192,32 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const deletedRate = await ShippingRate.findByIdAndDelete(id);
+    if (!mongoose.isValidObjectId(id)) {
+      return NextResponse.json(
+        { message: "Invalid shipping rate ID" },
+        { status: 400 }
+      );
+    }
+
+    const deletedRate = await ShippingRate.findOneAndDelete({
+      _id: id,
+      country: GHANA_CODE,
+    });
 
     if (!deletedRate) {
       return NextResponse.json(
-        { message: "Shipping rate not found" },
+        { message: "Ghana shipping rate not found" },
         { status: 404 }
       );
     }
 
     return NextResponse.json(
-      { message: "Shipping rate deleted successfully" },
+      { message: "Ghana shipping rate deleted successfully" },
       { status: 200 }
     );
   } catch (error) {
     console.error("DELETE /api/admin/shipping-rates/[id] error:", error);
+
     return NextResponse.json(
       { message: "Failed to delete shipping rate" },
       { status: 500 }
