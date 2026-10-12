@@ -4,12 +4,14 @@ import ShippingRate from "@/models/ShippingRate";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
 
-    const rate = await ShippingRate.findById(params.id).lean();
+    const { id } = await params;
+
+    const rate = await ShippingRate.findById(id).lean();
 
     if (!rate) {
       return NextResponse.json(
@@ -30,11 +32,12 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
 
+    const { id } = await params;
     const body = await request.json();
     const { location, fee, country, isActive } = body;
 
@@ -56,7 +59,7 @@ export async function PUT(
     if (location) {
       const exists = await ShippingRate.findOne({
         location: location.trim(),
-        _id: { $ne: params.id },
+        _id: { $ne: id },
       });
 
       if (exists) {
@@ -68,7 +71,7 @@ export async function PUT(
     }
 
     const updatedRate = await ShippingRate.findByIdAndUpdate(
-      params.id,
+      id,
       {
         ...(location && { location: location.trim() }),
         ...(fee !== undefined && { fee }),
@@ -97,12 +100,14 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await connectDB();
 
-    const deletedRate = await ShippingRate.findByIdAndDelete(params.id);
+    const { id } = await params;
+
+    const deletedRate = await ShippingRate.findByIdAndDelete(id);
 
     if (!deletedRate) {
       return NextResponse.json(
